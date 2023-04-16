@@ -109,58 +109,68 @@ def norm(num,x):
   return x if x=="?" else (x - num.lo)/(num.hi - num.lo + 1/inf)
 
 def constrasts(data1,data2):
+  "Unsupervised discretization (for NUMs into `the.bins)
+  out = []
   for row in data1.rows: row.y= True
   for row in data2.rows: row.y= False
-  data12 = data(data1, data1.rows+ data2.rows)
-  for col in data12.cols.x):
+  for col in data(data1, data1.rows + data2.rows).cols.x
     tmp  = []
     here = lambda row:row.cells[col.at]
     rows = [row for row in data.rows if here(row) != "?"]
-    for row in sorted(rows,key=here):
+    for row in sorted(rows, key=here):
       x = here(row)
-      k = (col.at, bin(col, x))
+      k = bin(col, x)
       if k not in tmp: tmp[k] = BIN(col1.at, x)
       tmp[k].rows += [row]
       tmp[k].lo = min(tmp[k].lo, x)
       tmp[k].hi = max(tmp[k].hi, x)
       add(tmp[k].y, row.y)
     tmp =sorted([bin for bin in tmp.values()], key=lambda b:b.lo)
-    out += merges(col, tmp)
+    out += fillInTheGaps(merges(col, tmp))
 
 def bin(col,x):
+  "Return `x` if it is a SYM, else round it to some factor of bin nums."
   if col.ako is SYM: return x
   tmp = (col.hi - col.lo)/(the.bins - 1)
   return 1 if col.hi == col.lo else int(x/tmp + .5)*tmp
 
 def merges(col,b4):
+  "Find  adjacent bins that can merge. Merge them. Look for others.",
   if col.ako is SYM: return b4
   eps  = div(col)*the.cohen
   tiny = col.n/the.bins
   i,now = 0,[]
   while i < len(b4):
     a = b4[i]
-    if i < len(b) - 1:
+    if i < len(b4) - 1:
       b = b4[i+1]
-      if c := merged(a, b, eps,tiny)
+      if c := merged(a,b,eps,tiny)
         a = c
         i += 1
     now += [a]
     i += 1
-  return fillIntTheGaps(b4) if len(b4)==len(now) else merges(col,now)
+  return b4 if len(b4)==len(now) else merges(col,now)
 
 def merged(a,b,eps,tiny):
-  c    = deepcopy(a)
-  c.lo = min(c.lo, b.lo)
-  c.hi = max(c.hi, b.hi)
-  for s,n in b.has.items(): add(c.y, s,n)
+  "Sometimes return the merge of two bins, if that merge is useful."
+  c = merge(a,b)
   if a.hi - a.lo < eps or b.hi - b.lo < eps: return c
-  if a.n < tiny or b.n < tiny              : return c
-  if div(c.y) <= xpect(a.y,b.y,div)        : return c
+  if a.y.n < tiny or b.y.n < tiny          : return c
+  if div(c.y) <= xpect(a.y, b.y, div)      : return c
 
-def fillInTheGaps(a):
-  a[0].lo, a[-1].hi = -inf, inf
-  for i in range(len(a)-1): a[i].hi = a[i+1].lo
-  return a
+def merge(bin1,bin2):
+  "Always run the merge of two bin."
+  bin12    = deepcopy(bin1)
+  bin12.lo = min(bin12.lo, bin2.lo)
+  bin12.hi = max(bin12.hi, bin2.hi)
+  for s,n in bin2.has.items(): add(bin12.y, s,n)
+  return bin12
+
+def fillInTheGaps(bins):
+  "Extend bins to plus/minus infinity; remove any blank space between bins."
+  bins[0].lo, bins[-1].hi = -inf, inf
+  for i in range(len(bins)-1): bins[i].hi = bins[i+1].lo
+  return bins
 
 def want(b,r,B,R):
   b,r = b/(B+1/inf),r/(R+1/inf)
