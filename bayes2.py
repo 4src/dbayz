@@ -11,6 +11,7 @@ class obj(object):
 def COL(txt=" ",  at=0, data=None):
    col = (NUM if txt[0].isupper() else SYM)(txt=txt,at=at)
    if data and txt[-1] != "X":
+     data.all += [col]
      (data.y if txt[-1] in "-+" else data.x).append(col)
    return col
 
@@ -21,19 +22,19 @@ def NUM(txt=" ",at=0):
   return obj(at=at, txt=txt, n=0, mu=0 ,m2=0, sd=0,isNum=True,
              lo=inf, hi=- inf, w=-1 if txt[-1]=="-" else 1)
 
-def clone(data,rows=[]):
-  return adds(rows, adds([data1.names]))
-
-def DATA(src,data=None):
-  data = data or obj(rows=[],  names=[], all=[], x=[], y=[])
+def DATA(data=None, src=[]):
+  data = data or obj(rows=[], names=[], all=[], x=[], y=[])
   for row in src:
-    if data.all:
-      [add(col,row[col.at]) for col in data.all]
+    if data.names:
+      for col in data.all: add(col,row[col.at])
       data.rows += [row]
     else:
       data.names= row
-      data.all = [COL(txt,at,data) for at,txt in enumerate(row)]
+      for at,txt in enumerate(row): COL(txt,at,data) 
   return data
+
+def clone(data,rows=[]):
+  return DATA(DATA([data.names]),rows)
 
 def add(col,x):
   if x == "?": return
