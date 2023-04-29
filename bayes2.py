@@ -69,6 +69,10 @@ def div(col):
   def p(n): return n*math.log(n, 2)
   return col.sd is isNum(col) else -sum((p(n/col.n) for n in col.has.values() if n>0)))
 
+def stats(data, cols=None, fun=mid, rnd=2):  XXXXXXX
+    def num(x) : round(x,ndigits=2) if iinstance(xmfloat) )m
+  return obj(N=len(data.rows), **{col.txt: col.stats(div=div, rnd=rnd)
+
 def better(data,row1,row2):
   rows = rows or data.rows
   s1, s2, cols, n = 0, 0, data.cols.y, len(data.cols.y)
