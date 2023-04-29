@@ -29,12 +29,12 @@ def DATA(data=None, src=[]):
       for col in data.all: add(col,row[col.at])
       data.rows += [row]
     else:
-      data.names= row
-      for at,txt in enumerate(row): COL(txt,at,data) 
+      data.names = row
+      for at,txt in enumerate(row): COL(txt,at,data)
   return data
 
 def clone(data,rows=[]):
-  return DATA(DATA([data.names]),rows)
+  return DATA(data=DATA(src=[data.names]),src=rows)
 
 def add(col,x):
   if x == "?": return
@@ -50,9 +50,15 @@ def add(col,x):
     tmp = col.has[x] = 1 + col.has.get(x,0)
     if tmp >  col.most: col.most, col.mode = tmp,x
 
+def stats(data,mid=True,cols=None):
+    def rnd(n): return round(n, ndigits=3)
+    def f(c):
+      return (rnd(c.mu) if c.isNum else c.mode) if mid else rnd(c.sd if c.isNum else ent(c.has))
+    return obj(N=len(data.rows) , **{col.txt:f(col) for col in cols or data.y})
+
 def ordered(data,rows=[]):
   return sorted(rows or data.rows,
-                key=cmp2key(lambda r1,r2: better(data,r1,r2)))
+                key=cmp2key(lambda r1,r2: better(data,r2,r1)))
 
 def better(data,row1,row2):
   s1, s2,  n = 0, 0, len(data.y)
@@ -66,6 +72,10 @@ def norm(col,x):
   return (x - col.lo) / (col.hi - col.lo + 1/inf)
 
 #---------------------------------------------------------------------------------------------------
+def ent(d):
+  N = sum([d[k] for k in d])
+  return - sum([k[d]/N*math.log(k[d]/N,2) for k in d])
+
 def show(x):
   if callable(x)         : return x.__name__+'()'
   if isinstance(x,float) : return f"{x:.2f}"
@@ -84,8 +94,11 @@ def csv(file):
 #---------------------------------------------------------------------------------------------------
 def main(Repeats=1, ja=23,file="../data/auto93.csv"):
   """Simple rule generation"""
-  data = DATA(csv(file))
-  print(data.y)
-  ordered(data)
+  data = DATA(src=csv(file))
+  rows = ordered(data)
+  print(data.names)
+  print("all ",stats(data))
+  print("best",stats(clone(data,rows[30:])))
+  print("rest",stats(clone(data,rows[:30])))
 
 if __name__ == "__main__": fire.Fire(main)
