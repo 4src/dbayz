@@ -14,9 +14,10 @@ def main(seed       = 1234567891,
          Cliffs     = .147,
          want       = "plan"):
   """bayes2.pl : Simple rule generation"""
-  print(the)
-  sys.exit(sum([run(eg,the) for eg in egs
-                if (the.go=="." or the.go==eg.__name__)]))
+  global the,fun
+  the = obj(seed=seed, go=go, p=p, bins=bins, file=file, want=want,
+            Cohen=Cohen, Bootstraps=Bootstraps, Cliffs=Cliffs)
+  sys.exit(sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)]))
 
 #----------------------------------------------------
 class obj(object):
@@ -24,10 +25,6 @@ class obj(object):
   def __repr__(self):
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
-
-the=dict(**{k:v for k,v in zip(main.__code__.co_varnames, main.__defaults__)})
-print(dict)
-
 
 def COL(txt=" ",  at=0, data=None):
    col = (NUM if txt[0].isupper() else SYM)(txt=txt,at=at)
