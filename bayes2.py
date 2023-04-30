@@ -4,20 +4,32 @@ from termcolor import colored
 from copy import deepcopy
 import random,math,fire,sys,ast,re
 
-def main(seed       = 1234567891,
-         go         = "nothing",
-         p          = 2,
-         bins       = 16,
-         file       = "../data/auto93.csv",
-         Cohen      = .35,
+def main(
          Bootstraps = 512,
          Cliffs     = .147,
-         want       = "plan"):
-  """bayes2.pl : Simple rule generation"""
-  global the,fun
+         Cohen      = .35,
+         best       = .5,
+         bins       = 16,
+         file       = "../data/auto93.csv",
+         go         = "nothing",
+         p          = 2,
+         rest       = 4,
+         want       = "plan",
+         seed       = 1234567891
+         ):
+  """bayes2.pl : Simple rule generation
+
+  (c) 2023, Tim Menzies <timm@ieee.org>, BSD-2
+
+  N rows of Data are ranked via a multi-objective domination predicate
+  and then discretized, favoring ranges that distinguish the best
+  (N^best) items from a sample of the rest*(N^best)."""
+  global the
   the = obj(seed=seed, go=go, p=p, bins=bins, file=file, want=want,
+            best=best,rest=rest,
             Cohen=Cohen, Bootstraps=Bootstraps, Cliffs=Cliffs)
-  sys.exit(sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)]))
+  sys.exit(sum([run(eg,the) for eg in egs
+                if (the.go=="." or the.go==eg.__name__)]))
 
 #----------------------------------------------------
 class obj(object):
@@ -79,8 +91,8 @@ def stats(data,mid=True,cols=None):
   return obj(N=len(data.rows) , **{col.txt:f(col) for col in cols or data.y})
 
 #----------------------------------------------------
-def around(data,row1, rows=None):
-  return sorted([(dist(data,r1,r2),r2) for r1 in rows or data.rows])
+def around(data,row, rows=None):
+  return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=lambda x:x[0])
 
 def dist(data,row1,row2):
   d = sum((aha(col,row1[col.at],row2[col.at])**the.p for col in data.x))
@@ -313,6 +325,13 @@ def dists():
     if not (0 <= d <= 1): return False
 
 @eg
+def arounds():
+  data = DATA(src=csv(the.file))
+  print("0.000",data.rows[0])
+  for d,r in around(data,data.rows[0])[::50]:
+    print(f"{d:.3f}",r)
+
+@eg
 def sorter():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
@@ -326,8 +345,10 @@ def sorter():
 def const():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
-  best = clone(data,rows[-30:])
-  rest = clone(data,random.sample(rows[:-30],120))
+  b = int(len(data.rows)**the.best)
+  r = b*the.rest
+  best = clone(data,rows[-b:])
+  rest = clone(data,random.sample(rows[:-b],r))
   print("\nall ", stats(data))
   print("best", stats(best))
   print("rest", stats(rest))
