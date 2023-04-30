@@ -25,7 +25,8 @@ class obj(object):
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
 
-the=obj(**{k:v for k,v in zip(main.__code__.co_varnames, main.__defaults__)})
+the=dict(**{k:v for k,v in zip(main.__code__.co_varnames, main.__defaults__)})
+print(dict)
 
 
 def COL(txt=" ",  at=0, data=None):
