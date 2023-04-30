@@ -9,12 +9,13 @@ def main(seed       = 1234567891,
          p          = 2,
          bins       = 16,
          file       = "../data/auto93.csv",
-         Cohen      = .2,
+         Cohen      = .35,
          Bootstraps = 512,
-         Cliffs     = .147 ):
+         Cliffs     = .147,
+         want       = "plan"):
   """bayes2.pl : Simple rule generation"""
   global the,fun
-  the = obj(seed=seed, go=go, p=p, bins=bins, file=file,
+  the = obj(seed=seed, go=go, p=p, bins=bins, file=file, want=want,
             Cohen=Cohen, Bootstraps=Bootstraps, Cliffs=Cliffs)
   sys.exit(sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)]))
 
@@ -113,8 +114,9 @@ def better(data,row1,row2):
   return s1 / n < s2 / n
 
 #---------------------------------------------------------------------------------------------------
-def BIN(at=0,txt=" ",lo=None,hi=None):
-  return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo, n=0, rows=[], ys={}, score=0)
+def BIN(at=0,txt=" ",lo=None,hi=None,B=0,R=0):
+  return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo,
+             n=0, rows=[], ys={}, score=0, B=B, R=R)
 
 def binAdd(bin, x, y, row):
   bin.n    += 1
@@ -126,7 +128,9 @@ def binAdd(bin, x, y, row):
 
 def merge(bin1, bin2):
   """Merge two adjacent bins."""
-  out = BIN(at=bin1.at, txt=bin1.txt, lo=bin1.lo, hi=bin2.hi)
+  out = BIN(at=bin1.at, txt=bin1.txt, 
+            lo=bin1.lo, hi=bin2.hi,
+            B = bin1.B, R=bin2.R)
   out.rows = bin1.rows + bin2.rows
   out.n = bin1.n + bin2.n
   for d in [bin1.ys, bin2.ys]:
@@ -138,14 +142,10 @@ def merged(bin1,bin2,num):
   out   = merge(bin1,bin2)
   small = num.n / the.bins
   eps   = num.sd*the.Cohen
-  if bin1.txt=="Model-": print(bin1.n,bin2.n,eps)
   if bin1.n <= small or bin1.hi - bin1.lo < eps : return out
   if bin2.n <= small or bin2.hi - bin2.lo < eps : return out
   e1, e2, e3 = ent(bin1.ys), ent(bin2.ys), ent(out.ys)
-  # print(bin1.txt, e1, bin1.ys)
-  # print(bin2.txt, e2, bin2.ys)
-  # print(out.txt,  e3, out.ys)
-  if e3 <= (bin1.n*e1 + bin2.n*e2)/out.n : return out
+  if e3 < (bin1.n*e1 + bin2.n*e2)/out.n : return out
 
 #---------------------------------------------------------------------------------------------------
 def discretize(col,x):
@@ -157,17 +157,29 @@ def discretize(col,x):
 
 def contrasts(data1,data2):
   data12 = clone(data1, data1.rows + data2.rows)
-  print("n",len(data12.rows))
   for col in data12.x:
     bins = {}
     for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
       for row in rows:
         x = row[col.at]
         if z := discretize(col, x):
-          if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x)
+          if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x,
+                                          B=len(data1.rows), R=len(data2.rows))
           binAdd(bins[z], x, klass, row)
-    for bin in merges(col, list(bins.values())):
-      yield bin
+    for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo)):
+      yield value(bin, col)
+
+def value(bin,col):
+  bin.score = want(bin.ys.get("best",0), bin.ys.get("rest",0), bin.B, bin.R)
+  return bin
+
+def want(b,r,B,R):
+  b, r = b/(B + 1/inf), r/(R + 1/inf)
+  match the.want:
+    case "plan":    return b**2/(b+r)
+    case "monitor": return r**2/(b+r)
+    case "xplore":  return 1/(b+r)
+    case "doubt":   return (b+r)/abs(b - r)
 
 def merges(col,bins):
   if not col.isNum: return bins
@@ -188,6 +200,18 @@ def loopWhileMerging(a, col):
     j += 1
   return a if len(a) == len(b) else loopWhileMerging(b, col)
 
+#---------------------------------------------------------------------------------------------------
+def rules(data1,data2):
+  bins = [bin for bin in contrast(data1,data2)]
+  bins = sorted(bins, key=lambda z:z.score, reverse=True)[:8]
+  print([bin.score for bin in bins])
+  for rule in powerset(bins):
+    evaluate(rule)
+  return bins
+
+def evalute(rule):
+  cols={}
+  for 
 #---------------------------------------------------------------------------------------------------
 inf = 1E60
  
@@ -218,6 +242,11 @@ def csv(file):
 
 def sample(a):
   return random.choices(a,k=len(a))
+
+def powerset(s):
+  r = [[]]
+  for e in s: r += [x+[e] for x in r]
+  return r
 
 def different(x,y):
   return cliffsDelta(x,y) and bootstrap(x,y)
@@ -301,14 +330,14 @@ def const():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
   best = clone(data,rows[-30:])
-  rest = clone(data,random.sample(rows[:-30],90))
+  rest = clone(data,random.sample(rows[:-30],120))
   print("\nall ", stats(data))
   print("best", stats(best))
   print("rest", stats(rest))
   b4=None
   for bin in contrasts(best,rest): 
     if bin.txt != b4: print("")
-    print(bin.txt, bin.lo, bin.hi,bin.ys)
+    print(bin.txt, bin.lo, bin.hi, bin.ys, f"{bin.score:.2f}")
     b4 = bin.txt
 
 if __name__ == "__main__": fire.Fire(main)
