@@ -1,35 +1,50 @@
 #!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
+"""
+dbayes2.py: look a little, catch some good stuff
+(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+
+              O  o
+         _\_   o
+      \\/   o\ .
+      //\___=
+         ''
+USAGE:
+
+      ./dbayes2.py [OPTIONS] [-g ACTIONs]
+
+DESCRIPTION:
+
+N rows of Data are ranked via a multi-objective domination predicate
+and then discretized, favoring ranges that distinguish the best
+(N^best) items from a sample of the rest*(N^best)
+
+OPTIONS:
+
+      -b  --bins    number of bins                         = 16
+      -B  --Bootstraps number of bootstap samples           = 512
+      -C  --Cohen   'not different' if under the.cohen*sd  = .2
+      -c  --cliffs  Cliff's Delta limit                    = .147
+      -f  --file    data csv file                          = ../data/auto93.csv
+      -g  --go      start up action                        = nothing
+      -h  --help    show help                              = False
+      -m  --min     on N items, recurse down to N**min     = .5
+      -n  -n        explore all subsets of top ''n bins    = 7
+      -p  --p       distance exponent                      = 2
+      -r  --rest    expand to (N**min)**rest               = 4
+      -s  --seed    random number seed                     = 1234567891
+      -S  --Some    max items kept in SOME                 = 256
+      -w --want     goal: plan,watch,xplore,doubt          = plan
+"""
 from functools import cmp_to_key as cmp2key
 from termcolor import colored
 from copy import deepcopy
-import random,math,fire,sys,ast,re
+import random,math,sys,ast,re
 
-def main(
-         Bootstraps = 512,
-         Cliffs     = .147,
-         Cohen      = .35,
-         best       = .5,
-         bins       = 16,
-         file       = "../data/auto93.csv",
-         go         = "nothing",
-         p          = 2,
-         rest       = 4,
-         want       = "plan",
-         seed       = 1234567891
-         ):
-  """bayes2.pl : Simple rule generation
-
-  (c) 2023, Tim Menzies <timm@ieee.org>, BSD-2
-
-  N rows of Data are ranked via a multi-objective domination predicate
-  and then discretized, favoring ranges that distinguish the best
-  (N^best) items from a sample of the rest*(N^best)."""
-  global the
-  the = obj(seed=seed, go=go, p=p, bins=bins, file=file, want=want,
-            best=best,rest=rest,
-            Cohen=Cohen, Bootstraps=Bootstraps, Cliffs=Cliffs)
-  sys.exit(sum([run(eg,the) for eg in egs
-                if (the.go=="." or the.go==eg.__name__)]))
+def main():
+  def bold(s): return s #colored(s,"light_yellow",attrs="bold")
+  if the.help:
+    print(re.sub("([A-Z][A-Z]*| \-[\S])+S",__doc__))
+  sys.exit(sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)]))
 
 #----------------------------------------------------
 class obj(object):
@@ -37,6 +52,15 @@ class obj(object):
   def __repr__(self):
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
+
+def THE(cli=True):
+  def update(k,v):
+    for i,x in enumerate(sys.argv):
+      if ("-"+k[0]) == x or ("--"+k) == x:
+        v="False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
+    return v
+  return obj(**{m[1]:coerce(update(m[1],m[2]) if cli else m[2])
+             for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)})
 
 def COL(txt=" ",  at=0, data=None):
    col = (NUM if txt[0].isupper() else SYM)(txt=txt,at=at)
@@ -358,4 +382,7 @@ def const():
     print(bin.txt, bin.lo, bin.hi, bin.ys, f"{bin.score:.2f}")
     b4 = bin.txt
 
-if __name__ == "__main__": fire.Fire(main)
+#------------------------------------------------------------------------------
+the = THE(cli = (__name__ == "__main__"))
+print(the)
+main()
