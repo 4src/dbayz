@@ -1,37 +1,28 @@
 #!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
 """
-SYNOPSIS:
-    dbayes2.py: look a little, catch some good stuff
-    (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
-
-              O  o
-         _\_   o
-      \\/   o\ .
-      //\___=
-         ''
-USAGE:
-    ./dbayes2.py [OPTIONS] [-g ACTIONS]
-
-DESCRIPTION:
-    N rows of Data are ranked via a multi-objective domination predicate
-    and then discretized, favoring ranges that distinguish the best
-    (N^best) items from a sample of the rest*(N^best)
+WHAT: bayes2.py: look a little, catch some good stuff
+WHO:  (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
+HOW:  ./dbayes2.py [OPTIONS] [-g ACTIONS]
+WHY:  Use to find best regions within rows of data with multiple objectives.
+      N rows of data are ranked via a multi-objective domination predicate
+      and then discretized, favoring ranges that distinguish the best
+      (N^min) items from a sample of the rest*(N^min)
 
 OPTIONS:
-    -b  --bins    number of bins                         = 16
-    -B  --Bootstraps number of bootstap samples           = 512
-    -C  --Cohen   'not different' if under the.cohen*sd  = .2
-    -c  --cliffs  Cliff's Delta limit                    = .147
-    -f  --file    data csv file                          = ../data/auto93.csv
-    -g  --go      start up action                        = nothing
-    -h  --help    show help                              = False
-    -m  --min     on N items, recurse down to N**min     = .5
-    -n  --n       explore all subsets of top ''n bins    = 7
-    -p  --p       distance exponent                      = 2
-    -r  --rest    expand to (N**min)**rest               = 4
-    -s  --seed    random number seed                     = 1234567891
-    -S  --Some    max items kept in Some                 = 256
-    -w --want     goal: plan,watch,xplore,doubt          = plan
+      -b  --bins    max number of bins                     = 16
+      -B  --Bootstraps number of bootstrap samples         = 512
+      -C  --Cohen   'not different' if under the.cohen*sd  = .2
+      -c  --cliffs  Cliff's Delta limit                    = .147
+      -f  --file    data csv file                          = ../data/auto93.csv
+      -g  --go      start up action                        = nothing
+      -h  --help    show help                              = False
+      -m  --min     on N items, recurse down to N**min     = .5
+      -n  --n       explore all subsets of top ''n bins    = 7
+      -p  --p       distance exponent                      = 2
+      -r  --rest    expand to (N**min)**rest               = 4
+      -s  --seed    random number seed                     = 1234567891
+      -S  --Some    max items kept in Some                 = 256
+      -w  --want    goal: plan,watch,xplore,doubt          = plan
 """
 from functools import cmp_to_key as cmp2key
 from termcolor import colored
@@ -39,9 +30,11 @@ from copy import deepcopy
 import random,math,sys,ast,re
 
 def main():
-  def bold(m): return colored(m[1],"light_blue",attrs=["bold"])
-  if the.help: print(re.sub("([\n\s][A-Z][A-Z]+\w| [-][-]?[\S]+)",bold,__doc__))
-  sys.exit(sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)]))
+  if the.help:
+    print(re.sub("\n[A-Z][A-Z]+:", lambda m: colored(m[0],attrs=["bold"]),
+            re.sub(" [-][-]?[\S]+",lambda m: colored(m[0],"light_yellow"), __doc__)))
+  else:
+    return sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)])
 
 #----------------------------------------------------
 class obj(object):
@@ -50,14 +43,8 @@ class obj(object):
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
 
-def THE(cli=True):
-  def update(k,v):
-    for i,x in enumerate(sys.argv):
-      if ("-"+k[0]) == x or ("--"+k) == x:
-        v="False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
-    return v
-  return obj(**{m[1]:coerce(update(m[1],m[2]) if cli else m[2])
-             for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)", __doc__)})
+def THE(s):
+  return obj(**{m[1]:coerce(m[2]) for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
 def COL(txt=" ",  at=0, data=None):
    col = (NUM if txt[0].isupper() else SYM)(txt=txt,at=at)
@@ -244,13 +231,22 @@ def rules(data1,data2):
 
 #---------------------------------------------------------------------------------------------------
 inf = 1E60
- 
+
+def cli(d):
+  for k,v in d.items():
+    v= str(v)
+    for i,x in enumerate(sys.argv):
+      if ("-"+k[0]) == x or ("--"+k) == x:
+        v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
+    d[k] = coerce(v)
+  return d
+
 def yell(c,*s):
   print(colored(''.join(s),"light_"+c,attrs=["bold"]),end="")
 
 def ent(d):
   N = sum([d[k] for k in d])
-  return - sum([d[k]/N*math.log(d[k]/N,2) for k in d])
+  return - sum((n/N*math.log(n/N,2) for n in d.values()))
 
 def prin(*l): print(*l,end="")
 
@@ -323,7 +319,7 @@ egs=[]
 def eg(f): global egs; egs += [f]; return f
 
 @eg
-def they(): the.p=23; prin("",str(the)[:40])
+def they(): the.p=23; prin("",str(the)[:40],"...")
 
 @eg
 def andThen(): return the.p==2
@@ -366,7 +362,7 @@ def sorter():
 def const():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
-  b = int(len(data.rows)**the.best)
+  b = int(len(data.rows)**the.min)
   r = b*the.rest
   best = clone(data,rows[-b:])
   rest = clone(data,random.sample(rows[:-b],r))
@@ -380,6 +376,7 @@ def const():
     b4 = bin.txt
 
 #------------------------------------------------------------------------------
-the = THE(cli = (__name__ == "__main__"))
-print(the)
-main()
+the = THE(__doc__)
+if __name__ == "__main__":
+  the.__dict__ = cli(the.__dict__)
+  main()
