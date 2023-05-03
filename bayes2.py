@@ -1,8 +1,11 @@
 #!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
 """
 WHAT: bayes2.py: look a little, catch some good stuff
+
 WHO:  (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
+
 HOW:  ./dbayes2.py [OPTIONS] [-g ACTIONS]
+
 WHY:  Use to find best regions within rows of data with multiple objectives.
       N rows of data are ranked via a multi-objective domination predicate
       and then discretized, favoring ranges that distinguish the best
