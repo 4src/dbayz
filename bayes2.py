@@ -1,13 +1,10 @@
 #!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
 """
 SYNOPSIS: 
-    bayes2.py: look a little, catch some good stuff
+    bayes2: look around just a little, then find some good stuff
 
-COPYRIGHT:
-    (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
-
-USAGE:  
-    ./dbayes2.py [OPTIONS] [-g ACTIONS]
+USAGE:
+    ./bayes2.py [OPTIONS] [-g ACTIONS]
 
 DESCRIPTION:
     Use to find best regions within rows of data with multiple objectives.
@@ -18,7 +15,7 @@ DESCRIPTION:
 OPTIONS:
     -b  --bins    max number of bins                     = 16
     -B  --Bootstraps number of bootstrap samples         = 512
-    -C  --Cohen   'not different' if under the.cohen*sd  = .2
+    -C  --Cohen   'not different' if under the.cohen*sd  = .35
     -c  --cliffs  Cliff's Delta limit                    = .147
     -f  --file    data csv file                          = ../data/auto93.csv
     -g  --go      start up action                        = nothing
@@ -29,7 +26,10 @@ OPTIONS:
     -r  --rest    expand to (N**min)**rest               = 4
     -s  --seed    random number seed                     = 1234567891
     -S  --Some    max items kept in Some                 = 256
-    -w  --want    goal: plan,watch,xplore,doubt          = plan
+    -w  --want    mitigate,operate,monitor,xplore,xtend  = mitigate
+
+COPYRIGHT:
+    (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
 """
 from functools import cmp_to_key as cmp2key
 from termcolor import colored
@@ -39,13 +39,16 @@ import random,math,sys,ast,re
 def main():
   if the.help:
     print(re.sub("\n[A-Z][A-Z]+:", lambda m: colored(m[0],attrs=["bold"]),
-            re.sub(" [-][-]?[\S]+",lambda m: colored(m[0],"light_yellow"), __doc__)))
+            re.sub(" [-][-]?[\S]+",lambda m: colored(m[0],"light_yellow"),
+               __doc__)))
   else:
     return sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)])
 
 #----------------------------------------------------
 class obj(object):
-  def __init__(self, **d): self.__dict__.update(**d)
+  oid=0
+  def __init__(self,**d):  obj.oid+=1; self.__dict__.update(oid=obj.oid,**d)
+  def __hash__(self): return self.oid
   def __repr__(self):
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
@@ -100,10 +103,11 @@ def add(col,x,inc=1):
     if tmp >  col.most: col.most, col.mode = tmp,x
 
 def stats(data,mid=True,cols=None):
-  def rnd(n): return round(n, ndigits=3)
-  def f(c):
-    return (rnd(c.mu) if c.isNum else c.mode) if mid else rnd(c.sd if c.isNum else ent(c.has))
-  return obj(N=len(data.rows) , **{col.txt:f(col) for col in cols or data.y})
+  def fun(col)      : return (middle if mid else diversity)(col)
+  def rnd(n)        : return round(n, ndigits=3) if isinstance(n,(float,int)) else n
+  def middle(col)   : return col.mu if col.isNum else col.mode
+  def diversity(col): return col.sd if col.isNum else ent(col.has)
+  return obj(N=len(data.rows), **{col.txt:rnd(fun(col)) for col in (cols or data.y)})
 
 #----------------------------------------------------
 def around(data,row, rows=None):
@@ -127,7 +131,6 @@ def norm(col,x):
   return (x - col.lo) / (col.hi - col.lo + 1/inf)
 
 #----------------------------------------------------
-
 def ordered(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp2key(lambda r1,r2: better(data,r1,r2)))
@@ -143,35 +146,39 @@ def better(data,row1,row2):
 #---------------------------------------------------------------------------------------------------
 def BIN(at=0,txt=" ",lo=None,hi=None,B=0,R=0):
   return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo,
-             n=0, rows=[], ys={}, score=0, B=B, R=R)
+             n=0, ys={}, score=0, B=B, R=R)
 
 def binAdd(bin, x, y, row):
-  bin.n    += 1
-  bin.rows += [row]
-  bin.lo    = min(bin.lo, x)
-  bin.hi    = max(bin.hi, x)
-  bin.ys[y] = 1 + bin.ys.get(y,0)
+  bin.n     += 1
+  bin.lo     = min(bin.lo, x)
+  bin.hi     = max(bin.hi, x)
+  bin.ys[y]  = bin.ys.get(y,[]) 
+  bin.ys[y] += [row]
   return bin
+
+def binEnt(bin):
+  def p(n): return n*math.log(n,2)
+  return -sum((p(len(lst)/bin.n) for lst in bin.ys.values()))
 
 def merge(bin1, bin2):
   """Merge two adjacent bins."""
-  out = BIN(at=bin1.at, txt=bin1.txt, 
+  out = BIN(at=bin1.at, txt=bin1.txt,
             lo=bin1.lo, hi=bin2.hi,
-            B = bin1.B, R=bin2.R)
-  out.rows = bin1.rows + bin2.rows
+            B=bin1.B, R=bin2.R)
   out.n = bin1.n + bin2.n
   for d in [bin1.ys, bin2.ys]:
     for key in d:
-      out.ys[key] = d[key] + out.ys.get(key,0)
+      out.ys[key]  = out.ys.get(key,[])
+      out.ys[key] += d[key]
   return out
 
 def merged(bin1,bin2,num):
   out   = merge(bin1,bin2)
-  small = num.n / the.bins
   eps   = num.sd*the.Cohen
+  small = num.n / the.bins
   if bin1.n <= small or bin1.hi - bin1.lo < eps : return out
   if bin2.n <= small or bin2.hi - bin2.lo < eps : return out
-  e1, e2, e3 = ent(bin1.ys), ent(bin2.ys), ent(out.ys)
+  e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
   if e3 < (bin1.n*e1 + bin2.n*e2)/out.n : return out
 
 #---------------------------------------------------------------------------------------------------
@@ -197,35 +204,36 @@ def contrasts(data1,data2):
       yield value(bin, col)
 
 def value(bin,col):
-  bin.score = want(bin.ys.get("best",0), bin.ys.get("rest",0), bin.B, bin.R)
+  b,r = bin.ys.get("best",[]), bin.ys.get("rest",[])
+  bin.score = want(len(b),len(r), bin.B, bin.R)
   return bin
 
 def want(b,r,B,R):
   b, r = b/(B + 1/inf), r/(R + 1/inf)
   match the.want:
-    case "plan":    return b**2/(b+r)
-    case "monitor": return r**2/(b+r)
-    case "xplore":  return 1/(b+r)
-    case "doubt":   return (b+r)/abs(b - r)
+    case "operate":  return (b-r)
+    case "mitigate": return b**2/(b+r)
+    case "monitor":  return r**2/(b+r)
+    case "xtend":    return 1/(b+r)
+    case "xplore":   return (b+r)/abs(b - r)
 
 def merges(col,bins):
   if not col.isNum: return bins
-  bins = loopWhileMerging(bins,col)
+  bins = mergeds(bins,col)
   for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
   bins[ 0].lo = -inf
   bins[-1].hi =  inf
   return bins
 
-def loopWhileMerging(a, col):
+def mergeds(a, col):
   b,j = [],0
   while j < len(a):
     now = a[j]
     if j < len(a) - 1:
-      if new := merged(a[j], a[j+1], col):
-        now, j = new, j+1
+      if new := merged(a[j], a[j+1], col): now,j = new,j+1
     b += [now]
     j += 1
-  return a if len(a) == len(b) else loopWhileMerging(b, col)
+  return a if len(a) == len(b) else mergeds(b, col)
 
 #---------------------------------------------------------------------------------------------------
 def rules(data1,data2):
@@ -377,9 +385,11 @@ def const():
   print("best", stats(best))
   print("rest", stats(rest))
   b4=None
-  for bin in contrasts(best,rest): 
+  for bin in contrasts(best,rest):
     if bin.txt != b4: print("")
-    print(bin.txt, bin.lo, bin.hi, bin.ys, f"{bin.score:.2f}")
+    print(bin.txt, bin.lo, bin.hi,
+          {k:len(bin.ys[k]) for k in sorted(bin.ys)},
+          f"{bin.score:.2f}")
     b4 = bin.txt
 
 #------------------------------------------------------------------------------
