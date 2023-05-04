@@ -1,31 +1,35 @@
 #!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
 """
-WHAT: bayes2.py: look a little, catch some good stuff
+SYNOPSIS: 
+    bayes2.py: look a little, catch some good stuff
 
-WHO:  (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
+COPYRIGHT:
+    (c) 2023, Tim Menzies, <timm@ieee.org>  BSD2
 
-HOW:  ./dbayes2.py [OPTIONS] [-g ACTIONS]
+USAGE:  
+    ./dbayes2.py [OPTIONS] [-g ACTIONS]
 
-WHY:  Use to find best regions within rows of data with multiple objectives.
-      N rows of data are ranked via a multi-objective domination predicate
-      and then discretized, favoring ranges that distinguish the best
-      (N^min) items from a sample of the rest*(N^min)
+DESCRIPTION:
+    Use to find best regions within rows of data with multiple objectives.
+    N rows of data are ranked via a multi-objective domination predicate
+    and then discretized, favoring ranges that distinguish the best
+    (N^min) items from a sample of the rest*(N^min)
 
 OPTIONS:
-      -b  --bins    max number of bins                     = 16
-      -B  --Bootstraps number of bootstrap samples         = 512
-      -C  --Cohen   'not different' if under the.cohen*sd  = .2
-      -c  --cliffs  Cliff's Delta limit                    = .147
-      -f  --file    data csv file                          = ../data/auto93.csv
-      -g  --go      start up action                        = nothing
-      -h  --help    show help                              = False
-      -m  --min     on N items, recurse down to N**min     = .5
-      -n  --n       explore all subsets of top ''n bins    = 7
-      -p  --p       distance exponent                      = 2
-      -r  --rest    expand to (N**min)**rest               = 4
-      -s  --seed    random number seed                     = 1234567891
-      -S  --Some    max items kept in Some                 = 256
-      -w  --want    goal: plan,watch,xplore,doubt          = plan
+    -b  --bins    max number of bins                     = 16
+    -B  --Bootstraps number of bootstrap samples         = 512
+    -C  --Cohen   'not different' if under the.cohen*sd  = .2
+    -c  --cliffs  Cliff's Delta limit                    = .147
+    -f  --file    data csv file                          = ../data/auto93.csv
+    -g  --go      start up action                        = nothing
+    -h  --help    show help                              = False
+    -m  --min     on N items, recurse down to N**min     = .5
+    -n  --n       explore all subsets of top ''n bins    = 7
+    -p  --p       distance exponent                      = 2
+    -r  --rest    expand to (N**min)**rest               = 4
+    -s  --seed    random number seed                     = 1234567891
+    -S  --Some    max items kept in Some                 = 256
+    -w  --want    goal: plan,watch,xplore,doubt          = plan
 """
 from functools import cmp_to_key as cmp2key
 from termcolor import colored
