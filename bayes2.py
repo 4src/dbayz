@@ -134,14 +134,14 @@ def norm(col,x):
 
 def polarize(data,rows):
   random.shuffle(rows)
-  rows     = rows[:the.Fars]
-  far      = int(the.distance2Far * len(rows))
-  north    = around(data, first(rows), rows)[far]
-  south    = around(data, north,       rows)[far]
+  some     = rows[:the.Fars]
+  far      = int(the.distance2Far * len(some))
+  north    = around(data, first(some), some)[far]
+  south    = around(data, north,       some)[far]
   gap      = lambda r1,r2: dist(data,r1,r2)
   c        = gap(north,south)
   project  = lambda r: return (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
-  rows     = sorted(((project(r),r) for r in rows), keys=first)
+  rows     = sorted(((project(r),r) for r in rows), key=first)
   mid      = len(rows)//2
   return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
 
