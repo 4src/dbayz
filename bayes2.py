@@ -17,7 +17,9 @@ OPTIONS:
     -B  --Bootstraps number of bootstrap samples         = 512
     -C  --Cohen   'not different' if under the.cohen*sd  = .35
     -c  --cliffs  Cliff's Delta limit                    = .147
+    -d  --distance2Far                                   = .92
     -f  --file    data csv file                          = ../data/auto93.csv
+    -F  --Fars    how far is far away?                   = 256
     -g  --go      start up action                        = nothing
     -h  --help    show help                              = False
     -m  --min     on N items, recurse down to N**min     = .5
@@ -31,18 +33,18 @@ OPTIONS:
 COPYRIGHT:
     (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
 """
-from functools import cmp_to_key as cmp2key
-from termcolor import colored
-from copy import deepcopy
 import random,math,sys,ast,re
+from copy import deepcopy
+from termcolor import colored
+from functools import cmp_to_key as cmp2key
 
-def main():
-  if the.help:
-    print(re.sub("\n[A-Z][A-Z]+:", lambda m: colored(m[0],attrs=["bold"]),
-            re.sub(" [-][-]?[\S]+",lambda m: colored(m[0],"light_yellow"),
-               __doc__)))
+def main(help):
+  if help:
+    def bold(m):   return colored(first(m), attrs=["bold"])
+    def bright(m): return colored(first(m), "light_yellow")
+    print(re.sub("\n[A-Z][A-Z]+:", bold, re.sub(" [-][-]?[\S]+", bright, help)))
   else:
-    return sum([run(eg,the) for eg in egs if (the.go=="." or the.go==eg.__name__)])
+    return sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
 
 #----------------------------------------------------
 class obj(object):
@@ -51,16 +53,16 @@ class obj(object):
   def __hash__(self): return self.oid
   def __repr__(self):
     d = self.__dict__.items()
-    return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if k[0]!="_"]))+"}"
+    return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if first(k)!="_"]))+"}"
 
 def THE(s):
   return obj(**{m[1]:coerce(m[2]) for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
 def COL(txt=" ",  at=0, data=None):
-   col = (NUM if txt[0].isupper() else SYM)(txt=txt,at=at)
-   if data and txt[-1] != "X":
+   col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
+   if data and last(txt) != "X":
      data.all += [col]
-     (data.y if txt[-1] in "-+" else data.x).append(col)
+     (data.y if last(txt) in "-+" else data.x).append(col)
    return col
 
 def SYM(txt=" ",at=0):
@@ -68,7 +70,7 @@ def SYM(txt=" ",at=0):
 
 def NUM(txt=" ",at=0):
   return obj(at=at, txt=txt, n=0, mu=0, m2=0, sd=0, isNum=True,
-             lo=inf, hi=- inf, w= -1 if txt[-1]=="-" else 1)
+             lo=inf, hi=- inf, w= -1 if last(txt)=="-" else 1)
 
 def DATA(data=None, src=[]):
   data = data or obj(rows=[], names=[], all=[], x=[], y=[])
@@ -111,7 +113,7 @@ def stats(data,mid=True,cols=None):
 
 #----------------------------------------------------
 def around(data,row, rows=None):
-  return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=lambda x:x[0])
+  return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=first)
 
 def dist(data,row1,row2):
   d = sum((aha(col,row1[col.at],row2[col.at])**the.p for col in data.x))
@@ -129,6 +131,28 @@ def aha(col,x,y):
 
 def norm(col,x):
   return (x - col.lo) / (col.hi - col.lo + 1/inf)
+
+def polarize(data,rows):
+  random.shuffle(rows)
+  rows     = rows[:the.Fars]
+  far      = int(the.distance2Far * len(rows))
+  north    = around(data, first(rows), rows)[far]
+  south    = around(data, north,       rows)[far]
+  gap      = lambda r1,r2: dist(data,r1,r2)
+  c        = gap(north,south)
+  project  = lambda r: return (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
+  rows     = sorted(((project(r),r) for r in rows), keys=first)
+  mid      = len(rows)//2
+  return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
+
+def elite(data,rows,stop=None,rest=[]):
+  stop = stop or len(rows)**the.min
+  if stop <= len(rows):
+    return rows, random.sample(rest, int(len(rows)*the.rest))
+  else:
+    norths,souths,north,south = polarize(data,rows)
+    if better(data,south,north): norths,souths = souths,norths
+    return elite(data,norths, stop=stop, rest=rest + souths)
 
 #----------------------------------------------------
 def ordered(data,rows=[]):
@@ -221,8 +245,8 @@ def merges(col,bins):
   if not col.isNum: return bins
   bins = mergeds(bins,col)
   for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
-  bins[ 0].lo = -inf
-  bins[-1].hi =  inf
+  first(bins).lo = -inf
+  last(bins).hi =  inf
   return bins
 
 def mergeds(a, col):
@@ -247,11 +271,14 @@ def rules(data1,data2):
 #---------------------------------------------------------------------------------------------------
 inf = 1E60
 
+def first(a): return a[0]
+def last(a): return a[-1]
+
 def cli(d):
   for k,v in d.items():
     v= str(v)
     for i,x in enumerate(sys.argv):
-      if ("-"+k[0]) == x or ("--"+k) == x:
+      if ("-"+first(k)) == x or ("--"+k) == x:
         v= "False" if v=="True" else ("True" if v=="False" else sys.argv[i+1])
     d[k] = coerce(v)
   return d
@@ -320,8 +347,8 @@ def bootstrap(x,t,conf=.05):
       n += 1
   return n / the.Bootstraps < conf # true if different
 
-def run(fun, the):
-  yell("yellow","# ",fun.__name__)
+def run(the,fun,name):
+  yell("yellow","# ",name)
   random.seed(the.seed)
   b4  = deepcopy(the)
   tmp = fun()
@@ -331,13 +358,18 @@ def run(fun, the):
 #---------------------------------------------------------------------------------------------------
 
 egs=[]
-def eg(f): global egs; egs += [f]; return f
+def eg(f): global egs; egs += [(f,f.__name__)]; return f
 
 @eg
 def they(): the.p=23; prin("",str(the)[:40],"...")
 
 @eg
 def andThen(): return the.p==2
+
+@eg
+def power():
+  print([x for x in powerset([1,2,3])],end=" ")
+  return 2**3 -1 == len([x for x in powerset([1 ,2,3])])
 
 @eg
 def numed():
@@ -350,17 +382,21 @@ def symed():
   return 1.37 < ent(sym.has) < 1.39 and sym.mode == 'a'
 
 @eg
+def csvd():
+  return 3192==sum((len(a) for a in csv(the.file)))
+
+@eg
 def dists():
   data = DATA(src=csv(the.file))
   for row in data.rows:
-    d = dist(data, row, data.rows[0])
+    d = dist(data, row, first(data.rows))
     if not (0 <= d <= 1): return False
 
 @eg
 def arounds():
   data = DATA(src=csv(the.file))
-  print("0.000",data.rows[0])
-  for d,r in around(data,data.rows[0])[::50]:
+  print("0.000",first(data.rows))
+  for d,r in around(data,first(data.rows))[::50]:
     print(f"{d:.3f}",r)
 
 @eg
@@ -396,4 +432,4 @@ def const():
 the = THE(__doc__)
 if __name__ == "__main__":
   the.__dict__ = cli(the.__dict__)
-  main()
+  main(__doc__ if the.help else "")
