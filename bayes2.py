@@ -44,11 +44,13 @@ def main(help):
     def bright(m): return colored(first(m), "light_yellow")
     print(re.sub("\n[A-Z][A-Z]+:", bold, re.sub(" [-][-]?[\S]+", bright, help)))
   else:
-    return sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
+    n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
+    yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
+    return n
 
 #----------------------------------------------------
 class obj(object):
-  oid=0
+  oid = 0
   def __init__(self,**d):  obj.oid+=1; self.__dict__.update(oid=obj.oid,**d)
   def __hash__(self): return self.oid
   def __repr__(self):
@@ -59,11 +61,11 @@ def THE(s):
   return obj(**{m[1]:coerce(m[2]) for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
 def COL(txt=" ",  at=0, data=None):
-   col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
-   if data and last(txt) != "X":
-     data.all += [col]
-     (data.y if last(txt) in "-+" else data.x).append(col)
-   return col
+  col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
+  if data and last(txt) != "X":
+    data.all += [col]
+    (data.y if last(txt) in "-+" else data.x).append(col)
+  return col
 
 def SYM(txt=" ",at=0):
   return obj(at=at, txt=txt, n=0, has={}, mode=None,most=0,isNum=False)
@@ -140,7 +142,7 @@ def polarize(data,rows):
   south    = around(data, north,       some)[far]
   gap      = lambda r1,r2: dist(data,r1,r2)
   c        = gap(north,south)
-  project  = lambda r: return (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
+  project  = lambda r: (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
   rows     = sorted(((project(r),r) for r in rows), key=first)
   mid      = len(rows)//2
   return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
@@ -354,7 +356,7 @@ def run(the,fun,name):
   tmp = fun()
   for k,v in b4.__dict__.items(): the.__dict__[k] = v
   yell("red"," FAIL\n") if tmp==False else yell("green"," PASS\n")
-  return 1 if tmp==False else 0
+  return tmp==False
 #---------------------------------------------------------------------------------------------------
 
 egs=[]
@@ -369,7 +371,7 @@ def andThen(): return the.p==2
 @eg
 def power():
   print([x for x in powerset([1,2,3])],end=" ")
-  return 2**3 -1 == len([x for x in powerset([1 ,2,3])])
+  return 2**3  == len([x for x in powerset([1 ,2,3])])
 
 @eg
 def numed():
@@ -383,7 +385,7 @@ def symed():
 
 @eg
 def csvd():
-  return 3192==sum((len(a) for a in csv(the.file)))
+  return 3192 == sum((len(a) for a in csv(the.file)))
 
 @eg
 def dists():
