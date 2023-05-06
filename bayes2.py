@@ -1,4 +1,5 @@
-#!/usr/bin/env python3 -B#<!-- vim: set ts=2 sw=2 et: -->
+#!/usr/bin/env python3 -B
+#<!-- vim: set ts=2 sw=2 et: -->
 """
 SYNOPSIS: 
     bayes2: look around just a little, then find some good stuff
@@ -147,14 +148,18 @@ def polarize(data,rows):
   mid      = len(rows)//2
   return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
 
-def elite(data,rows,stop=None,rest=[]):
+def cluster(data,rows=None, stop=None,lvl=None):
+  rows = rows or data.rows
   stop = stop or len(rows)**the.min
-  if stop <= len(rows):
-    return rows, random.sample(rest, int(len(rows)*the.rest))
-  else:
-    norths,souths,north,south = polarize(data,rows)
-    if better(data,south,north): norths,souths = souths,norths
-    return elite(data,norths, stop=stop, rest=rest + souths)
+  node = obj(here=clone(data,rows), norths=None,souths=None)
+  if lvl != None:
+    print("|.." * lvl, stats(node.here), sep="")
+    lvl = lvl+1
+  if len(rows) > stop:
+    norths,souths = polarize(data,rows)
+    node.norths   = cluster(data, norths,stop=stop,lvl=lvl)
+    node.souths   = cluster(data, souths,stop=stop,lvl=lvl)
+  return node
 
 #----------------------------------------------------
 def ordered(data,rows=[]):
@@ -168,6 +173,16 @@ def better(data,row1,row2):
     s1  -= math.exp(col.w * (a - b) / n)
     s2  -= math.exp(col.w * (b - a) / n)
   return s1 / n < s2 / n
+
+def elite(data,rows=None,stop=None,rest=[]):
+  rows = rows or data.rows
+  stop = stop or len(rows)**the.min
+  if stop <= len(rows):
+    return rows, random.sample(rest, int(len(rows)*the.rest))
+  else:
+    norths,souths,north,south = polarize(data,rows)
+    if better(data,south,north): norths,souths = souths,norths
+    return elite(data,norths, stop=stop, rest=rest + souths)
 
 #---------------------------------------------------------------------------------------------------
 def BIN(at=0,txt=" ",lo=None,hi=None,B=0,R=0):
@@ -429,6 +444,10 @@ def const():
           {k:len(bin.ys[k]) for k in sorted(bin.ys)},
           f"{bin.score:.2f}")
     b4 = bin.txt
+
+@eg
+def clustering():
+  cluster(DATA(src=csv(the.file)),lvl=0)
 
 #------------------------------------------------------------------------------
 the = THE(__doc__)
