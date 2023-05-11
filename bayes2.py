@@ -39,29 +39,36 @@ from copy import deepcopy
 from termcolor import colored
 from functools import cmp_to_key as cmp2key
 
-def main(help):
+def main(help:str) -> int:
+  """Show pretty version of help (if requested). Else run all the examples,
+  return the number of failures."""
   if help:
     def bold(m):   return colored(first(m), attrs=["bold"])
     def bright(m): return colored(first(m), "light_yellow")
     print(re.sub("\n[A-Z][A-Z]+:", bold, re.sub(" [-][-]?[\S]+", bright, help)))
-  else:
-    n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
-    yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
-    return n
+  n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
+  yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
+  return n
 
 #----------------------------------------------------
 class obj(object):
   oid = 0
-  def __init__(self,**d):  obj.oid+=1; self.__dict__.update(oid=obj.oid,**d)
-  def __hash__(self): return self.oid
-  def __repr__(self):
+  def __init__(self,**kw):
+    "initialize contents from kw; add a unique id"
+    obj.oid+=1; self.__dict__.update(oid=obj.oid,**kw)
+  def __hash__(self) -> int: return self.oid
+  def __repr__(self) -> str:
+    "return `self` as a string, skipping private items (those starting with '_'"
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if first(k)!="_"]))+"}"
 
-def THE(s):
-  return obj(**{m[1]:coerce(m[2]) for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
+def THE(s:str) -> obj:
+  "return the key/values extracted from `s`"
+  return obj(**{m[1]:coerce(m[2])
+                for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
 def COL(txt=" ",  at=0, data=None):
+  "return a NUM or a SYM. If `data` then add to list of dependent or independent variables."
   col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
   if data and last(txt) != "X":
     data.all += [col]
