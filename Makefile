@@ -18,7 +18,7 @@ doc: ## generate documentation
 	--config show_source_code=True    \
 	--config sort_identifiers=False     \
 	--force -o docs --template-dir docs  \
-	tests.py lib.py ragworm.py
+	bayes2.py
 
 tests: ## run test suite
 	python3 -B tests.py -g .

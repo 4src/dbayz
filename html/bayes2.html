@@ -1,0 +1,1708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>bayes2 API documentation</title>
+<meta name="description" content="SYNOPSIS:
+bayes2: look around just a little, then find some good stuff …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>bayes2</code></h1>
+</header>
+<section id="section-intro">
+<p>SYNOPSIS:
+bayes2: look around just a little, then find some good stuff</p>
+<h2 id="usage">Usage</h2>
+<p>./bayes2.py [OPTIONS] [-g ACTIONS]</p>
+<h2 id="description">Description</h2>
+<p>Use to find best regions within rows of data with multiple objectives.
+N rows of data are ranked via a multi-objective domination predicate
+and then discretized, favoring ranges that distinguish the best
+(N^min) items from a sample of the rest*(N^min)</p>
+<h2 id="options">Options</h2>
+<p>-b
+&ndash;bins
+max number of bins
+= 16
+-B
+&ndash;Bootstraps number of bootstrap samples
+= 512
+-C
+&ndash;Cohen
+'not different' if under the.cohen<em>sd
+= .35
+-c
+&ndash;cliffs
+Cliff's Delta limit
+= .147
+-d
+&ndash;distance2Far
+= .92
+-f
+&ndash;file
+data csv file
+= ../data/auto93.csv
+-F
+&ndash;Fars
+how far is far away?
+= 256
+-g
+&ndash;go
+start up action
+= nothing
+-h
+&ndash;help
+show help
+= False
+-m
+&ndash;min
+on N items, recurse down to N</em><em>min
+= .5
+-n
+&ndash;n
+explore all subsets of top ''n bins
+= 7
+-p
+&ndash;p
+distance exponent
+= 2
+-r
+&ndash;rest
+expand to (N</em><em>min)</em>*rest
+= 4
+-s
+&ndash;seed
+random number seed
+= 1234567891
+-S
+&ndash;Some
+max items kept in Some
+= 256
+-w
+&ndash;want
+mitigate,operate,monitor,xplore,xtend
+= mitigate</p>
+<h2 id="copyright">Copyright</h2>
+<p>(c) 2023, Tim Menzies, <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#116;&#105;&#109;&#109;&#64;&#105;&#101;&#101;&#101;&#46;&#111;&#114;&#103;">&#116;&#105;&#109;&#109;&#64;&#105;&#101;&#101;&#101;&#46;&#111;&#114;&#103;</a>
+BSD-2</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3 -B
+#&lt;!-- vim: set ts=2 sw=2 et: --&gt;
+&#34;&#34;&#34;
+SYNOPSIS: 
+    bayes2: look around just a little, then find some good stuff
+
+USAGE:
+    ./bayes2.py [OPTIONS] [-g ACTIONS]
+
+DESCRIPTION:
+    Use to find best regions within rows of data with multiple objectives.
+    N rows of data are ranked via a multi-objective domination predicate
+    and then discretized, favoring ranges that distinguish the best
+    (N^min) items from a sample of the rest*(N^min)
+
+OPTIONS:
+
+    -b  --bins    max number of bins                     = 16
+    -B  --Bootstraps number of bootstrap samples         = 512
+    -C  --Cohen   &#39;not different&#39; if under the.cohen*sd  = .35
+    -c  --cliffs  Cliff&#39;s Delta limit                    = .147
+    -d  --distance2Far                                   = .92
+    -f  --file    data csv file                          = ../data/auto93.csv
+    -F  --Fars    how far is far away?                   = 256
+    -g  --go      start up action                        = nothing
+    -h  --help    show help                              = False
+    -m  --min     on N items, recurse down to N**min     = .5
+    -n  --n       explore all subsets of top &#39;&#39;n bins    = 7
+    -p  --p       distance exponent                      = 2
+    -r  --rest    expand to (N**min)**rest               = 4
+    -s  --seed    random number seed                     = 1234567891
+    -S  --Some    max items kept in Some                 = 256
+    -w  --want    mitigate,operate,monitor,xplore,xtend  = mitigate
+
+COPYRIGHT:
+    (c) 2023, Tim Menzies, &lt;timm@ieee.org&gt;  BSD-2
+&#34;&#34;&#34;
+import random,math,sys,ast,re
+from copy import deepcopy
+from termcolor import colored
+from functools import cmp_to_key as cmp2key
+
+def main(help:str) -&gt; int:
+  &#34;&#34;&#34;Show pretty version of help (if requested). Else run all the examples,
+  return the number of failures.&#34;&#34;&#34;
+  if help:
+    def bold(m):   return colored(first(m), attrs=[&#34;bold&#34;])
+    def bright(m): return colored(first(m), &#34;light_yellow&#34;)
+    print(re.sub(&#34;\n[A-Z][A-Z]+:&#34;, bold, re.sub(&#34; [-][-]?[\S]+&#34;, bright, help)))
+  n  = sum([run(the,fun,name) for fun,name in egs if (the.go==&#34;.&#34; or the.go==name)])
+  yell(&#34;green&#34; if n==0 else &#34;red&#34;, f&#34;# overall, FAILS = {n}\n&#34;)
+  return n
+
+#----------------------------------------------------
+class obj(object):
+  oid = 0
+  def __init__(self,**kw):
+    &#34;initialize contents from kw; add a unique id&#34;
+    obj.oid+=1; self.__dict__.update(oid=obj.oid,**kw)
+  def __hash__(self) -&gt; int: return self.oid
+  def __repr__(self) -&gt; str:
+    &#34;return `self` as a string, skipping private items (those starting with &#39;_&#39;&#34;
+    d = self.__dict__.items()
+    return &#34;{&#34;+(&#34; &#34;.join([f&#34;:{k} {nice(v)}&#34; for k,v in d if first(k)!=&#34;_&#34;]))+&#34;}&#34;
+
+def THE(s:str) -&gt; obj:
+  &#34;return the key/values extracted from `s`&#34;
+  return obj(**{m[1]:coerce(m[2])
+                for m in re.finditer(r&#34;\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)&#34;,s)})
+
+def COL(txt=&#34; &#34;,  at=0, data=None): # -&gt; NUM or COL
+  &#34;&#34;&#34;return a  NUM (if `txt`&#39;s has a leading upper case letter) or a SYM.
+  If `data` then (unless we ignoring something ending with &#39;X&#39;),
+  add the new `col` to the list of dependent or independent variables&#34;&#34;&#34;
+  col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
+  if data and last(txt) != &#34;X&#34;:
+    (data.y if last(txt) in &#34;-+&#34; else data.x).append(col)
+  return col
+
+def SYM(txt=&#34; &#34;,at=0): # -&gt; SYM
+  &#34;&#34;&#34;SYMs have `isNum=False` and track what symbols `has` been seen
+  (as well as the most frequent `mode` symbol)&#34;&#34;&#34;
+  return obj(at=at, txt=txt, n=0, has={}, mode=None,most=0,isNum=False)
+
+def NUM(txt=&#34; &#34;,at=0): # -&gt; NUM
+  &#34;&#34;&#34;NUMs have `isNum=True` and track the mean `mu` and standard deviation `sd` and
+  `lo,hi` seen so far.  Also, NUM names ending in &#39;-&#39; are weighted with `w= -1` (else `w=1`).&#34;&#34;&#34;
+  return obj(at=at, txt=txt, n=0, mu=0, m2=0, sd=0, isNum=True,
+             lo=inf, hi=- inf, w= -1 if last(txt)==&#34;-&#34; else 1)
+
+def DATA(data=None, src=[]): # -&gt; DATA
+  &#34;&#34;&#34;DATAs have `rows` and `cols` (NUMs or SYMs). Special kinds of columns
+  are also distinguished in `x,y` (for independent and dependent cols).
+  DATA&#39;s `name` is the first row containing the column names.&#34;&#34;&#34; 
+  data = data or obj(rows=[], cols=[], names=[], x=[], y=[])
+  for row in src:
+    if data.names: # if non-nil then we have already read the column names
+      for col in data.all: add(col,row[col.at])
+      data.rows += [row]
+    else:          # this `else` handles reading the row with all the column names
+      data.names = row
+      data.cols = [COL(txt,at,data) for at,txt in enumerate(row)]
+  return data
+
+def clone(data, rows=[]): # -&gt; DATA
+  &#34;&#34;&#34;Return a new DATA with the same column structure as `data`. 
+  Initialize that `data` with `rows` (if they are supplied).&#34;&#34;&#34;
+  return DATA(DATA(src=[data.names]), rows)
+
+def adds(col,lst=[]):  # -&gt; NUM or SYM
+  &#34;Return `col`, updated with the information from `lst`.&#34;
+  for x in lst: add(col,x)
+  return col
+
+def add(col, x, inc=1):
+  if x == &#34;?&#34;: return
+  col.n  += inc
+  if col.isNum:
+    col.lo  = min(col.lo, x)
+    col.hi  = max(col.hi, x)
+    d       = x - col.mu
+    col.mu += d/col.n
+    col.m2 += d*(x - col.mu)
+    col.sd  = 0 if col.n&lt;2 else (col.m2/(col.n - 1))**.5
+  else:
+    tmp = col.has[x] = inc + col.has.get(x,0)
+    if tmp &gt;  col.most: col.most, col.mode = tmp,x
+
+def stats(data,mid=True,cols=None):
+  def fun(col)      : return (middle if mid else diversity)(col)
+  def rnd(n)        : return round(n, ndigits=3) if isinstance(n,(float,int)) else n
+  def middle(col)   : return col.mu if col.isNum else col.mode
+  def diversity(col): return col.sd if col.isNum else ent(col.has)
+  return obj(N=len(data.rows), **{col.txt:rnd(fun(col)) for col in (cols or data.y)})
+
+#----------------------------------------------------
+def around(data,row, rows=None):
+  return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=first)
+
+def dist(data,row1,row2):
+  d = sum((aha(col,row1[col.at],row2[col.at])**the.p for col in data.x))
+  return (d/len(data.x))**(1/the.p)
+
+def aha(col,x,y):
+  if x==&#34;?&#34; and y==&#34;?&#34;: return 1
+  if col.isNum:
+    if   x==&#34;?&#34; : y=norm(col,y); x=1 if y&lt;.5 else 0
+    elif y==&#34;?&#34; : x=norm(col,x); y=1 if x&lt;.5 else 0
+    else        : x,y = norm(col,x), norm(col,y)
+    return abs(x-y)
+  else:
+    return 0 if x==y else 1
+
+def norm(col,x):
+  return (x - col.lo) / (col.hi - col.lo + 1/inf)
+
+def polarize(data,rows):
+  random.shuffle(rows)
+  some     = rows[:the.Fars]
+  far      = int(the.distance2Far * len(some))
+  north    = around(data, first(some), some)[far]
+  south    = around(data, north,       some)[far]
+  gap      = lambda r1,r2: dist(data,r1,r2)
+  c        = gap(north,south)
+  project  = lambda r: (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
+  rows     = sorted(((project(r),r) for r in rows), key=first)
+  mid      = len(rows)//2
+  return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
+
+def cluster(data,rows=None, stop=None,lvl=None):
+  rows = rows or data.rows
+  stop = stop or len(rows)**the.min
+  node = obj(here=clone(data,rows), norths=None,souths=None)
+  if lvl != None:
+    print(&#34;|..&#34; * lvl, stats(node.here), sep=&#34;&#34;)
+    lvl = lvl+1
+  if len(rows) &gt; stop:
+    norths,souths = polarize(data,rows)
+    node.norths   = cluster(data, norths,stop=stop,lvl=lvl)
+    node.souths   = cluster(data, souths,stop=stop,lvl=lvl)
+  return node
+
+#----------------------------------------------------
+def ordered(data,rows=[]):
+  return sorted(rows or data.rows,
+                key=cmp2key(lambda r1,r2: better(data,r1,r2)))
+
+def better(data,row1,row2):
+  s1, s2, n = 0, 0, len(data.y)
+  for col in data.y:
+    a,b  = norm(col,row1[col.at]), norm(col,row2[col.at])
+    s1  -= math.exp(col.w * (a - b) / n)
+    s2  -= math.exp(col.w * (b - a) / n)
+  return s1 / n &lt; s2 / n
+
+def elite(data,rows=None,stop=None,rest=[]):
+  rows = rows or data.rows
+  stop = stop or len(rows)**the.min
+  if stop &lt;= len(rows):
+    return rows, random.sample(rest, int(len(rows)*the.rest))
+  else:
+    norths,souths,north,south = polarize(data,rows)
+    if better(data,south,north): norths,souths = souths,norths
+    return elite(data,norths, stop=stop, rest=rest + souths)
+
+#---------------------------------------------------------------------------------------------------
+def BIN(at=0,txt=&#34; &#34;,lo=None,hi=None,B=0,R=0):
+  return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo,
+             n=0, ys={}, score=0, B=B, R=R)
+
+def binAdd(bin, x, y, row):
+  bin.n     += 1
+  bin.lo     = min(bin.lo, x)
+  bin.hi     = max(bin.hi, x)
+  bin.ys[y]  = bin.ys.get(y,[]) 
+  bin.ys[y] += [row]
+  return bin
+
+def binEnt(bin):
+  def p(n): return n*math.log(n,2)
+  return -sum((p(len(lst)/bin.n) for lst in bin.ys.values()))
+
+def merge(bin1, bin2):
+  &#34;&#34;&#34;Merge two adjacent bins.&#34;&#34;&#34;
+  out = BIN(at=bin1.at, txt=bin1.txt,
+            lo=bin1.lo, hi=bin2.hi,
+            B=bin1.B, R=bin2.R)
+  out.n = bin1.n + bin2.n
+  for d in [bin1.ys, bin2.ys]:
+    for key in d:
+      out.ys[key]  = out.ys.get(key,[])
+      out.ys[key] += d[key]
+  return out
+
+def merged(bin1,bin2,num):
+  out   = merge(bin1,bin2)
+  eps   = num.sd*the.Cohen
+  small = num.n / the.bins
+  if bin1.n &lt;= small or bin1.hi - bin1.lo &lt; eps : return out
+  if bin2.n &lt;= small or bin2.hi - bin2.lo &lt; eps : return out
+  e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
+  if e3 &lt; (bin1.n*e1 + bin2.n*e2)/out.n : return out
+
+#---------------------------------------------------------------------------------------------------
+def discretize(col,x):
+  if x == &#34;?&#34;: return
+  if col.isNum:
+    lo, hi = col.mu - 2*col.sd, col.mu + 2*col.sd
+    x = int(the.bins*(x - lo)/(hi - lo + 1/inf))
+  return x
+
+def contrasts(data1,data2):
+  data12 = clone(data1, data1.rows + data2.rows)
+  for col in data12.x:
+    bins = {}
+    for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
+      for row in rows:
+        x = row[col.at]
+        if z := discretize(col, x):
+          if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x,
+                                          B=len(data1.rows), R=len(data2.rows))
+          binAdd(bins[z], x, klass, row)
+    for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo)):
+      yield value(bin, col)
+
+def value(bin,col):
+  b,r = bin.ys.get(&#34;best&#34;,[]), bin.ys.get(&#34;rest&#34;,[])
+  bin.score = want(len(b),len(r), bin.B, bin.R)
+  return bin
+
+def want(b,r,B,R):
+  b, r = b/(B + 1/inf), r/(R + 1/inf)
+  match the.want:
+    case &#34;operate&#34;:  return (b-r)
+    case &#34;mitigate&#34;: return b**2/(b+r)
+    case &#34;monitor&#34;:  return r**2/(b+r)
+    case &#34;xtend&#34;:    return 1/(b+r)
+    case &#34;xplore&#34;:   return (b+r)/abs(b - r)
+
+def merges(col,bins):
+  if not col.isNum: return bins
+  bins = mergeds(bins,col)
+  for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
+  first(bins).lo = -inf
+  last(bins).hi =  inf
+  return bins
+
+def mergeds(a, col):
+  b,j = [],0
+  while j &lt; len(a):
+    now = a[j]
+    if j &lt; len(a) - 1:
+      if new := merged(a[j], a[j+1], col): now,j = new,j+1
+    b += [now]
+    j += 1
+  return a if len(a) == len(b) else mergeds(b, col)
+
+#---------------------------------------------------------------------------------------------------
+def rules(data1,data2):
+  bins = [bin for bin in contrast(data1,data2)]
+  bins = sorted(bins, key=lambda z:z.score, reverse=True)[:8]
+  print([bin.score for bin in bins])
+  for rule in powerset(bins):
+    evaluate(rule)
+  return bins
+
+#---------------------------------------------------------------------------------------------------
+inf = 1E60
+
+def first(a): return a[0]
+def last(a): return a[-1]
+
+def cli(d):
+  for k,v in d.items():
+    v= str(v)
+    for i,x in enumerate(sys.argv):
+      if (&#34;-&#34;+first(k)) == x or (&#34;--&#34;+k) == x:
+        v= &#34;False&#34; if v==&#34;True&#34; else (&#34;True&#34; if v==&#34;False&#34; else sys.argv[i+1])
+    d[k] = coerce(v)
+  return d
+
+def yell(c,*s):
+  print(colored(&#39;&#39;.join(s),&#34;light_&#34;+c,attrs=[&#34;bold&#34;]),end=&#34;&#34;)
+
+def ent(d):
+  N = sum([d[k] for k in d])
+  return - sum((n/N*math.log(n/N,2) for n in d.values()))
+
+def prin(*l): print(*l,end=&#34;&#34;)
+
+def nice(x):
+  if callable(x)         : return x.__name__+&#39;()&#39;
+  if isinstance(x,float) : return f&#34;{x:.2f}&#34;
+  return x
+
+def coerce(x):
+  try: return ast.literal_eval(x)
+  except: return x
+
+def csv(file):
+  with open(file) as fp:
+    for line in fp:
+      line = re.sub(r&#39;([\n\t\r&#34;\&#39; ]|#.*)&#39;, &#39;&#39;, line)
+      if line:
+        yield [coerce(s.strip()) for s in line.split(&#34;,&#34;)]
+
+def sample(a):
+  return random.choices(a,k=len(a))
+
+def powerset(s):
+  r = [[]]
+  for e in s: r += [x+[e] for x in r]
+  return r
+
+def different(x,y):
+  return cliffsDelta(x,y) and bootstrap(x,y)
+
+def cliffsDelta(x,y):
+  n = 0
+  if len(x) &gt; 10*len(y) : x = random.choices(x,10*len(y))
+  if len(y) &gt; 10*len(x) : y = random.choices(y,10*len(x))
+  lt,gt = 0,0
+  for x1 in x:
+    for y1 in y:
+      n = n + 1
+      if x1 &gt; y1: gt = gt + 1
+      if x1 &lt; y1: lt = lt + 1
+  return abs(lt - gt)/n &gt; the.Cliffs # true if different
+
+def bootstrap(x,t,conf=.05):
+  delta= lambda x,y: abs(x.mu-y.mu) / ((x.sd**2/x.n + y.sd**2/y.n)**.5 + 1/inf)
+  x, y, z = NUM(), NUM(), NUM()
+  for y1 in y0: add(x,y1); add(z,y1)
+  for z1 in z0: add(x,z1); add(z,z1)
+  yhat = [y1 - y.mu + x.mu for y1 in y0]
+  zhat = [z1 - z.mu + x.mu for z1 in z0]
+  d    = delta(y,z)
+  n    = 0
+  for _ in range(the.Bootstraps):
+    ynum = adds(NUM(), sample(yhat))
+    znum = adds(NUM(), sample(zhat))
+    if delta(ynum, znum)  &gt; d:
+      n += 1
+  return n / the.Bootstraps &lt; conf # true if different
+
+def run(the,fun,name):
+  yell(&#34;yellow&#34;,&#34;# &#34;,name)
+  random.seed(the.seed)
+  b4  = deepcopy(the)
+  tmp = fun()
+  for k,v in b4.__dict__.items(): the.__dict__[k] = v
+  yell(&#34;red&#34;,&#34; FAIL\n&#34;) if tmp==False else yell(&#34;green&#34;,&#34; PASS\n&#34;)
+  return tmp==False
+#---------------------------------------------------------------------------------------------------
+
+egs=[]
+def eg(f): global egs; egs += [(f,f.__name__)]; return f
+
+@eg
+def they(): the.p=23; prin(&#34;&#34;,str(the)[:40],&#34;...&#34;)
+
+@eg
+def andThen(): return the.p==2
+
+@eg
+def power():
+  print([x for x in powerset([1,2,3])],end=&#34; &#34;)
+  return 2**3  == len([x for x in powerset([1 ,2,3])])
+
+@eg
+def numed():
+  num = adds(NUM(), [random.random() for _ in range(10**3)])
+  return .28 &lt; num.sd &lt; .3 and .49 &lt; num.mu &lt; .51
+
+@eg
+def symed():
+  sym = adds(SYM(), &#34;aaaabbc&#34;)
+  return 1.37 &lt; ent(sym.has) &lt; 1.39 and sym.mode == &#39;a&#39;
+
+@eg
+def csvd():
+  return 3192 == sum((len(a) for a in csv(the.file)))
+
+@eg
+def dists():
+  data = DATA(src=csv(the.file))
+  for row in data.rows:
+    d = dist(data, row, first(data.rows))
+    if not (0 &lt;= d &lt;= 1): return False
+
+@eg
+def arounds():
+  data = DATA(src=csv(the.file))
+  print(&#34;0.000&#34;,first(data.rows))
+  for d,r in around(data,first(data.rows))[::50]:
+    print(f&#34;{d:.3f}&#34;,r)
+
+@eg
+def sorter():
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  print(&#34;&#34;)
+  print(data.names)
+  print(&#34;all &#34;, stats(data))
+  print(&#34;best&#34;, stats(clone(data,rows[-30:])))
+  print(&#34;rest&#34;, stats(clone(data,rows[:-30])))
+
+@eg
+def const():
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  b = int(len(data.rows)**the.min)
+  r = b*the.rest
+  best = clone(data,rows[-b:])
+  rest = clone(data,random.sample(rows[:-b],r))
+  print(&#34;\nall &#34;, stats(data))
+  print(&#34;best&#34;, stats(best))
+  print(&#34;rest&#34;, stats(rest))
+  b4=None
+  for bin in contrasts(best,rest):
+    if bin.txt != b4: print(&#34;&#34;)
+    print(bin.txt, bin.lo, bin.hi,
+          {k:len(bin.ys[k]) for k in sorted(bin.ys)},
+          f&#34;{bin.score:.2f}&#34;)
+    b4 = bin.txt
+
+@eg
+def clustering():
+  cluster(DATA(src=csv(the.file)),lvl=0)
+
+#------------------------------------------------------------------------------
+the = THE(__doc__)
+if __name__ == &#34;__main__&#34;:
+  the.__dict__ = cli(the.__dict__)
+  main(__doc__ if the.help else &#34;&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="bayes2.BIN"><code class="name flex">
+<span>def <span class="ident">BIN</span></span>(<span>at=0, txt=' ', lo=None, hi=None, B=0, R=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def BIN(at=0,txt=&#34; &#34;,lo=None,hi=None,B=0,R=0):
+  return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo,
+             n=0, ys={}, score=0, B=B, R=R)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.COL"><code class="name flex">
+<span>def <span class="ident">COL</span></span>(<span>txt=' ', at=0, data=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>return a
+NUM (if <code>txt</code>'s has a leading upper case letter) or a SYM.
+If <code>data</code> then (unless we ignoring something ending with 'X'),
+add the new <code>col</code> to the list of dependent or independent variables</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def COL(txt=&#34; &#34;,  at=0, data=None): # -&gt; NUM or COL
+  &#34;&#34;&#34;return a  NUM (if `txt`&#39;s has a leading upper case letter) or a SYM.
+  If `data` then (unless we ignoring something ending with &#39;X&#39;),
+  add the new `col` to the list of dependent or independent variables&#34;&#34;&#34;
+  col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
+  if data and last(txt) != &#34;X&#34;:
+    (data.y if last(txt) in &#34;-+&#34; else data.x).append(col)
+  return col</code></pre>
+</details>
+</dd>
+<dt id="bayes2.DATA"><code class="name flex">
+<span>def <span class="ident">DATA</span></span>(<span>data=None, src=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>DATAs have <code>rows</code> and <code>cols</code> (NUMs or SYMs). Special kinds of columns
+are also distinguished in <code>x,y</code> (for independent and dependent cols).
+DATA's <code>name</code> is the first row containing the column names.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def DATA(data=None, src=[]): # -&gt; DATA
+  &#34;&#34;&#34;DATAs have `rows` and `cols` (NUMs or SYMs). Special kinds of columns
+  are also distinguished in `x,y` (for independent and dependent cols).
+  DATA&#39;s `name` is the first row containing the column names.&#34;&#34;&#34; 
+  data = data or obj(rows=[], cols=[], names=[], x=[], y=[])
+  for row in src:
+    if data.names: # if non-nil then we have already read the column names
+      for col in data.all: add(col,row[col.at])
+      data.rows += [row]
+    else:          # this `else` handles reading the row with all the column names
+      data.names = row
+      data.cols = [COL(txt,at,data) for at,txt in enumerate(row)]
+  return data</code></pre>
+</details>
+</dd>
+<dt id="bayes2.NUM"><code class="name flex">
+<span>def <span class="ident">NUM</span></span>(<span>txt=' ', at=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>NUMs have <code>isNum=True</code> and track the mean <code>mu</code> and standard deviation <code>sd</code> and
+<code>lo,hi</code> seen so far.
+Also, NUM names ending in '-' are weighted with <code>w= -1</code> (else <code>w=1</code>).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def NUM(txt=&#34; &#34;,at=0): # -&gt; NUM
+  &#34;&#34;&#34;NUMs have `isNum=True` and track the mean `mu` and standard deviation `sd` and
+  `lo,hi` seen so far.  Also, NUM names ending in &#39;-&#39; are weighted with `w= -1` (else `w=1`).&#34;&#34;&#34;
+  return obj(at=at, txt=txt, n=0, mu=0, m2=0, sd=0, isNum=True,
+             lo=inf, hi=- inf, w= -1 if last(txt)==&#34;-&#34; else 1)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.SYM"><code class="name flex">
+<span>def <span class="ident">SYM</span></span>(<span>txt=' ', at=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>SYMs have <code>isNum=False</code> and track what symbols <code>has</code> been seen
+(as well as the most frequent <code>mode</code> symbol)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def SYM(txt=&#34; &#34;,at=0): # -&gt; SYM
+  &#34;&#34;&#34;SYMs have `isNum=False` and track what symbols `has` been seen
+  (as well as the most frequent `mode` symbol)&#34;&#34;&#34;
+  return obj(at=at, txt=txt, n=0, has={}, mode=None,most=0,isNum=False)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.THE"><code class="name flex">
+<span>def <span class="ident">THE</span></span>(<span>s: str) ‑> <a title="bayes2.obj" href="#bayes2.obj">obj</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>return the key/values extracted from <code>s</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def THE(s:str) -&gt; obj:
+  &#34;return the key/values extracted from `s`&#34;
+  return obj(**{m[1]:coerce(m[2])
+                for m in re.finditer(r&#34;\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)&#34;,s)})</code></pre>
+</details>
+</dd>
+<dt id="bayes2.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>col, x, inc=1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(col, x, inc=1):
+  if x == &#34;?&#34;: return
+  col.n  += inc
+  if col.isNum:
+    col.lo  = min(col.lo, x)
+    col.hi  = max(col.hi, x)
+    d       = x - col.mu
+    col.mu += d/col.n
+    col.m2 += d*(x - col.mu)
+    col.sd  = 0 if col.n&lt;2 else (col.m2/(col.n - 1))**.5
+  else:
+    tmp = col.has[x] = inc + col.has.get(x,0)
+    if tmp &gt;  col.most: col.most, col.mode = tmp,x</code></pre>
+</details>
+</dd>
+<dt id="bayes2.adds"><code class="name flex">
+<span>def <span class="ident">adds</span></span>(<span>col, lst=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return <code>col</code>, updated with the information from <code>lst</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def adds(col,lst=[]):  # -&gt; NUM or SYM
+  &#34;Return `col`, updated with the information from `lst`.&#34;
+  for x in lst: add(col,x)
+  return col</code></pre>
+</details>
+</dd>
+<dt id="bayes2.aha"><code class="name flex">
+<span>def <span class="ident">aha</span></span>(<span>col, x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def aha(col,x,y):
+  if x==&#34;?&#34; and y==&#34;?&#34;: return 1
+  if col.isNum:
+    if   x==&#34;?&#34; : y=norm(col,y); x=1 if y&lt;.5 else 0
+    elif y==&#34;?&#34; : x=norm(col,x); y=1 if x&lt;.5 else 0
+    else        : x,y = norm(col,x), norm(col,y)
+    return abs(x-y)
+  else:
+    return 0 if x==y else 1</code></pre>
+</details>
+</dd>
+<dt id="bayes2.andThen"><code class="name flex">
+<span>def <span class="ident">andThen</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def andThen(): return the.p==2</code></pre>
+</details>
+</dd>
+<dt id="bayes2.around"><code class="name flex">
+<span>def <span class="ident">around</span></span>(<span>data, row, rows=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def around(data,row, rows=None):
+  return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=first)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.arounds"><code class="name flex">
+<span>def <span class="ident">arounds</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def arounds():
+  data = DATA(src=csv(the.file))
+  print(&#34;0.000&#34;,first(data.rows))
+  for d,r in around(data,first(data.rows))[::50]:
+    print(f&#34;{d:.3f}&#34;,r)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.better"><code class="name flex">
+<span>def <span class="ident">better</span></span>(<span>data, row1, row2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def better(data,row1,row2):
+  s1, s2, n = 0, 0, len(data.y)
+  for col in data.y:
+    a,b  = norm(col,row1[col.at]), norm(col,row2[col.at])
+    s1  -= math.exp(col.w * (a - b) / n)
+    s2  -= math.exp(col.w * (b - a) / n)
+  return s1 / n &lt; s2 / n</code></pre>
+</details>
+</dd>
+<dt id="bayes2.binAdd"><code class="name flex">
+<span>def <span class="ident">binAdd</span></span>(<span>bin, x, y, row)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def binAdd(bin, x, y, row):
+  bin.n     += 1
+  bin.lo     = min(bin.lo, x)
+  bin.hi     = max(bin.hi, x)
+  bin.ys[y]  = bin.ys.get(y,[]) 
+  bin.ys[y] += [row]
+  return bin</code></pre>
+</details>
+</dd>
+<dt id="bayes2.binEnt"><code class="name flex">
+<span>def <span class="ident">binEnt</span></span>(<span>bin)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def binEnt(bin):
+  def p(n): return n*math.log(n,2)
+  return -sum((p(len(lst)/bin.n) for lst in bin.ys.values()))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.bootstrap"><code class="name flex">
+<span>def <span class="ident">bootstrap</span></span>(<span>x, t, conf=0.05)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bootstrap(x,t,conf=.05):
+  delta= lambda x,y: abs(x.mu-y.mu) / ((x.sd**2/x.n + y.sd**2/y.n)**.5 + 1/inf)
+  x, y, z = NUM(), NUM(), NUM()
+  for y1 in y0: add(x,y1); add(z,y1)
+  for z1 in z0: add(x,z1); add(z,z1)
+  yhat = [y1 - y.mu + x.mu for y1 in y0]
+  zhat = [z1 - z.mu + x.mu for z1 in z0]
+  d    = delta(y,z)
+  n    = 0
+  for _ in range(the.Bootstraps):
+    ynum = adds(NUM(), sample(yhat))
+    znum = adds(NUM(), sample(zhat))
+    if delta(ynum, znum)  &gt; d:
+      n += 1
+  return n / the.Bootstraps &lt; conf # true if different</code></pre>
+</details>
+</dd>
+<dt id="bayes2.cli"><code class="name flex">
+<span>def <span class="ident">cli</span></span>(<span>d)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cli(d):
+  for k,v in d.items():
+    v= str(v)
+    for i,x in enumerate(sys.argv):
+      if (&#34;-&#34;+first(k)) == x or (&#34;--&#34;+k) == x:
+        v= &#34;False&#34; if v==&#34;True&#34; else (&#34;True&#34; if v==&#34;False&#34; else sys.argv[i+1])
+    d[k] = coerce(v)
+  return d</code></pre>
+</details>
+</dd>
+<dt id="bayes2.cliffsDelta"><code class="name flex">
+<span>def <span class="ident">cliffsDelta</span></span>(<span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cliffsDelta(x,y):
+  n = 0
+  if len(x) &gt; 10*len(y) : x = random.choices(x,10*len(y))
+  if len(y) &gt; 10*len(x) : y = random.choices(y,10*len(x))
+  lt,gt = 0,0
+  for x1 in x:
+    for y1 in y:
+      n = n + 1
+      if x1 &gt; y1: gt = gt + 1
+      if x1 &lt; y1: lt = lt + 1
+  return abs(lt - gt)/n &gt; the.Cliffs # true if different</code></pre>
+</details>
+</dd>
+<dt id="bayes2.clone"><code class="name flex">
+<span>def <span class="ident">clone</span></span>(<span>data, rows=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a new DATA with the same column structure as <code>data</code>.
+Initialize that <code>data</code> with <code>rows</code> (if they are supplied).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clone(data, rows=[]): # -&gt; DATA
+  &#34;&#34;&#34;Return a new DATA with the same column structure as `data`. 
+  Initialize that `data` with `rows` (if they are supplied).&#34;&#34;&#34;
+  return DATA(DATA(src=[data.names]), rows)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.cluster"><code class="name flex">
+<span>def <span class="ident">cluster</span></span>(<span>data, rows=None, stop=None, lvl=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cluster(data,rows=None, stop=None,lvl=None):
+  rows = rows or data.rows
+  stop = stop or len(rows)**the.min
+  node = obj(here=clone(data,rows), norths=None,souths=None)
+  if lvl != None:
+    print(&#34;|..&#34; * lvl, stats(node.here), sep=&#34;&#34;)
+    lvl = lvl+1
+  if len(rows) &gt; stop:
+    norths,souths = polarize(data,rows)
+    node.norths   = cluster(data, norths,stop=stop,lvl=lvl)
+    node.souths   = cluster(data, souths,stop=stop,lvl=lvl)
+  return node</code></pre>
+</details>
+</dd>
+<dt id="bayes2.clustering"><code class="name flex">
+<span>def <span class="ident">clustering</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def clustering():
+  cluster(DATA(src=csv(the.file)),lvl=0)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.coerce"><code class="name flex">
+<span>def <span class="ident">coerce</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def coerce(x):
+  try: return ast.literal_eval(x)
+  except: return x</code></pre>
+</details>
+</dd>
+<dt id="bayes2.const"><code class="name flex">
+<span>def <span class="ident">const</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def const():
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  b = int(len(data.rows)**the.min)
+  r = b*the.rest
+  best = clone(data,rows[-b:])
+  rest = clone(data,random.sample(rows[:-b],r))
+  print(&#34;\nall &#34;, stats(data))
+  print(&#34;best&#34;, stats(best))
+  print(&#34;rest&#34;, stats(rest))
+  b4=None
+  for bin in contrasts(best,rest):
+    if bin.txt != b4: print(&#34;&#34;)
+    print(bin.txt, bin.lo, bin.hi,
+          {k:len(bin.ys[k]) for k in sorted(bin.ys)},
+          f&#34;{bin.score:.2f}&#34;)
+    b4 = bin.txt</code></pre>
+</details>
+</dd>
+<dt id="bayes2.contrasts"><code class="name flex">
+<span>def <span class="ident">contrasts</span></span>(<span>data1, data2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def contrasts(data1,data2):
+  data12 = clone(data1, data1.rows + data2.rows)
+  for col in data12.x:
+    bins = {}
+    for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
+      for row in rows:
+        x = row[col.at]
+        if z := discretize(col, x):
+          if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x,
+                                          B=len(data1.rows), R=len(data2.rows))
+          binAdd(bins[z], x, klass, row)
+    for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo)):
+      yield value(bin, col)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.csv"><code class="name flex">
+<span>def <span class="ident">csv</span></span>(<span>file)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def csv(file):
+  with open(file) as fp:
+    for line in fp:
+      line = re.sub(r&#39;([\n\t\r&#34;\&#39; ]|#.*)&#39;, &#39;&#39;, line)
+      if line:
+        yield [coerce(s.strip()) for s in line.split(&#34;,&#34;)]</code></pre>
+</details>
+</dd>
+<dt id="bayes2.csvd"><code class="name flex">
+<span>def <span class="ident">csvd</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def csvd():
+  return 3192 == sum((len(a) for a in csv(the.file)))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.different"><code class="name flex">
+<span>def <span class="ident">different</span></span>(<span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def different(x,y):
+  return cliffsDelta(x,y) and bootstrap(x,y)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.discretize"><code class="name flex">
+<span>def <span class="ident">discretize</span></span>(<span>col, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def discretize(col,x):
+  if x == &#34;?&#34;: return
+  if col.isNum:
+    lo, hi = col.mu - 2*col.sd, col.mu + 2*col.sd
+    x = int(the.bins*(x - lo)/(hi - lo + 1/inf))
+  return x</code></pre>
+</details>
+</dd>
+<dt id="bayes2.dist"><code class="name flex">
+<span>def <span class="ident">dist</span></span>(<span>data, row1, row2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dist(data,row1,row2):
+  d = sum((aha(col,row1[col.at],row2[col.at])**the.p for col in data.x))
+  return (d/len(data.x))**(1/the.p)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.dists"><code class="name flex">
+<span>def <span class="ident">dists</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def dists():
+  data = DATA(src=csv(the.file))
+  for row in data.rows:
+    d = dist(data, row, first(data.rows))
+    if not (0 &lt;= d &lt;= 1): return False</code></pre>
+</details>
+</dd>
+<dt id="bayes2.eg"><code class="name flex">
+<span>def <span class="ident">eg</span></span>(<span>f)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def eg(f): global egs; egs += [(f,f.__name__)]; return f</code></pre>
+</details>
+</dd>
+<dt id="bayes2.elite"><code class="name flex">
+<span>def <span class="ident">elite</span></span>(<span>data, rows=None, stop=None, rest=[])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def elite(data,rows=None,stop=None,rest=[]):
+  rows = rows or data.rows
+  stop = stop or len(rows)**the.min
+  if stop &lt;= len(rows):
+    return rows, random.sample(rest, int(len(rows)*the.rest))
+  else:
+    norths,souths,north,south = polarize(data,rows)
+    if better(data,south,north): norths,souths = souths,norths
+    return elite(data,norths, stop=stop, rest=rest + souths)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.ent"><code class="name flex">
+<span>def <span class="ident">ent</span></span>(<span>d)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ent(d):
+  N = sum([d[k] for k in d])
+  return - sum((n/N*math.log(n/N,2) for n in d.values()))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.first"><code class="name flex">
+<span>def <span class="ident">first</span></span>(<span>a)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def first(a): return a[0]</code></pre>
+</details>
+</dd>
+<dt id="bayes2.last"><code class="name flex">
+<span>def <span class="ident">last</span></span>(<span>a)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def last(a): return a[-1]</code></pre>
+</details>
+</dd>
+<dt id="bayes2.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>help: str) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Show pretty version of help (if requested). Else run all the examples,
+return the number of failures.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(help:str) -&gt; int:
+  &#34;&#34;&#34;Show pretty version of help (if requested). Else run all the examples,
+  return the number of failures.&#34;&#34;&#34;
+  if help:
+    def bold(m):   return colored(first(m), attrs=[&#34;bold&#34;])
+    def bright(m): return colored(first(m), &#34;light_yellow&#34;)
+    print(re.sub(&#34;\n[A-Z][A-Z]+:&#34;, bold, re.sub(&#34; [-][-]?[\S]+&#34;, bright, help)))
+  n  = sum([run(the,fun,name) for fun,name in egs if (the.go==&#34;.&#34; or the.go==name)])
+  yell(&#34;green&#34; if n==0 else &#34;red&#34;, f&#34;# overall, FAILS = {n}\n&#34;)
+  return n</code></pre>
+</details>
+</dd>
+<dt id="bayes2.merge"><code class="name flex">
+<span>def <span class="ident">merge</span></span>(<span>bin1, bin2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Merge two adjacent bins.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merge(bin1, bin2):
+  &#34;&#34;&#34;Merge two adjacent bins.&#34;&#34;&#34;
+  out = BIN(at=bin1.at, txt=bin1.txt,
+            lo=bin1.lo, hi=bin2.hi,
+            B=bin1.B, R=bin2.R)
+  out.n = bin1.n + bin2.n
+  for d in [bin1.ys, bin2.ys]:
+    for key in d:
+      out.ys[key]  = out.ys.get(key,[])
+      out.ys[key] += d[key]
+  return out</code></pre>
+</details>
+</dd>
+<dt id="bayes2.merged"><code class="name flex">
+<span>def <span class="ident">merged</span></span>(<span>bin1, bin2, num)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merged(bin1,bin2,num):
+  out   = merge(bin1,bin2)
+  eps   = num.sd*the.Cohen
+  small = num.n / the.bins
+  if bin1.n &lt;= small or bin1.hi - bin1.lo &lt; eps : return out
+  if bin2.n &lt;= small or bin2.hi - bin2.lo &lt; eps : return out
+  e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
+  if e3 &lt; (bin1.n*e1 + bin2.n*e2)/out.n : return out</code></pre>
+</details>
+</dd>
+<dt id="bayes2.mergeds"><code class="name flex">
+<span>def <span class="ident">mergeds</span></span>(<span>a, col)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mergeds(a, col):
+  b,j = [],0
+  while j &lt; len(a):
+    now = a[j]
+    if j &lt; len(a) - 1:
+      if new := merged(a[j], a[j+1], col): now,j = new,j+1
+    b += [now]
+    j += 1
+  return a if len(a) == len(b) else mergeds(b, col)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.merges"><code class="name flex">
+<span>def <span class="ident">merges</span></span>(<span>col, bins)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merges(col,bins):
+  if not col.isNum: return bins
+  bins = mergeds(bins,col)
+  for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
+  first(bins).lo = -inf
+  last(bins).hi =  inf
+  return bins</code></pre>
+</details>
+</dd>
+<dt id="bayes2.nice"><code class="name flex">
+<span>def <span class="ident">nice</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nice(x):
+  if callable(x)         : return x.__name__+&#39;()&#39;
+  if isinstance(x,float) : return f&#34;{x:.2f}&#34;
+  return x</code></pre>
+</details>
+</dd>
+<dt id="bayes2.norm"><code class="name flex">
+<span>def <span class="ident">norm</span></span>(<span>col, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def norm(col,x):
+  return (x - col.lo) / (col.hi - col.lo + 1/inf)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.numed"><code class="name flex">
+<span>def <span class="ident">numed</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def numed():
+  num = adds(NUM(), [random.random() for _ in range(10**3)])
+  return .28 &lt; num.sd &lt; .3 and .49 &lt; num.mu &lt; .51</code></pre>
+</details>
+</dd>
+<dt id="bayes2.ordered"><code class="name flex">
+<span>def <span class="ident">ordered</span></span>(<span>data, rows=[])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ordered(data,rows=[]):
+  return sorted(rows or data.rows,
+                key=cmp2key(lambda r1,r2: better(data,r1,r2)))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.polarize"><code class="name flex">
+<span>def <span class="ident">polarize</span></span>(<span>data, rows)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def polarize(data,rows):
+  random.shuffle(rows)
+  some     = rows[:the.Fars]
+  far      = int(the.distance2Far * len(some))
+  north    = around(data, first(some), some)[far]
+  south    = around(data, north,       some)[far]
+  gap      = lambda r1,r2: dist(data,r1,r2)
+  c        = gap(north,south)
+  project  = lambda r: (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
+  rows     = sorted(((project(r),r) for r in rows), key=first)
+  mid      = len(rows)//2
+  return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c</code></pre>
+</details>
+</dd>
+<dt id="bayes2.power"><code class="name flex">
+<span>def <span class="ident">power</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def power():
+  print([x for x in powerset([1,2,3])],end=&#34; &#34;)
+  return 2**3  == len([x for x in powerset([1 ,2,3])])</code></pre>
+</details>
+</dd>
+<dt id="bayes2.powerset"><code class="name flex">
+<span>def <span class="ident">powerset</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def powerset(s):
+  r = [[]]
+  for e in s: r += [x+[e] for x in r]
+  return r</code></pre>
+</details>
+</dd>
+<dt id="bayes2.prin"><code class="name flex">
+<span>def <span class="ident">prin</span></span>(<span>*l)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prin(*l): print(*l,end=&#34;&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.rules"><code class="name flex">
+<span>def <span class="ident">rules</span></span>(<span>data1, data2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rules(data1,data2):
+  bins = [bin for bin in contrast(data1,data2)]
+  bins = sorted(bins, key=lambda z:z.score, reverse=True)[:8]
+  print([bin.score for bin in bins])
+  for rule in powerset(bins):
+    evaluate(rule)
+  return bins</code></pre>
+</details>
+</dd>
+<dt id="bayes2.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>the, fun, name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(the,fun,name):
+  yell(&#34;yellow&#34;,&#34;# &#34;,name)
+  random.seed(the.seed)
+  b4  = deepcopy(the)
+  tmp = fun()
+  for k,v in b4.__dict__.items(): the.__dict__[k] = v
+  yell(&#34;red&#34;,&#34; FAIL\n&#34;) if tmp==False else yell(&#34;green&#34;,&#34; PASS\n&#34;)
+  return tmp==False</code></pre>
+</details>
+</dd>
+<dt id="bayes2.sample"><code class="name flex">
+<span>def <span class="ident">sample</span></span>(<span>a)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sample(a):
+  return random.choices(a,k=len(a))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.sorter"><code class="name flex">
+<span>def <span class="ident">sorter</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def sorter():
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  print(&#34;&#34;)
+  print(data.names)
+  print(&#34;all &#34;, stats(data))
+  print(&#34;best&#34;, stats(clone(data,rows[-30:])))
+  print(&#34;rest&#34;, stats(clone(data,rows[:-30])))</code></pre>
+</details>
+</dd>
+<dt id="bayes2.stats"><code class="name flex">
+<span>def <span class="ident">stats</span></span>(<span>data, mid=True, cols=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stats(data,mid=True,cols=None):
+  def fun(col)      : return (middle if mid else diversity)(col)
+  def rnd(n)        : return round(n, ndigits=3) if isinstance(n,(float,int)) else n
+  def middle(col)   : return col.mu if col.isNum else col.mode
+  def diversity(col): return col.sd if col.isNum else ent(col.has)
+  return obj(N=len(data.rows), **{col.txt:rnd(fun(col)) for col in (cols or data.y)})</code></pre>
+</details>
+</dd>
+<dt id="bayes2.symed"><code class="name flex">
+<span>def <span class="ident">symed</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def symed():
+  sym = adds(SYM(), &#34;aaaabbc&#34;)
+  return 1.37 &lt; ent(sym.has) &lt; 1.39 and sym.mode == &#39;a&#39;</code></pre>
+</details>
+</dd>
+<dt id="bayes2.they"><code class="name flex">
+<span>def <span class="ident">they</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@eg
+def they(): the.p=23; prin(&#34;&#34;,str(the)[:40],&#34;...&#34;)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.value"><code class="name flex">
+<span>def <span class="ident">value</span></span>(<span>bin, col)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def value(bin,col):
+  b,r = bin.ys.get(&#34;best&#34;,[]), bin.ys.get(&#34;rest&#34;,[])
+  bin.score = want(len(b),len(r), bin.B, bin.R)
+  return bin</code></pre>
+</details>
+</dd>
+<dt id="bayes2.want"><code class="name flex">
+<span>def <span class="ident">want</span></span>(<span>b, r, B, R)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def want(b,r,B,R):
+  b, r = b/(B + 1/inf), r/(R + 1/inf)
+  match the.want:
+    case &#34;operate&#34;:  return (b-r)
+    case &#34;mitigate&#34;: return b**2/(b+r)
+    case &#34;monitor&#34;:  return r**2/(b+r)
+    case &#34;xtend&#34;:    return 1/(b+r)
+    case &#34;xplore&#34;:   return (b+r)/abs(b - r)</code></pre>
+</details>
+</dd>
+<dt id="bayes2.yell"><code class="name flex">
+<span>def <span class="ident">yell</span></span>(<span>c, *s)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def yell(c,*s):
+  print(colored(&#39;&#39;.join(s),&#34;light_&#34;+c,attrs=[&#34;bold&#34;]),end=&#34;&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="bayes2.obj"><code class="flex name class">
+<span>class <span class="ident">obj</span></span>
+<span>(</span><span>**kw)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>initialize contents from kw; add a unique id</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class obj(object):
+  oid = 0
+  def __init__(self,**kw):
+    &#34;initialize contents from kw; add a unique id&#34;
+    obj.oid+=1; self.__dict__.update(oid=obj.oid,**kw)
+  def __hash__(self) -&gt; int: return self.oid
+  def __repr__(self) -&gt; str:
+    &#34;return `self` as a string, skipping private items (those starting with &#39;_&#39;&#34;
+    d = self.__dict__.items()
+    return &#34;{&#34;+(&#34; &#34;.join([f&#34;:{k} {nice(v)}&#34; for k,v in d if first(k)!=&#34;_&#34;]))+&#34;}&#34;</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="bayes2.obj.oid"><code class="name">var <span class="ident">oid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="bayes2.BIN" href="#bayes2.BIN">BIN</a></code></li>
+<li><code><a title="bayes2.COL" href="#bayes2.COL">COL</a></code></li>
+<li><code><a title="bayes2.DATA" href="#bayes2.DATA">DATA</a></code></li>
+<li><code><a title="bayes2.NUM" href="#bayes2.NUM">NUM</a></code></li>
+<li><code><a title="bayes2.SYM" href="#bayes2.SYM">SYM</a></code></li>
+<li><code><a title="bayes2.THE" href="#bayes2.THE">THE</a></code></li>
+<li><code><a title="bayes2.add" href="#bayes2.add">add</a></code></li>
+<li><code><a title="bayes2.adds" href="#bayes2.adds">adds</a></code></li>
+<li><code><a title="bayes2.aha" href="#bayes2.aha">aha</a></code></li>
+<li><code><a title="bayes2.andThen" href="#bayes2.andThen">andThen</a></code></li>
+<li><code><a title="bayes2.around" href="#bayes2.around">around</a></code></li>
+<li><code><a title="bayes2.arounds" href="#bayes2.arounds">arounds</a></code></li>
+<li><code><a title="bayes2.better" href="#bayes2.better">better</a></code></li>
+<li><code><a title="bayes2.binAdd" href="#bayes2.binAdd">binAdd</a></code></li>
+<li><code><a title="bayes2.binEnt" href="#bayes2.binEnt">binEnt</a></code></li>
+<li><code><a title="bayes2.bootstrap" href="#bayes2.bootstrap">bootstrap</a></code></li>
+<li><code><a title="bayes2.cli" href="#bayes2.cli">cli</a></code></li>
+<li><code><a title="bayes2.cliffsDelta" href="#bayes2.cliffsDelta">cliffsDelta</a></code></li>
+<li><code><a title="bayes2.clone" href="#bayes2.clone">clone</a></code></li>
+<li><code><a title="bayes2.cluster" href="#bayes2.cluster">cluster</a></code></li>
+<li><code><a title="bayes2.clustering" href="#bayes2.clustering">clustering</a></code></li>
+<li><code><a title="bayes2.coerce" href="#bayes2.coerce">coerce</a></code></li>
+<li><code><a title="bayes2.const" href="#bayes2.const">const</a></code></li>
+<li><code><a title="bayes2.contrasts" href="#bayes2.contrasts">contrasts</a></code></li>
+<li><code><a title="bayes2.csv" href="#bayes2.csv">csv</a></code></li>
+<li><code><a title="bayes2.csvd" href="#bayes2.csvd">csvd</a></code></li>
+<li><code><a title="bayes2.different" href="#bayes2.different">different</a></code></li>
+<li><code><a title="bayes2.discretize" href="#bayes2.discretize">discretize</a></code></li>
+<li><code><a title="bayes2.dist" href="#bayes2.dist">dist</a></code></li>
+<li><code><a title="bayes2.dists" href="#bayes2.dists">dists</a></code></li>
+<li><code><a title="bayes2.eg" href="#bayes2.eg">eg</a></code></li>
+<li><code><a title="bayes2.elite" href="#bayes2.elite">elite</a></code></li>
+<li><code><a title="bayes2.ent" href="#bayes2.ent">ent</a></code></li>
+<li><code><a title="bayes2.first" href="#bayes2.first">first</a></code></li>
+<li><code><a title="bayes2.last" href="#bayes2.last">last</a></code></li>
+<li><code><a title="bayes2.main" href="#bayes2.main">main</a></code></li>
+<li><code><a title="bayes2.merge" href="#bayes2.merge">merge</a></code></li>
+<li><code><a title="bayes2.merged" href="#bayes2.merged">merged</a></code></li>
+<li><code><a title="bayes2.mergeds" href="#bayes2.mergeds">mergeds</a></code></li>
+<li><code><a title="bayes2.merges" href="#bayes2.merges">merges</a></code></li>
+<li><code><a title="bayes2.nice" href="#bayes2.nice">nice</a></code></li>
+<li><code><a title="bayes2.norm" href="#bayes2.norm">norm</a></code></li>
+<li><code><a title="bayes2.numed" href="#bayes2.numed">numed</a></code></li>
+<li><code><a title="bayes2.ordered" href="#bayes2.ordered">ordered</a></code></li>
+<li><code><a title="bayes2.polarize" href="#bayes2.polarize">polarize</a></code></li>
+<li><code><a title="bayes2.power" href="#bayes2.power">power</a></code></li>
+<li><code><a title="bayes2.powerset" href="#bayes2.powerset">powerset</a></code></li>
+<li><code><a title="bayes2.prin" href="#bayes2.prin">prin</a></code></li>
+<li><code><a title="bayes2.rules" href="#bayes2.rules">rules</a></code></li>
+<li><code><a title="bayes2.run" href="#bayes2.run">run</a></code></li>
+<li><code><a title="bayes2.sample" href="#bayes2.sample">sample</a></code></li>
+<li><code><a title="bayes2.sorter" href="#bayes2.sorter">sorter</a></code></li>
+<li><code><a title="bayes2.stats" href="#bayes2.stats">stats</a></code></li>
+<li><code><a title="bayes2.symed" href="#bayes2.symed">symed</a></code></li>
+<li><code><a title="bayes2.they" href="#bayes2.they">they</a></code></li>
+<li><code><a title="bayes2.value" href="#bayes2.value">value</a></code></li>
+<li><code><a title="bayes2.want" href="#bayes2.want">want</a></code></li>
+<li><code><a title="bayes2.yell" href="#bayes2.yell">yell</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="bayes2.obj" href="#bayes2.obj">obj</a></code></h4>
+<ul class="">
+<li><code><a title="bayes2.obj.oid" href="#bayes2.obj.oid">oid</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

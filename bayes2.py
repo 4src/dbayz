@@ -1,7 +1,14 @@
 #!/usr/bin/env python3 -B
 #<!-- vim: set ts=2 sw=2 et: -->
+#    ___                          __                     
+#  /'___\      __                /\ \                    
+# /\ \__/     /\_\        ____   \ \ \___         ___    
+# \ \ ,__\    \/\ \      /',__\   \ \  _ `\     /' _ `\  
+#  \ \ \_/     \ \ \    /\__, `\   \ \ \ \ \    /\ \/\ \ 
+#   \ \_\       \ \_\   \/\____/    \ \_\ \_\   \ \_\ \_\
+#    \/_/        \/_/    \/___/      \/_/\/_/    \/_/\/_/
 """
-SYNOPSIS: 
+SYNOPSIS:
     bayes2: look around just a little, then find some good stuff
 
 USAGE:
@@ -14,22 +21,23 @@ DESCRIPTION:
     (N^min) items from a sample of the rest*(N^min)
 
 OPTIONS:
-    -b  --bins    max number of bins                     = 16
-    -B  --Bootstraps number of bootstrap samples         = 512
-    -C  --Cohen   'not different' if under the.cohen*sd  = .35
-    -c  --cliffs  Cliff's Delta limit                    = .147
-    -d  --distance2Far                                   = .92
-    -f  --file    data csv file                          = ../data/auto93.csv
-    -F  --Fars    how far is far away?                   = 256
-    -g  --go      start up action                        = nothing
-    -h  --help    show help                              = False
-    -m  --min     on N items, recurse down to N**min     = .5
-    -n  --n       explore all subsets of top ''n bins    = 7
-    -p  --p       distance exponent                      = 2
-    -r  --rest    expand to (N**min)**rest               = 4
-    -s  --seed    random number seed                     = 1234567891
-    -S  --Some    max items kept in Some                 = 256
-    -w  --want    mitigate,operate,monitor,xplore,xtend  = mitigate
+
+     -b  --bins    max number of bins                     = 16  
+     -B  --Bootstraps number of bootstrap samples         = 512  
+     -C  --Cohen   'not different' if under the.cohen times sd  = .35  
+     -c  --cliffs  Cliff's Delta limit                    = .147  
+     -d  --distance2Far                                   = .92  
+     -f  --file    data csv file                          = ../data/auto93.csv  
+     -F  --Fars    how far is far away?                   = 256  
+     -g  --go      start up action                        = nothing  
+     -h  --help    show help                              = False  
+     -m  --min     on N items, recurse down to N raised to min     = .5  
+     -n  --n       explore all subsets of top 'n' bins    = 7  
+     -p  --p       distance exponent                      = 2  
+     -r  --rest    expand to (N raisned to min) times rest               = 4  
+     -s  --seed    random number seed                     = 1234567891  
+     -S  --Some    max items kept in Some                 = 256  
+     -w  --want    mitigate,operate,monitor,xplore,xtend  = mitigate  
 
 COPYRIGHT:
     (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
@@ -46,61 +54,80 @@ def main(help:str) -> int:
     def bold(m):   return colored(first(m), attrs=["bold"])
     def bright(m): return colored(first(m), "light_yellow")
     print(re.sub("\n[A-Z][A-Z]+:", bold, re.sub(" [-][-]?[\S]+", bright, help)))
-  n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
-  yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
-  return n
+  else:
+    n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
+    yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
+    return n
+# ____ ____ ____ ___ ____ ____ _ ____ ____ 
+# |___ |__| |     |  |  | |__/ | |___ [__  
+# |    |  | |___  |  |__| |  \ | |___ ___] 
 
-#----------------------------------------------------
 class obj(object):
   oid = 0
   def __init__(self,**kw):
-    "initialize contents from kw; add a unique id"
-    obj.oid+=1; self.__dict__.update(oid=obj.oid,**kw)
-  def __hash__(self) -> int: return self.oid
+    """initialize contents from kw; add a unique id"""
+    obj.oid+=1; self.__dict__.update(_id=obj.oid,**kw)
+  def __hash__(self) -> int: return self._id
   def __repr__(self) -> str:
     "return `self` as a string, skipping private items (those starting with '_'"
     d = self.__dict__.items()
     return "{"+(" ".join([f":{k} {nice(v)}" for k,v in d if first(k)!="_"]))+"}"
 
 def THE(s:str) -> obj:
-  "return the key/values extracted from `s`"
+  """return the key/values extracted from `s`"""
   return obj(**{m[1]:coerce(m[2])
                 for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
-def COL(txt=" ",  at=0, data=None):
-  "return a NUM or a SYM. If `data` then add to list of dependent or independent variables."
+def COL(txt=" ",  at=0, data=None): # -> NUM or COL
+  """return a  NUM (if `txt`'s has a leading upper case letter) or a SYM.
+  If `data` then (unless we ignoring something ending with 'X'),
+  add the new `col` to the list of dependent or independent variables"""
   col = (NUM if first(txt).isupper() else SYM)(txt=txt,at=at)
   if data and last(txt) != "X":
-    data.all += [col]
     (data.y if last(txt) in "-+" else data.x).append(col)
   return col
 
-def SYM(txt=" ",at=0):
+def SYM(txt=" ",at=0): # -> SYM
+  """SYMs have `isNum=False` and track what symbols `has` been seen
+  (as well as the most frequent `mode` symbol)"""
   return obj(at=at, txt=txt, n=0, has={}, mode=None,most=0,isNum=False)
 
-def NUM(txt=" ",at=0):
+def NUM(txt=" ",at=0): # -> NUM
+  """NUMs have `isNum=True` and track the mean `mu` and standard deviation `sd` and
+  `lo,hi` seen so far.  Also, NUM names ending in '-' are weighted with `w= -1` (else `w=1`)."""
   return obj(at=at, txt=txt, n=0, mu=0, m2=0, sd=0, isNum=True,
              lo=inf, hi=- inf, w= -1 if last(txt)=="-" else 1)
 
-def DATA(data=None, src=[]):
-  data = data or obj(rows=[], names=[], all=[], x=[], y=[])
+def DATA(data=None, src=[]): # -> DATA
+  """DATAs have `rows` which are summaized in `cols` (NUMs or SYMs). 
+  Some special kinds of columns
+  are also distinguished in `x,y` (for independent and dependent cols).
+  DATA's `name` is the first row (and contains the column names).""" 
+  data = data or obj(rows=[], cols=[], names=[], x=[], y=[])
   for row in src:
-    if data.names:
-      for col in data.all: add(col,row[col.at])
+    if data.names: # if non-nil then we have already read the column names
+      for col in data.cols: add(col,row[col.at])
       data.rows += [row]
-    else:
+    else:          # this `else` handles reading the row with all the column names
       data.names = row
-      for at,txt in enumerate(row): COL(txt,at,data)
+      data.cols = [COL(txt,at,data) for at,txt in enumerate(row)]
   return data
 
-def clone(data, rows=[]):
-  return DATA(data=DATA(src=[data.names]),src=rows)
+def clone(data, rows=[]): # -> DATA
+  """Return a new DATA with the same column structure as `data`. 
+  Initialize that `data` with `rows` (if they are supplied)."""
+  return DATA(DATA(src=[data.names]), rows)
+# _  _ ___  ___  ____ ___ ____ 
+# |  | |__] |  \ |__|  |  |___ 
+# |__| |    |__/ |  |  |  |___ 
 
-def adds(col,lst=[]): 
+def adds(col,lst=[]):  # -> NUM or SYM
+  """Return `col`, updated with the information from `lst`."""
   for x in lst: add(col,x)
   return col
 
-def add(col,x,inc=1):
+def add(col, x, inc=1):
+  "Update `col` with `x`. Ignore unknown values."
   if x == "?": return
   col.n  += inc
   if col.isNum:
@@ -112,16 +139,23 @@ def add(col,x,inc=1):
     col.sd  = 0 if col.n<2 else (col.m2/(col.n - 1))**.5
   else:
     tmp = col.has[x] = inc + col.has.get(x,0)
-    if tmp >  col.most: col.most, col.mode = tmp,x
+    if tmp >  col.most: col.most, col.mode = tmp,x
+# ____ _  _ ____ ____ _   _ 
+# |  | |  | |___ |__/  \_/  
+# |_\| |__| |___ |  \   |   
 
-def stats(data,mid=True,cols=None):
+def stats(data,mid=True,cols=None) -> obj:
+  """Summarize `cols` from `data`. If `mid==True`, report central tendency,
+  If `mid != True`, report deviation from central tendency."""
   def fun(col)      : return (middle if mid else diversity)(col)
   def rnd(n)        : return round(n, ndigits=3) if isinstance(n,(float,int)) else n
   def middle(col)   : return col.mu if col.isNum else col.mode
   def diversity(col): return col.sd if col.isNum else ent(col.has)
-  return obj(N=len(data.rows), **{col.txt:rnd(fun(col)) for col in (cols or data.y)})
+  return obj(N=len(data.rows), **{col.txt:rnd(fun(col)) for col in (cols or data.y)})
+# ___  _ ____ ___ ____ _  _ ____ ____ 
+# |  \ | [__   |  |__| |\ | |    |___ 
+# |__/ | ___]  |  |  | | \| |___ |___ 
 
-#----------------------------------------------------
 def around(data,row, rows=None):
   return sorted([(dist(data,row,r),r) for r in (rows or data.rows)],key=first)
 
@@ -166,9 +200,11 @@ def cluster(data,rows=None, stop=None,lvl=None):
     norths,souths = polarize(data,rows)
     node.norths   = cluster(data, norths,stop=stop,lvl=lvl)
     node.souths   = cluster(data, souths,stop=stop,lvl=lvl)
-  return node
+  return node
+# ____ ___  ___ _ _  _ _ ___  ____ 
+# |  | |__]  |  | |\/| |   /  |___ 
+# |__| |     |  | |  | |  /__ |___ 
 
-#----------------------------------------------------
 def ordered(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp2key(lambda r1,r2: better(data,r1,r2)))
@@ -189,9 +225,18 @@ def elite(data,rows=None,stop=None,rest=[]):
   else:
     norths,souths,north,south = polarize(data,rows)
     if better(data,south,north): norths,souths = souths,norths
-    return elite(data,norths, stop=stop, rest=rest + souths)
+    return elite(data,norths, stop=stop, rest=rest + souths)
+# ___  _ ____ ____ ____ ____ ___ _ ___  ____ 
+# |  \ | [__  |    |__/ |___  |  |   /  |___ 
+# |__/ | ___] |___ |  \ |___  |  |  /__ |___ 
 
-#---------------------------------------------------------------------------------------------------
+def discretize(col,x):
+  if x == "?": return
+  if col.isNum:
+    lo, hi = col.mu - 2*col.sd, col.mu + 2*col.sd
+    x = int(the.bins*(x - lo)/(hi - lo + 1/inf))
+  return x
+
 def BIN(at=0,txt=" ",lo=None,hi=None,B=0,R=0):
   return obj(at=at, txt=txt, lo=lo or inf, hi=hi or lo,
              n=0, ys={}, score=0, B=B, R=R)
@@ -227,15 +272,10 @@ def merged(bin1,bin2,num):
   if bin1.n <= small or bin1.hi - bin1.lo < eps : return out
   if bin2.n <= small or bin2.hi - bin2.lo < eps : return out
   e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
-  if e3 < (bin1.n*e1 + bin2.n*e2)/out.n : return out
-
-#---------------------------------------------------------------------------------------------------
-def discretize(col,x):
-  if x == "?": return
-  if col.isNum:
-    lo, hi = col.mu - 2*col.sd, col.mu + 2*col.sd
-    x = int(the.bins*(x - lo)/(hi - lo + 1/inf))
-  return x
+  if e3 < (bin1.n*e1 + bin2.n*e2)/out.n : return out
+# ____ _  _ _    ____ ____ 
+# |__/ |  | |    |___ [__  
+# |  \ |__| |___ |___ ___] 
 
 def contrasts(data1,data2):
   data12 = clone(data1, data1.rows + data2.rows)
@@ -283,16 +323,17 @@ def mergeds(a, col):
     j += 1
   return a if len(a) == len(b) else mergeds(b, col)
 
-#---------------------------------------------------------------------------------------------------
 def rules(data1,data2):
   bins = [bin for bin in contrast(data1,data2)]
   bins = sorted(bins, key=lambda z:z.score, reverse=True)[:8]
   print([bin.score for bin in bins])
   for rule in powerset(bins):
     evaluate(rule)
-  return bins
+  return bins
+# _    _ ___  
+# |    | |__] 
+# |___ | |__] 
 
-#---------------------------------------------------------------------------------------------------
 inf = 1E60
 
 def first(a): return a[0]
@@ -378,8 +419,10 @@ def run(the,fun,name):
   tmp = fun()
   for k,v in b4.__dict__.items(): the.__dict__[k] = v
   yell("red"," FAIL\n") if tmp==False else yell("green"," PASS\n")
-  return tmp==False
-#---------------------------------------------------------------------------------------------------
+  return tmp==False
+# ____ _  _ ____ _  _ ___  _    ____ ____ 
+# |___  \/  |__| |\/| |__] |    |___ [__  
+# |___ _/\_ |  | |  | |    |___ |___ ___] 
 
 egs=[]
 def eg(f): global egs; egs += [(f,f.__name__)]; return f
@@ -452,11 +495,13 @@ def const():
           f"{bin.score:.2f}")
     b4 = bin.txt
 
-@eg
+#@eg
 def clustering():
-  cluster(DATA(src=csv(the.file)),lvl=0)
+  cluster(DATA(src=csv(the.file)),lvl=0)
+# ____ ___ ____ ____ ___ 
+# [__   |  |__| |__/  |  
+# ___]  |  |  | |  \  |  
 
-#------------------------------------------------------------------------------
 the = THE(__doc__)
 if __name__ == "__main__":
   the.__dict__ = cli(the.__dict__)
