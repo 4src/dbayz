@@ -99,10 +99,11 @@ def NUM(txt=" ",at=0): # -> NUM
              lo=inf, hi=- inf, w= -1 if last(txt)=="-" else 1)
 
 def DATA(data=None, src=[]): # -> DATA
-  """DATAs have `rows` which are summaized in `cols` (NUMs or SYMs). 
+  """DATAs have `rows` which are summarized in `cols` (NUMs or SYMs). 
   Some special kinds of columns
   are also distinguished in `x,y` (for independent and dependent cols).
-  DATA's `name` is the first row (and contains the column names).""" 
+  If `data==None` then build from `src` (and expect src[0] to be the column names).
+  Else, add  rows from `src` into `data`."""
   data = data or obj(rows=[], cols=[], names=[], x=[], y=[])
   for row in src:
     if data.names: # if non-nil then we have already read the column names
@@ -131,15 +132,17 @@ def add(col, x, inc=1):
   if x == "?": return
   col.n  += inc
   if col.isNum:
-    col.lo  = min(col.lo, x)
-    col.hi  = max(col.hi, x)
-    d       = x - col.mu
-    col.mu += d/col.n
-    col.m2 += d*(x - col.mu)
-    col.sd  = 0 if col.n<2 else (col.m2/(col.n - 1))**.5
+    num=col
+    num.lo  = min(num.lo, x)
+    num.hi  = max(num.hi, x)
+    d       = x - num.mu
+    num.mu += d/num.n
+    num.m2 += d*(x - num.mu)
+    num.sd  = 0 if num.n<2 else (num.m2/(num.n - 1))**.5
   else:
-    tmp = col.has[x] = inc + col.has.get(x,0)
-    if tmp >  col.most: col.most, col.mode = tmp,x
+    sym=col
+    tmp = sym.has[x] = inc + sym.has.get(x,0)
+    if tmp >  sym.most: sym.most, sym.mode = tmp,x
 # ____ _  _ ____ ____ _   _ 
 # |  | |  | |___ |__/  \_/  
 # |_\| |__| |___ |  \   |   
@@ -177,17 +180,18 @@ def norm(col,x):
   return (x - col.lo) / (col.hi - col.lo + 1/inf)
 
 def polarize(data,rows):
-  random.shuffle(rows)
-  some     = rows[:the.Fars]
-  far      = int(the.distance2Far * len(some))
-  north    = around(data, first(some), some)[far]
-  south    = around(data, north,       some)[far]
-  gap      = lambda r1,r2: dist(data,r1,r2)
-  c        = gap(north,south)
-  project  = lambda r: (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
-  rows     = sorted(((project(r),r) for r in rows), key=first)
-  mid      = len(rows)//2
-  return [r[1] for r in rows[:mid]], [r[1] for r in rows[mid:]],north,south,c
+  def gap(r1,r2): return dist(data,r1,r2)
+  def project(r): return (gap(north,r)**2 + c**2 - gap(south,r)**2)/(2*c)
+  some  = random.sample(rows, the.Fars)
+  far   = int(the.distance2Far * len(some))
+  north = around(data, first(some), some)[far][1]
+  south = around(data, north,       some)[far][1]
+  c     = gap(north,south)
+  rows  = sorted(((project(r),r) for r in rows), key=first)
+  mid   = len(rows)//2
+  return [r[1] for r in rows[:mid]],\
+         [r[1] for r in rows[mid:]],\
+         north,south,c
 
 def cluster(data,rows=None, stop=None,lvl=None):
   rows = rows or data.rows
@@ -217,15 +221,17 @@ def better(data,row1,row2):
     s2  -= math.exp(col.w * (b - a) / n)
   return s1 / n < s2 / n
 
-def elite(data,rows=None,stop=None,rest=[]):
-  rows = rows or data.rows
+def elite(data,rows=None,stop=None,rest=None):
+  rows, rest = rows or data.rows, rest or []
   stop = stop or len(rows)**the.min
   if stop <= len(rows):
     return rows, random.sample(rest, int(len(rows)*the.rest))
   else:
     norths,souths,north,south = polarize(data,rows)
-    if better(data,south,north): norths,souths = souths,norths
-    return elite(data,norths, stop=stop, rest=rest + souths)
+    if better(data,south,north):
+      return elite(data,souths,stop=stop,rest=rest+norths)
+    else:
+      return elite(data,norths,stop=stop,rest=rest+souths)
 # ___  _ ____ ____ ____ ____ ___ _ ___  ____ 
 # |  \ | [__  |    |__/ |___  |  |   /  |___ 
 # |__/ | ___] |___ |  \ |___  |  |  /__ |___ 
@@ -235,6 +241,7 @@ def discretize(col,x):
   if col.isNum:
     lo, hi = col.mu - 2*col.sd, col.mu + 2*col.sd
     x = int(the.bins*(x - lo)/(hi - lo + 1/inf))
+    x = min(the.bins, max(0, x))
   return x
 
 def BIN(at=0,txt=" ",lo=None,hi=None,B=0,R=0):
@@ -265,10 +272,11 @@ def merge(bin1, bin2):
       out.ys[key] += d[key]
   return out
 
-def merged(bin1,bin2,num):
+def merged(bin1,bin2,num,best):
   out   = merge(bin1,bin2)
   eps   = num.sd*the.Cohen
   small = num.n / the.bins
+  if bin.ys.get(best,0)/bin.B < 0.05: return out
   if bin1.n <= small or bin1.hi - bin1.lo < eps : return out
   if bin2.n <= small or bin2.hi - bin2.lo < eps : return out
   e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
@@ -288,7 +296,7 @@ def contrasts(data1,data2):
           if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x,
                                           B=len(data1.rows), R=len(data2.rows))
           binAdd(bins[z], x, klass, row)
-    for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo)):
+    for bin in merges(col, sorted(bins.values(), "bests",key=lambda z:z.lo)):
       yield value(bin, col)
 
 def value(bin,col):
@@ -305,23 +313,23 @@ def want(b,r,B,R):
     case "xtend":    return 1/(b+r)
     case "xplore":   return (b+r)/abs(b - r)
 
-def merges(col,bins):
+def merges(col,bins,best):
   if not col.isNum: return bins
-  bins = mergeds(bins,col)
+  bins = mergeds(bins,col,best)
   for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
   first(bins).lo = -inf
   last(bins).hi =  inf
   return bins
 
-def mergeds(a, col):
+def mergeds(a, col,best):
   b,j = [],0
   while j < len(a):
     now = a[j]
     if j < len(a) - 1:
-      if new := merged(a[j], a[j+1], col): now,j = new,j+1
+      if new := merged(a[j], a[j+1], col,best): now,j = new,j+1
     b += [now]
     j += 1
-  return a if len(a) == len(b) else mergeds(b, col)
+  return a if len(a) == len(b) else mergeds(b, colmbest)
 
 def rules(data1,data2):
   bins = [bin for bin in contrast(data1,data2)]
@@ -498,6 +506,11 @@ def const():
 #@eg
 def clustering():
   cluster(DATA(src=csv(the.file)),lvl=0)
+
+@eg
+def list(): 
+  for _,name in egs:
+    print("\t./bayes2.py -g",name)
 # ____ ___ ____ ____ ___ 
 # [__   |  |__| |__/  |  
 # ___]  |  |  | |  \  |  
