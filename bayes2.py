@@ -55,7 +55,7 @@ def main(help:str) -> int:
     def bright(m): return colored(first(m), "light_yellow")
     print(re.sub("\n[A-Z][A-Z]+:", bold, re.sub(" [-][-]?[\S]+", bright, help)))
   else:
-    n  = sum([run(the,fun,name) for fun,name in egs if (the.go=="." or the.go==name)])
+    n= sum([run(the,s) for s in dir(Eg) if s[0]!="_" and s in [".",the.go]])
     yell("green" if n==0 else "red", f"# overall, FAILS = {n}\n")
     return n
 # ____ ____ ____ ___ ____ ____ _ ____ ____ 
@@ -78,7 +78,7 @@ def THE(s:str) -> obj:
   return obj(**{m[1]:coerce(m[2])
                 for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",s)})
 
-def COL(txt=" ",  at=0, data=None): # -> NUM or COL
+def COL(txt=" ",  at=0, data=None): # -> NUM or SYM
   """return a  NUM (if `txt`'s has a leading upper case letter) or a SYM.
   If `data` then (unless we ignoring something ending with 'X'),
   add the new `col` to the list of dependent or independent variables"""
@@ -129,20 +129,19 @@ def adds(col,lst=[]):  # -> NUM or SYM
 
 def add(col, x, inc=1):
   "Update `col` with `x`. Ignore unknown values."
+  def sym():
+    tmp = col.has[x] = inc + col.has.get(x,0)
+    if tmp >  col.most: col.most, col.mode = tmp,x
+  def num():
+    col.lo  = min(col.lo, x)
+    col.hi  = max(col.hi, x)
+    d       = x - col.mu
+    col.mu += d/col.n
+    col.m2 += d*(x - col.mu)
+    col.sd  = 0 if col.n<2 else (col.m2/(col.n - 1))**.5
   if x == "?": return
   col.n  += inc
-  if col.isNum:
-    num=col
-    num.lo  = min(num.lo, x)
-    num.hi  = max(num.hi, x)
-    d       = x - num.mu
-    num.mu += d/num.n
-    num.m2 += d*(x - num.mu)
-    num.sd  = 0 if num.n<2 else (num.m2/(num.n - 1))**.5
-  else:
-    sym=col
-    tmp = sym.has[x] = inc + sym.has.get(x,0)
-    if tmp >  sym.most: sym.most, sym.mode = tmp,x
+  num() if col.isNum else sym()
 # ____ _  _ ____ ____ _   _ 
 # |  | |  | |___ |__/  \_/  
 # |_\| |__| |___ |  \   |   
@@ -420,8 +419,9 @@ def bootstrap(x,t,conf=.05):
       n += 1
   return n / the.Bootstraps < conf # true if different
 
-def run(the,fun,name):
-  yell("yellow","# ",name)
+def run(the,s):
+  fun = getattr(Eg,s)
+  yell("yellow","# ",s)
   random.seed(the.seed)
   b4  = deepcopy(the)
   tmp = fun()
@@ -432,85 +432,71 @@ def run(the,fun,name):
 # |___  \/  |__| |\/| |__] |    |___ [__  
 # |___ _/\_ |  | |  | |    |___ |___ ___] 
 
-egs=[]
-def eg(f): global egs; egs += [(f,f.__name__)]; return f
+class Eg:
+  def they(): the.p=23; prin("",str(the)[:40],"...")
 
-@eg
-def they(): the.p=23; prin("",str(the)[:40],"...")
+  def andThen(): return the.p==2
 
-@eg
-def andThen(): return the.p==2
+  def power():
+    print([x for x in powerset([1,2,3])],end=" ")
+    return 2**3  == len([x for x in powerset([1 ,2,3])])
 
-@eg
-def power():
-  print([x for x in powerset([1,2,3])],end=" ")
-  return 2**3  == len([x for x in powerset([1 ,2,3])])
+  def numed():
+    num = adds(NUM(), [random.random() for _ in range(10**3)])
+    return .28 < num.sd < .3 and .49 < num.mu < .51
 
-@eg
-def numed():
-  num = adds(NUM(), [random.random() for _ in range(10**3)])
-  return .28 < num.sd < .3 and .49 < num.mu < .51
+  def symed():
+    sym = adds(SYM(), "aaaabbc")
+    return 1.37 < ent(sym.has) < 1.39 and sym.mode == 'a'
 
-@eg
-def symed():
-  sym = adds(SYM(), "aaaabbc")
-  return 1.37 < ent(sym.has) < 1.39 and sym.mode == 'a'
+  def csvd():
+    return 3192 == sum((len(a) for a in csv(the.file)))
 
-@eg
-def csvd():
-  return 3192 == sum((len(a) for a in csv(the.file)))
+  def dists():
+    data = DATA(src=csv(the.file))
+    for row in data.rows:
+      d = dist(data, row, first(data.rows))
+      if not (0 <= d <= 1): return False
 
-@eg
-def dists():
-  data = DATA(src=csv(the.file))
-  for row in data.rows:
-    d = dist(data, row, first(data.rows))
-    if not (0 <= d <= 1): return False
+  def arounds():
+    data = DATA(src=csv(the.file))
+    print("0.000",first(data.rows))
+    for d,r in around(data,first(data.rows))[::50]:
+      print(f"{d:.3f}",r)
 
-@eg
-def arounds():
-  data = DATA(src=csv(the.file))
-  print("0.000",first(data.rows))
-  for d,r in around(data,first(data.rows))[::50]:
-    print(f"{d:.3f}",r)
+  def sorter():
+    data = DATA(src=csv(the.file))
+    rows = ordered(data)
+    print("")
+    print(data.names)
+    print("all ", stats(data))
+    print("best", stats(clone(data,rows[-30:])))
+    print("rest", stats(clone(data,rows[:-30])))
 
-@eg
-def sorter():
-  data = DATA(src=csv(the.file))
-  rows = ordered(data)
-  print("")
-  print(data.names)
-  print("all ", stats(data))
-  print("best", stats(clone(data,rows[-30:])))
-  print("rest", stats(clone(data,rows[:-30])))
+  def const():
+    data = DATA(src=csv(the.file))
+    rows = ordered(data)
+    b = int(len(data.rows)**the.min)
+    r = b*the.rest
+    best = clone(data,rows[-b:])
+    rest = clone(data,random.sample(rows[:-b],r))
+    print("\nall ", stats(data))
+    print("best", stats(best))
+    print("rest", stats(rest))
+    b4=None
+    for bin in contrasts(best,rest):
+      if bin.txt != b4: print("")
+      print(bin.txt, bin.lo, bin.hi,
+            {k:len(bin.ys[k]) for k in sorted(bin.ys)},
+            f"{bin.score:.2f}")
+      b4 = bin.txt
 
-@eg
-def const():
-  data = DATA(src=csv(the.file))
-  rows = ordered(data)
-  b = int(len(data.rows)**the.min)
-  r = b*the.rest
-  best = clone(data,rows[-b:])
-  rest = clone(data,random.sample(rows[:-b],r))
-  print("\nall ", stats(data))
-  print("best", stats(best))
-  print("rest", stats(rest))
-  b4=None
-  for bin in contrasts(best,rest):
-    if bin.txt != b4: print("")
-    print(bin.txt, bin.lo, bin.hi,
-          {k:len(bin.ys[k]) for k in sorted(bin.ys)},
-          f"{bin.score:.2f}")
-    b4 = bin.txt
+  def clustering():
+    cluster(DATA(src=csv(the.file)),lvl=0)
 
-#@eg
-def clustering():
-  cluster(DATA(src=csv(the.file)),lvl=0)
-
-@eg
-def list(): 
-  for _,name in egs:
-    print("\t./bayes2.py -g",name)
+  def list(): 
+    for _,name in egs:
+      print("\t./bayes2.py -g",name)
 # ____ ___ ____ ____ ___ 
 # [__   |  |__| |__/  |  
 # ___]  |  |  | |  \  |  

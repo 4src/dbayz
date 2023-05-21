@@ -11,3 +11,12 @@ def symMerge(sym1,sym2):
   for x,n in sym2.tally.items(): colAdd(sym12,x,n)
   return sym12
 
+class Fred:
+  def aa(): print(1)
+  def bb(): print(2)
+  def cc(): print(3)
+
+all="all"
+for m in dir(Fred):
+  if m[0] != "_" and all in [m,"all"]:
+    getattr(Fred, m)()
