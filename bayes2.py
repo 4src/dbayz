@@ -328,7 +328,7 @@ def mergeds(a, col,best):
       if new := merged(a[j], a[j+1], col,best): now,j = new,j+1
     b += [now]
     j += 1
-  return a if len(a) == len(b) else mergeds(b, colmbest)
+  return a if len(a) == len(b) else mergeds(b, col,best)
 
 def rules(data1,data2):
   bins = [bin for bin in contrast(data1,data2)]
