@@ -26,16 +26,20 @@ OPTIONS:
 """
 import random,math,sys,ast,re
 from termcolor import colored
-from functools import cmp_to_key 
+from functools import cmp_to_key
 
 the={} # global options, filled in later
 
-def SYM(at=0,txt=""): 
-  return obj(txt=txt, at=at, n=0,counts={},mode=None,most=0,isNum=False)
+def isa(x,y): return isinstance(x,obj) and x.isa == y
+
+def SYM(at=0,txt=""):
+  return obj(isa=SYM,txt=txt, at=at, n=0,
+             counts={}, mode=None, most=0)
 
 def NUM(at=0,txt=""):
    w = -1 if txt and txt[-1]=="-" else 1
-   return obj(txt=txt, at=at, n=0, _kept=[], ok=True, w=w, lo=inf, hi=-inf,isNum=True)
+   return obj(isa=NUM,txt=txt, at=at, n=0,
+              _kept=[], ok=True, w=w, lo=inf, hi=-inf)
 
 def norm(num,x):
   return x if x=="?" else (x-num.lo) / (num.hi - num.lo + 1/inf)
@@ -43,7 +47,7 @@ def norm(num,x):
 def add(col,x,n=1):
   if x == "?": return
   col.n += n
-  if col.isNum:
+  if isa(col,NUM):
     col.lo = min(x, col.lo)
     col.hi = max(x, col.hi)
     a = col._kept
@@ -54,20 +58,23 @@ def add(col,x,n=1):
     if now > col.most: col.most, col.mode = now, x
 
 def ok(col):
-  if col.isNum and not col.ok:
+  if isa(col,NUM) and not col.ok:
     col._kept.sort()
     col.ok=True
   return col
 
 def div(col,decimals=None):
-  return rnd(stdev(ok(col)._kept) if col.isNum else ent(col.counts), decimals)
+  return rnd(stdev(ok(col)._kept) if isa(col,NUM) else ent(col.counts), decimals)
 
 def mid(col,decimals=None):
-  return rnd(median(ok(col)._kept),decimals) if col.isNum else col.mode
+  return rnd(median(ok(col)._kept),decimals) if isa(col,NUM) else col.mode
 
 #---------------------------------------------------------------------------------------------------
+def ROW(cells=[]):
+  return obj(isa=ROW,cells=cells)
+
 def COLS(names):
-  cols = obj(names=None, x=[], y=[], all=[])
+  cols = obj(isa=COLS,names=None, x=[], y=[], all=[])
   cols.names = names
   for n,s in enumerate(names):
     col = (NUM if s[0].isupper() else SYM)(at=n,txt=s)
@@ -77,11 +84,12 @@ def COLS(names):
   return cols
 
 def DATA(data=None, src=[], filter=lambda x:x):
-  data = data or obj(rows=[], cols=None)
+  data = data or obj(isa=DATA,rows=[], cols=None)
   for row in src:
     if not data.cols:
       data.cols = COLS(row)
     else:
+      row = row.cells if isa(row,ROW) else row
       for cols in [data.cols.x, data.cols.y]:
         for col in cols:
           x = row[col.at] = filter(row[col.at])
@@ -116,7 +124,7 @@ def ordered(data,rows=[]):
 #---------------------------------------------------------------------------------------------------
 def discretize(col,x):
   if x == "?": return
-  if col.isNum:
+  if isa(col,NUM):
     x = int(the.bins*(x - col.lo)/(col.hi - col.lo + 1/inf))
     x = min(the.bins, max(0, x))
   return x
@@ -129,8 +137,8 @@ def binAdd(bin, x, y, row):
   bin.n     += 1
   bin.lo     = min(bin.lo, x)
   bin.hi     = max(bin.hi, x)
-  bin.ys[y]  = bin.ys.get(y,[]) 
-  bin.ys[y] += [row]
+  bin.ys[y]  = bin.ys.get(y,set()) 
+  bin.ys[y].add(row)
   return bin
 
 def merge(bin1, bin2):
@@ -140,8 +148,8 @@ def merge(bin1, bin2):
   out.n = bin1.n + bin2.n
   for d in [bin1.ys, bin2.ys]:
     for key in d:
-      out.ys[key]  = out.ys.get(key,[])
-      out.ys[key] += d[key]
+      old = out.ys[key]  = out.ys.get(key,[])
+      out.ys[key]  = old | d[key]
   return out
 
 def merged(bin1,bin2,num,best):
@@ -172,7 +180,7 @@ def contrasts(data1,data2):
       yield value(bin, col)
 
 def merges(col,bins,best):
-  if not col.isNum: return bins
+  if not isa(col,NUM): return bins
   bins = mergeds(bins,col,best)
   for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
   bins[0].lo = -inf
@@ -269,6 +277,7 @@ def eg(f): egs[f.__name__]= f; return f
 
 @eg
 def thed(): print(str(the)[:50],"... ")
+
 @eg
 def colnum():
   num = NUM()
@@ -323,8 +332,7 @@ def contraster():
     for bin in contrasts(best,rest):
       if bin.txt != b4: print("")
       print(bin.txt, bin.lo, bin.hi,
-            {k:len(bin.ys[k]) for k in sorted(bin.ys)},
-            f"{bin.score:.2f}")
+            {k:len(bin.ys[k]) for k in sorted(bin.ys)}, f"{bin.score:.2f}")
       b4 = bin.txt
 
 #---------------------------------------------------------------------------------------------------
