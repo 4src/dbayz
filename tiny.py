@@ -308,32 +308,32 @@ def statd():
 
 @eg
 def orderer():
-    data = DATA(src=csv(the.file))
-    rows = ordered(data)
-    print("")
-    print(data.cols.names)
-    print("all ", stats(data))
-    print("best", stats(clone(data,rows[-30:])))
-    print("rest", stats(clone(data,rows[:30])))
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  print("")
+  print(data.cols.names)
+  print("all ", stats(data))
+  print("best", stats(clone(data,rows[-30:])))
+  print("rest", stats(clone(data,rows[:30])))
 
 @eg
 def contraster():
-    data = DATA(src=csv(the.file))
-    rows = ordered(data)
-    b = int(len(data.rows)**the.min)
-    r = b*the.rest
-    best = clone(data,rows[-b:])
-    #rest = clone(data,random.sample(rows[:-b],r))
-    rest = clone(data,rows[:r])
-    print("\nall ", stats(data))
-    print("best", stats(best))
-    print("rest", stats(rest))
-    b4=None
-    for bin in contrasts(best,rest):
-      if bin.txt != b4: print("")
-      print(bin.txt, bin.lo, bin.hi,
-            {k:len(bin.ys[k]) for k in sorted(bin.ys)}, f"{bin.score:.2f}")
-      b4 = bin.txt
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  b = int(len(data.rows)**the.min)
+  r = b*the.rest
+  best = clone(data,rows[-b:])
+  #rest = clone(data,random.sample(rows[:-b],r))
+  rest = clone(data,rows[:r])
+  print("\nall ", stats(data))
+  print("best", stats(best))
+  print("rest", stats(rest))
+  b4=None
+  for bin in contrasts(best,rest):
+    if bin.txt != b4: print("")
+    print(bin.txt, bin.lo, bin.hi,
+          {k:len(bin.ys[k]) for k in sorted(bin.ys)}, f"{bin.score:.2f}")
+    b4 = bin.txt
 
 #---------------------------------------------------------------------------------------------------
 the = settings(__doc__)
