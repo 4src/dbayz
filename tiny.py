@@ -89,10 +89,10 @@ def DATA(data=None, src=[], filter=lambda x:x):
     if not data.cols:
       data.cols = COLS(row)
     else:
-      row = row.cells if isa(row,ROW) else row
+      lst = row.cells if isa(row,ROW) else row
       for cols in [data.cols.x, data.cols.y]:
         for col in cols:
-          x = row[col.at] = filter(row[col.at])
+          x = lst[col.at] = filter(lst[col.at])
           add(col,x)
       data.rows += [row]
   return data
@@ -148,7 +148,7 @@ def merge(bin1, bin2):
   out.n = bin1.n + bin2.n
   for d in [bin1.ys, bin2.ys]:
     for key in d:
-      old = out.ys[key]  = out.ys.get(key,[])
+      old = out.ys[key]  = out.ys.get(key,set())
       out.ys[key]  = old | d[key]
   return out
 
@@ -328,7 +328,7 @@ def contraster():
   print("\nall ", stats(data))
   print("best", stats(best))
   print("rest", stats(rest))
-  b4=None
+  b4 = None
   for bin in contrasts(best,rest):
     if bin.txt != b4: print("")
     print(bin.txt, bin.lo, bin.hi,
