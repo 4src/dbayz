@@ -220,6 +220,10 @@ class obj(object):
   def __hash__(i)     : return i._id
 
 r=random.random
+def red(s): return colored(s,"red",attrs=["bold"])
+def green(s): return colored(s,"green",attrs=["bold"])
+def yellow(s): return colored(s,"yellow",attrs=["bold"])
+def bold(s): return colored(s,"white",attrs=["bold"])
 
 def rnd(x,decimals=None):
    return round(x,decimals) if decimals else  x
@@ -266,17 +270,28 @@ def run(s,fun):
   d = the.__dict__
   saved = {k:d[k] for k in d}
   random.seed(the.seed)
+  print(bold(s) + " ",end="")
   out = fun()
   for k in saved: d[k] = saved[k]
-  color = "red" if out==False else "green"
-  print(colored(f"FAIL {s}" if out==False else f"PASS {s}",color))
+  print(red("FAIL") if out==False else green("PASS"))
   return out==False
+
+def runs():
+  if the.help:
+    print(re.sub("\n[A-Z][A-Z]+:", lambda m:yellow(m[0]), 
+                 re.sub(" [-][-]?[\S]+", lambda m:bold(m[0]), __doc__)))
+  else:
+    n= sum([run(s,fun) for s,fun in egs.items()
+                       if s[0]!="_" and the.go in ["all",s]])
+    print(red(f"{n} FAILURES") if n>0  else green(f"{n} FAILURES"))
+    return n
+
 #---------------------------------------------------------------------------------------------------
 egs={}
 def eg(f): egs[f.__name__]= f; return f
 
 @eg
-def thed(): print(str(the)[:50],"... ")
+def thed(): print(str(the)[:50],"... ",end=""); return False
 
 @eg
 def colnum():
@@ -344,6 +359,4 @@ def contraster():
 the = settings(__doc__)
 if __name__ == "__main__":
   the = cli(the)
-  if the.help: print(__doc__)
-  else: sys.exit(sum([run(s,fun) 
-                      for s,fun in egs.items() if s[0]!="_" and the.go in ["all",s]]))
+  sys.exit(runs())

@@ -108,8 +108,9 @@ def norm(num,x):
   "Normalize `x` 0..1 for min..max."
   return x if x=="?" else (x - num.lo)/(num.hi - num.lo + 1/inf)
 
-def constrasts(data1,data2):
-  "Unsupervised discretization (for NUMs into `the.bins)
+def bins(data1,data2):
+  """Unsupervised division (for NUMs into `the.bins`),
+  followed by supervised merging, to combine uninformative adjacent bins"""
   out = []
   for row in data1.rows: row.y= True
   for row in data2.rows: row.y= False
@@ -119,7 +120,7 @@ def constrasts(data1,data2):
     rows = [row for row in data.rows if here(row) != "?"]
     for row in sorted(rows, key=here):
       x = here(row)
-      k = bin(col, x)
+      k = key(col, x)
       if k not in tmp: tmp[k] = BIN(col1.at, x)
       tmp[k].rows += [row]
       tmp[k].lo = min(tmp[k].lo, x)
@@ -127,15 +128,16 @@ def constrasts(data1,data2):
       add(tmp[k].y, row.y)
     tmp =sorted([bin for bin in tmp.values()], key=lambda b:b.lo)
     out += fillInTheGaps(merges(col, tmp))
+  return out
 
-def bin(col,x):
+def key(col,x):
   "Return `x` if it is a SYM, else round it to some factor of bin nums."
   if col.ako is SYM: return x
   tmp = (col.hi - col.lo)/(the.bins - 1)
   return 1 if col.hi == col.lo else int(x/tmp + .5)*tmp
 
 def merges(col,b4):
-  "Find  adjacent bins that can merge. Merge them. Look for others.",
+  "Bottom-up clustering. Find adjacent bins that can merge. Merge them. Repeat."
   if col.ako is SYM: return b4
   eps  = div(col)*the.cohen
   tiny = col.n/the.bins
