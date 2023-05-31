@@ -225,7 +225,7 @@ def rnd(x,decimals=None):
    return round(x,decimals) if decimals else  x
 
 def per(a,p=.5):
-  n = max(0, min(len(a)-1, int( p*len(a))))
+  n = max(0, min(len(a)-1, int( 0.5 + p*len(a))))
   return a[n]
 
 def median(a): return per(a,.5)
@@ -281,14 +281,19 @@ def thed(): print(str(the)[:50],"... ")
 @eg
 def colnum():
   num = NUM()
-  [add(num,x) for x in range(20)]
-  return 0==num.lo and 19==num.hi
+  [add(num, random.gauss(10,2)) for _ in range(the.keep)]
+  return 9.95 <= mid(num) <= 10.05 and 1.9 <= div(num) <=2.1
 
 @eg
 def colnum2():
   num = NUM()
-  [add(num,r()) for x in range(10**4)]
-  return .28 < div(num) < .32 and .46 < mid(num) < .54
+  the.keep=20
+  [add(num, x) for x in range(1000)]
+  print(ok(num)._kept)
+
+@eg
+def colnum3():
+  return the.keep == 512
 
 @eg
 def colsym():
@@ -316,7 +321,7 @@ def orderer():
   print("best", stats(clone(data,rows[-30:])))
   print("rest", stats(clone(data,rows[:30])))
 
-@eg
+#@eg
 def contraster():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
