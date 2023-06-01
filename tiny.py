@@ -16,6 +16,7 @@
 ## OPTIONS:
 
      -b  --bins    max number of bins    = 16  
+     -B  --Beam    explore top 'B' ranges = 7  
      -c  --cohen   size significant separation = .35  
      -f  --file    data csv file         = ../data/auto93.csv  
      -g  --go      start up action       = nothing  
@@ -141,7 +142,7 @@ class BIN(object):
     if self.hi == self.lo: return f"{self.txt}={self.lo}"
     if self.hi == inf:     return f"{self.txt}>={self.lo}"
     if self.lo == -inf:    return f"{self.txt}<{self.hi}"
-    return f"{self.lo} <= {self.txt} < self.hi"
+    return f"{self.lo} <= {self.txt} < {self.hi}"
 
 def binAdd(bin, x, y, row):
   bin.n     += 1
@@ -173,17 +174,18 @@ def merged(bin1,bin2,num,best):
   if e3 <= (bin1.n*e1 + bin2.n*e2)/out.n : return out
 
 def binEnt(bin):
-  return ent({k:len(set) for k,set in bin.ys.items()})
+  return ent({k:len(set1) for k,set1 in bin.ys.items()})
 
 def contrasts(data1,data2, elite=False):
+  bins = contrasts1(data1,data2)
+  n=0
   if elite:
-    enough = None
-    for bin in sorted(contrasts1(data1,data2),reverse=True,key=lambda bin: bin.score):
-      enough = enough or bin.score *.1
-      if not(bin.lo == -inf and bin.hi == inf) and bin.score > enough:
-        yield bin
+    for bin in sorted(bins,reverse=True,key=lambda bin: bin.score):
+      if not(bin.lo == -inf and bin.hi == inf) and bin.score > bins[0].score*.1:
+        n += 1
+        if n <= the.Beam: yield bin
   else:
-    for bin in contrasts1(data1,data2): yield bin
+    for bin in bins: yield bin
 
 def contrasts1(data1,data2):
   data12 = clone(data1, data1.rows + data2.rows)
@@ -230,6 +232,28 @@ def want(b,r,B,R):
     case "monitor":  return r**2/(b+r)
     case "xtend":    return 1/(b+r)
     case "xplore":   return (b+r)/abs(b - r)
+
+def select1(bin,row):
+  x = row[bin.at]
+  if x=="?": return row
+  if bin.lo == bin.hi == x: return row
+  if bin.lo == -inf and x <  bin.hi: return row
+  if bin.hi ==  inf and x >= bin.lo: return row
+  if bin.lo <= x and x < bin/hi    : return row
+
+def select(bin,rows):  return set([row for row in rows if select1(bin,row)])
+def selects(bins,rows):
+  d={}
+  for bin in bins:
+    here = d[bin.at] = d.get(bin.at, set())
+    d[bin.at] = here | select(bin,rows)
+  sets = d.values()
+  out= set[1]
+  for set1 in sets[1:]:
+    out = out &  set1
+    if len(out)==0: return 
+  if len(out) == len(rows): return
+  return out
 
 #---------------------------------------------------------------------------------------------------
 r=random.random
@@ -386,15 +410,26 @@ def contrasted():
     b4 = bin.txt
 
 @eg
-def ruled():
+def bested():
   data = DATA(src=csv(the.file))
   rows = ordered(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
   rest = clone(data,rows[:b*the.rest])
   print("")
-  for bin in powerset(contrasts(best,rest, elite=True)):
-    print(bin)
+  for bin in contrasts(best,rest, elite=True):
+    print(bin,bin.score)
+
+@eg
+def bested2():
+  data = DATA(src=csv(the.file))
+  rows = ordered(data)
+  b = int(len(data.rows)**the.min)
+  best = clone(data,rows[-b:])
+  rest = clone(data,rows[:b*the.rest])
+  print("")
+  for bins in powerset(list(contrasts(best,rest, elite=True))):
+    print(stats(clone(data, selects(bins, data.rows))))
 
 #---------------------------------------------------------------------------------------------------
 the = settings(__doc__)
