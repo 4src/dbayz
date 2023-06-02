@@ -1,21 +1,21 @@
 #!/usr/bin/env python3 -B
-# vim: set et sts=2 sw=2 ts=2 :
+#<!-- vim: set et sts=2 sw=2 ts=2 : -->
 """
-# SYNOPSIS:
-  tiny: look around just a little, then guess where is the good stuff
+## SYNOPSIS:
+  tiny: look around just a little, then guess where is the good stuff   
   (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
-
+  
 ## USAGE:
   ./tiny.py [OPTIONS] [-g ACTIONS]
-
+  
 ## DESCRIPTION:
   Use to find best regions within rows of data with multiple objectives.
   N rows of data are ranked via a multi-objective domination predicate
   and then discretized, favoring ranges that distinguish the best
   (N^min) items from a sample of the rest*(N^min)
-
+  
 ## OPTIONS:
-
+  
      -b  --bins    max number of bins    = 16  
      -B  --Beam    explore top 'B' ranges = 8  
      -c  --cohen   size significant separation = .35  
@@ -32,26 +32,47 @@ import random,math,sys,ast,re
 from termcolor import colored
 from functools import cmp_to_key
 
-the={} # global options, filled in later
+# ______
+# ## Config
 
+# `the` is where we store config options. These options are parsed
+# out of the above doc string (using the `settings` function).
+# Optionally, these options are updated from command-line (using the `cli` function).
+the={} 
+
+# ## Factories
+# Factories make instances and have UPPER-CASE names (e.g. NUM, SYM, etc).
+# In my code, any lower case factory names are instances (e.g. `num` is an instance of NUM).
+
+# ### obj
+# `obj` is  simple class that prints pretty, hashes easy, and inits easy.
 class obj(object):
   oid = 0
   def __init__(i,**kw): obj.oid+=1; i.__dict__.update(_id=obj.oid, **kw)
   def __repr__(i)     : return printd(i.__dict__)
-  def __hash__(i)     : return i._id
+  def __hash__(i)     : return i._idbrew install entr 
 
+# ### ROW
+def ROW(cells=[]):
+  return obj(this=ROW,cells=cells)
+
+# ### NUM and SYM (which are "columns")
+# All my columns count items seen (in `n`). Also, `col.this is NUM` is the idiom
+# for recognizing a column of a particular type.
+# For example, SYMs summarizes streams of symbols (and SYMs knos frequency counts and `mode`).
 def SYM(at=0,txt=""):
   return obj(this=SYM,txt=txt, at=at, n=0,
              counts={}, mode=None, most=0)
 
+# NUMs summarizes streams of numbers (and NUMs know `lo,hi` and keeps a sample
+# of those numbers in `_kept`). For goals, NUMs can have a weight of -1,1 denoting things to be
+# minimized or maximized (respectively).
 def NUM(at=0,txt=""):
    w = -1 if txt and txt[-1]=="-" else 1
    return obj(this=NUM,txt=txt, at=at, n=0,
               _kept=[], ok=True, w=w, lo=inf, hi=-inf)
 
-def norm(num,x):
-  return x if x=="?" else (x-num.lo) / (num.hi - num.lo + 1/inf)
-
+# NUMs and SYMs can be incrementally updated.
 def add(col,x,n=1):
   if x == "?": return
   col.n += n
@@ -62,27 +83,38 @@ def add(col,x,n=1):
     col.lo = min(x, col.lo)
     col.hi = max(x, col.hi)
     a = col._kept
-    if   len(a) < the.keep    : col.ok=False; a += [x]
-    elif r() < the.keep/col.n : col.ok=False; a[int(len(a)*r())] = x
+    if   len(a) < the.keep    : #  there is space, keep `x`, so just keep it
+      col.ok=False; a += [x]
+    elif r() < the.keep/col.n : # else, keep some things (by replace old things)
+      col.ok=False; a[int(len(a)*r())] = x
 
+# NUM _kept can get jumbled up so before we use it, make sure it is `ok` 
 def ok(col):
   if col.this is NUM and not col.ok:
     col._kept.sort()
     col.ok=True
   return col
 
-def div(col,decimals=None):
-  return rnd(ent(col.counts) if col.this is SYM else stdev(ok(col)._kept),decimals)
+# `norm`alize a NUM value 0..1
+def norm(num,x):
+  return x if x=="?" else (x - num.lo) / (num.hi - num.lo + 1/inf)
 
+# `mid` of a col is the central tendency and is mode or median for SYMs and NUMs, respectively.
 def mid(col,decimals=None):
   return col.mode if col.this is SYM else rnd(median(ok(col)._kept),decimals)
 
+# `div` of a col is the diversity (how far we stray from `mid`) and is  entropy or standard deviation for SYMs and NUMs, respectively.
+def div(col,decimals=None):
+  return rnd(ent(col.counts) if col.this is SYM else stdev(ok(col)._kept),decimals)
+
+# `stats` returns an `obj` with `mid` or `div` on many columns. 
 def stats(data, cols=None, fun=mid, decimals=2):
   return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
-#---------------------------------------------------------------------------------------------------
-def ROW(cells=[]):
-  return obj(this=ROW,cells=cells)
 
+# ## COLS (makes many columns)
+# Convert a list of strings to NUMs or SYMs. Anything ending with "X" is ignore.
+# Upper case names become NUMs (and everything else is a SYM). For convenience, list
+# all the independent/dependent variables together in `x.y` respectively.
 def COLS(names):
   cols = obj(this=COLS,names=None, x=[], y=[], all=[])
   cols.names = names
@@ -257,11 +289,7 @@ def selects(bins,rows):
 r=random.random
 inf=float("inf")
 
-class obj(object):
-  oid = 0
-  def __init__(i,**kw): obj.oid+=1; i.__dict__.update(_id=obj.oid, **kw)
-  def __repr__(i)     : return printd(i.__dict__)
-  def __hash__(i)     : return i._id
+ def __hash__(i)     : return i._id
 
 def red(s): return colored(s,"red",attrs=["bold"])
 def green(s): return colored(s,"green",attrs=["bold"])
