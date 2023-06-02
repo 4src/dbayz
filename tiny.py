@@ -1,3 +1,4 @@
+#!/usr/bin/env python3 -B
 # vim: set et sts=2 sw=2 ts=2 :
 """
 # SYNOPSIS:
@@ -16,7 +17,7 @@
 ## OPTIONS:
 
      -b  --bins    max number of bins    = 16  
-     -B  --Beam    explore top 'B' ranges = 7  
+     -B  --Beam    explore top 'B' ranges = 8  
      -c  --cohen   size significant separation = .35  
      -f  --file    data csv file         = ../data/auto93.csv  
      -g  --go      start up action       = nothing  
@@ -177,11 +178,12 @@ def binEnt(bin):
   return ent({k:len(set1) for k,set1 in bin.ys.items()})
 
 def contrasts(data1,data2, elite=False):
-  bins = contrasts1(data1,data2)
+  top,bins = None,contrasts1(data1,data2)
   n=0
   if elite:
     for bin in sorted(bins,reverse=True,key=lambda bin: bin.score):
-      if not(bin.lo == -inf and bin.hi == inf) and bin.score > bins[0].score*.1:
+      top = top or bin
+      if not(bin.lo == -inf and bin.hi == inf) and bin.score > top.score*.1:
         n += 1
         if n <= the.Beam: yield bin
   else:
@@ -227,34 +229,34 @@ def value(bin,col):
 def want(b,r,B,R):
   b, r = b/(B + 1/inf), r/(R + 1/inf)
   match the.want:
-    case "operate":  return (b-r)
-    case "mitigate": return b**2/(b+r)
-    case "monitor":  return r**2/(b+r)
-    case "xtend":    return 1/(b+r)
-    case "xplore":   return (b+r)/abs(b - r)
+    case "operate"  : return (b-r)
+    case "mitigate" : return b**2/(b+r)
+    case "monitor"  : return r**2/(b+r)
+    case "xtend"    : return 1/(b+r)
+    case "xplore"   : return (b+r)/abs(b - r)
 
-def select1(bin,row):
-  x = row[bin.at]
-  if x=="?": return row
-  if bin.lo == bin.hi == x: return row
-  if bin.lo == -inf and x <  bin.hi: return row
-  if bin.hi ==  inf and x >= bin.lo: return row
-  if bin.lo <= x and x < bin/hi    : return row
+def select(bin,row):
+  x = row.cells[bin.at]
+  if x=="?"                         : return row
+  if bin.lo == bin.hi == x          : return row
+  if bin.lo == -inf and x <  bin.hi : return row
+  if bin.hi ==  inf and x >= bin.lo : return row
+  if bin.lo <= x and x < bin.hi     : return row
 
-def select(bin,rows):  return set([row for row in rows if select1(bin,row)])
 def selects(bins,rows):
   d={}
   for bin in bins:
     here = d[bin.at] = d.get(bin.at, set())
-    d[bin.at] = here | select(bin,rows)
-  sets = d.values()
-  out= set[1]
-  for set1 in sets[1:]:
-    out = out &  set1
+    d[bin.at] = here | set([row for row in rows if select(bin,row)])
+  out= None
+  for set1 in d.values():
+    if out: out = out & set1
+    else  : out = set1
     if len(out)==0: return 
   if len(out) == len(rows): return
   return out
 
+    
 #---------------------------------------------------------------------------------------------------
 r=random.random
 inf=float("inf")
@@ -423,6 +425,7 @@ def bested():
 @eg
 def bested2():
   data = DATA(src=csv(the.file))
+  print("\nALL:", stats(data))
   rows = ordered(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
