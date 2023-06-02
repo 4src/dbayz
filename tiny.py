@@ -77,6 +77,8 @@ def div(col,decimals=None):
 def mid(col,decimals=None):
   return col.mode if col.this is SYM else rnd(median(ok(col)._kept),decimals)
 
+def stats(data, cols=None, fun=mid, decimals=2):
+  return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
 #---------------------------------------------------------------------------------------------------
 def ROW(cells=[]):
   return obj(this=ROW,cells=cells)
@@ -109,11 +111,6 @@ def clone(data, rows=[]): return DATA(DATA(src=[data.cols.names]), rows)
 def ordered(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp2key(lambda r1,r2: better(data,r1,r2)))
-
-
-def stats(data, cols=None, fun=mid, decimals=2):
-  tmp = {col.txt:fun(col,decimals) for col in (cols or data.cols.y)}
-  return obj(N=len(data.rows),**tmp)
 
 def better(data, row1, row2):
   "`Row1` is better than `row2` if moving to it losses less than otherwise."
@@ -256,7 +253,6 @@ def selects(bins,rows):
   if len(out) == len(rows): return
   return out
 
-    
 #---------------------------------------------------------------------------------------------------
 r=random.random
 inf=float("inf")
@@ -429,10 +425,11 @@ def bested2():
   rows = ordered(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  rest = clone(data,rows[:b*the.rest])
+  #rest = clone(data,rows[:b*the.rest])
+  rest = clone(data,random.sample(rows,b*the.rest))
   print("")
   for bins in powerset(list(contrasts(best,rest, elite=True))):
-    print(stats(clone(data, selects(bins, data.rows))))
+    print(stats(clone(data, selects(bins, data.rows))),bins)
 
 #---------------------------------------------------------------------------------------------------
 the = settings(__doc__)
