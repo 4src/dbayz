@@ -125,27 +125,32 @@ def COLS(names):
       (cols.y if s[-1] in "-+!" else cols.x).append(col)
   return cols
 
+# ## DATA
+# `DATA` instances store ROWs, and summarized those into columns.
 def DATA(data=None, src=[]):
   data = data or obj(this=DATA,rows=[], cols=None)
   for row in src:
-    if not data.cols:
+    if not data.cols: # reading row1 (list of column names)
       data.cols = COLS(row)
     else:
-      row = ROW(row) if isinstance(row,list) else row
+      row = ROW(row) if isinstance(row,list) else row # ensure we are reading ROWs
+      data.rows += [row]
       for cols in [data.cols.x, data.cols.y]:
         for col in cols:
           add(col,row.cells[col.at])
-      data.rows += [row]
   return data
 
+# **DATA functions:**   
+#  Copy the structure of a `data` table; 
 def clone(data, rows=[]): return DATA(DATA(src=[data.cols.names]), rows)
 
-def ordered(data,rows=[]):
+# Sort `rows` worst to best.
+def betters(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp2key(lambda r1,r2: better(data,r1,r2)))
 
+# `Row1` is better than `row2` if moving to it losses less than otherwise.
 def better(data, row1, row2):
-  "`Row1` is better than `row2` if moving to it losses less than otherwise."
   s1, s2, cols, n = 0, 0, data.cols.y, len(data.cols.y)
   for col in cols:
     a, b = norm(col,row1.cells[col.at]), norm(col,row2.cells[col.at])
@@ -153,10 +158,12 @@ def better(data, row1, row2):
     s2  -= math.exp(col.w * (b - a) / n)
   return s1 / n < s2 / n
 
-def ordered(data,rows=[]):
+# Sort `rows` via `better`. If no `rows`, then use `data.row`. 
+def betters(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp_to_key(lambda r1,r2: better(data,r1,r2)))
 #---------------------------------------------------------------------------------------------------
+# Map `x` to a small number of values.
 def discretize(col,x):
   if x == "?": return
   if col.this is NUM:
@@ -164,6 +171,8 @@ def discretize(col,x):
     x = min(the.bins, max(0, x))
   return x
 
+# Track what `x` value ranges hold what `rows` (and those `rows`
+# are divided inside `ys` according to their class.
 class BIN(object):
   def __init__(self,at=0,txt=" ",lo=None,hi=None,B=0,R=0):
     self.at=at; self.txt=txt; self.lo=lo or inf; self.hi=hi or lo
@@ -174,14 +183,16 @@ class BIN(object):
     if self.lo == -inf:    return f"{self.txt}<{self.hi}"
     return f"{self.lo} <= {self.txt} < {self.hi}"
 
+# Update the `x` ranges and the set of `rows` help in that `x` range.
 def binAdd(bin, x, y, row):
   bin.n     += 1
   bin.lo     = min(bin.lo, x)
   bin.hi     = max(bin.hi, x)
-  bin.ys[y]  = bin.ys.get(y,set()) 
+  bin.ys[y]  = bin.ys.get(y,set())
   bin.ys[y].add(row)
   return bin
 
+# Combine two `bins`.
 def merge(bin1, bin2):
   out = BIN(at=bin1.at, txt=bin1.txt,
             lo=bin1.lo, hi=bin2.hi,
@@ -193,6 +204,7 @@ def merge(bin1, bin2):
       out.ys[klass]  = old | d[klass]
   return out
 
+# Return the merge of two bins, but only if that merge is useful.
 def merged(bin1,bin2,num,best):
   out   = merge(bin1,bin2)
   eps   = div(num)*the.cohen
@@ -203,11 +215,15 @@ def merged(bin1,bin2,num,best):
   e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
   if e3 <= (bin1.n*e1 + bin2.n*e2)/out.n : return out
 
+# Returns the entropy of the row distributions in a `bin`.
 def binEnt(bin):
   return ent({k:len(set1) for k,set1 in bin.ys.items()})
 
+# Find attribute ranges that distinguish between the rows in
+# `data1` and `data2`. If `elite` then sort the ranges by their
+# `score`, then return the first `the.Beam` items.
 def contrasts(data1,data2, elite=False):
-  top,bins = None,contrasts1(data1,data2)
+  top,bins = None, _contrasts(data1,data2)
   n=0
   if elite:
     for bin in sorted(bins,reverse=True,key=lambda bin: bin.score):
@@ -218,7 +234,9 @@ def contrasts(data1,data2, elite=False):
   else:
     for bin in bins: yield bin
 
-def contrasts1(data1,data2):
+# Divide values from each `data` into a few values, then
+# merge uninformative divisions).
+def _contrasts(data1,data2):
   data12 = clone(data1, data1.rows + data2.rows)
   for col in data12.cols.x:
     bins = {}
@@ -230,8 +248,9 @@ def contrasts1(data1,data2):
                                           B=len(data1.rows), R=len(data2.rows))
           binAdd(bins[z], x, klass, row)
     for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo),"best"):
-        yield value(bin, col)
+      yield value(bin, col)
 
+# Find ranges, expand the ranges to cover gaps in the data.
 def merges(col,bins,best):
   if col.this is SYM: return bins
   bins = mergeds(bins,col,best)
@@ -240,6 +259,8 @@ def merges(col,bins,best):
   bins[-1].hi =  inf
   return bins
 
+# While there exists adjacent ranges that can be merged, merge them
+# then look for other possible merges.
 def mergeds(a, col,best):
   b,j = [],0
   while j < len(a):
@@ -250,12 +271,14 @@ def mergeds(a, col,best):
     j += 1
   return a if len(a) == len(b) else mergeds(b, col,best)
 
+# Score a bin, on a range of possible criteria. 
 def value(bin,col):
   b,r = bin.ys.get("best",set()), bin.ys.get("rest",set())
-  bin.score = want(len(b),len(r), bin.B, bin.R)
+  bin.score = _value(len(b),len(r), bin.B, bin.R)
   return bin
 
-def want(b,r,B,R):
+# Helper function for `value`.
+def _value(b,r,B,R):
   b, r = b/(B + 1/inf), r/(R + 1/inf)
   match the.want:
     case "operate"  : return (b-r)
@@ -264,6 +287,7 @@ def want(b,r,B,R):
     case "xtend"    : return 1/(b+r)
     case "xplore"   : return (b+r)/abs(b - r)
 
+# Return  a row if its selected by a `bin`.
 def select(bin,row):
   x = row.cells[bin.at]
   if x=="?"                         : return row
@@ -272,6 +296,7 @@ def select(bin,row):
   if bin.hi ==  inf and x >= bin.lo : return row
   if bin.lo <= x and x < bin.hi     : return row
 
+# Return  the rows selected by a set of bins.
 def selects(bins,rows):
   d={}
   for bin in bins:
@@ -286,42 +311,54 @@ def selects(bins,rows):
   return out
 
 #---------------------------------------------------------------------------------------------------
+# Short cuts
 r=random.random
 inf=float("inf")
 
- def __hash__(i)     : return i._id
-
+# Print colors.
 def red(s): return colored(s,"red",attrs=["bold"])
 def green(s): return colored(s,"green",attrs=["bold"])
 def yellow(s): return colored(s,"yellow",attrs=["bold"])
 def bold(s): return colored(s,"white",attrs=["bold"])
 
+# Round numbers, if `decimals` is set.
 def rnd(x,decimals=None):
   return round(x,decimals) if decimals else  x
 
+# Return an item at some step along its length.
 def per(a,p=.5):
   n = max(0, min(len(a)-1, int( 0.5 + p*len(a))))
   return a[n]
 
+# Return middle point of a list
 def median(a): return per(a,.5)
+
+# Plus or minus 1.28 standard deviations covers 90% of the data.
+# Therefore, sd = (.9sd - .1sd)/2.56
 def stdev(a) : return (per(a,.9) - per(a,.1))/2.56
+
+# Returns the diversity of a set of symbols.
 def ent(a):
   N = sum((a[k] for k in a))
   return - sum(a[k]/N * math.log(a[k]/N,2) for k in a if a[k] > 0)
 
+# Returns all subsets.
 def powerset(s):
   r = [[]]
   for e in s: r += [x+[e] for x in r]
   return r[1:]
 
+# Converts strings to things.
 def coerce(x):
   try: return ast.literal_eval(x)
   except: return x
 
+# Pretty-print of a dictionary.
 def printd(d):
   p= lambda x: '()' if callable(x) else (f"{x:.2f}" if isinstance(x,float) else str(x))
   return "{"+(" ".join([f":{k} {p(v)}" for k,v in d.items() if k[0]!="_"]))+"}"
 
+# Read a csv file
 def csv(file):
   with open(file) as fp:
     for line in fp:
@@ -329,10 +366,12 @@ def csv(file):
       if line:
         yield [coerce(s.strip()) for s in line.split(",")]
 
+# Parse the doc string (at top of file) to extract the settings.
 def settings(s):
   setting = r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)"
   return obj(**{m[1]:coerce(m[2]) for m in re.finditer(setting,s)})
 #---------------------------------------------------------------------------------------------------
+# Top-level control. Prints help or the number of `egs` that return `False`.
 def runs():
   if the.help:
     headings, flags ="\n[#]+ [A-Z][A-Z]+:"," [-][-]?[\S]+"
@@ -344,6 +383,8 @@ def runs():
     print(red(f"{n} FAILURE(S)") if n>0 else green(f"{n} FAILURE(S)"))
     return n
 
+# Run one example, initialize the random seed before and all the
+# options afterwards
 def run(s,fun):
   d = the.__dict__
   saved = {k:d[k] for k in d}
@@ -354,6 +395,7 @@ def run(s,fun):
   print(red("FAIL") if out==False else green("PASS"))
   return out==False
 
+# Update a dictionary from command-line flagss
 def cli(d):
   d1=d.__dict__
   for k,v in d1.items():
@@ -363,6 +405,7 @@ def cli(d):
         d1[k]= coerce("True" if v=="False" else ("False" if v=="True" else sys.argv[i+1]))
   return d
 #---------------------------------------------------------------------------------------------------
+# Define examples.
 egs={}
 def eg(f): egs[f.__name__]= f; return f
 
@@ -408,7 +451,7 @@ def statd():
 @eg
 def orderer():
   data = DATA(src=csv(the.file))
-  rows = ordered(data)
+  rows = betters(data)
   print("")
   print(data.cols.names)
   print("all ", stats(data))
@@ -418,7 +461,7 @@ def orderer():
 @eg
 def contrasted():
   data = DATA(src=csv(the.file))
-  rows = ordered(data)
+  rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
   #rest = clone(data,random.sample(rows[:-b],r))
@@ -438,7 +481,7 @@ def contrasted():
 @eg
 def bested():
   data = DATA(src=csv(the.file))
-  rows = ordered(data)
+  rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
   rest = clone(data,rows[:b*the.rest])
@@ -450,7 +493,7 @@ def bested():
 def bested2():
   data = DATA(src=csv(the.file))
   print("\nALL:", stats(data))
-  rows = ordered(data)
+  rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
   #rest = clone(data,rows[:b*the.rest])
@@ -460,6 +503,7 @@ def bested2():
     print(stats(clone(data, selects(bins, data.rows))),bins)
 
 #---------------------------------------------------------------------------------------------------
+# Start-up
 the = settings(__doc__)
 if __name__ == "__main__":
   the = cli(the)
