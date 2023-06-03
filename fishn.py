@@ -1,12 +1,12 @@
 #!/usr/bin/env python3 -B
 #<!-- vim: set et sts=2 sw=2 ts=2 : -->
+#<img align=right width=200 src=fishn.png>
 """
 ## SYNOPSIS:
-  tiny: look around just a little, then guess where is the good stuff   
-  (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+  fishn: look around just a little, guess where to search.
   
 ## USAGE:
-  ./tiny.py [OPTIONS] [-g ACTIONS]
+  ./fishn.py [OPTIONS] [-g ACTIONS]
   
 ## DESCRIPTION:
   Use to find best regions within rows of data with multiple objectives.
@@ -17,22 +17,54 @@
 ## OPTIONS:
   
      -b  --bins    max number of bins    = 16  
-     -B  --Beam    explore top 'B' ranges = 8  
      -c  --cohen   size significant separation = .35  
      -f  --file    data csv file         = ../data/auto93.csv  
      -g  --go      start up action       = nothing  
      -h  --help    show help             = False  
      -k  --keep    how many nums to keep = 512  
+     -l  --lazy    laxy mode             = False
      -m  --min     min size              = .5  
      -r  --rest    ratio best:rest       = 3  
      -s  --seed    random number seed    = 1234567891  
+     -t  --top     explore top  ranges   = 16  
      -w  --want    what goal to chase    = mitigate  
+
+(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
 """
 import random,math,sys,ast,re
 from termcolor import colored
 from functools import cmp_to_key
-
 # ______
+# Read in ROWs  into a DATA object. Find the
+# best and rest ROWs. Find and sort the  BINs that discretize
+# column values, favoring those that best select for what you want
+# (defined at right).
+# Return the best combination of the  `top` BINs. 
+#       
+# In `lazy` mode, try to do the above with fewest labels on the data.
+# This can usually be achieved with only a handful of labels (5 to 20)
+# but YMMV.
+#  
+# DATA can be built  from  memory or read from disk using the `csv` function. DATA
+# has a first row listing column header names. Uppercase names are
+# NUMeric (and others are SYMbolic). Names ending in "!,+,-" are goals
+# to be achieved, maximized, minimized (respectively). Names ending in
+# "X" denote columns we should ignore.
+#  
+# For examples on this code works, see the `egs` at end of files.
+# Note one coding convention. UPPER CASE functions (or classes) are "factories"
+# that generate objects of a particular type. If a factory name is used in lower
+# case, that is an object from that factory; e.g. `data1` was made by DATA.
+def want(b,r,B,R):
+  "We have found `b` of the `B` best rows and 'r' or the `R` rest rows"
+  b, r = b/(B + 1/inf), r/(R + 1/inf)
+  match the.want:
+    case "operate"  : return (b-r)        # want more b than r
+    case "mitigate" : return b**2/(b+r)   # want lots of b and little r
+    case "monitor"  : return r**2/(b+r)   # want lots of r and little b
+    case "xtend"    : return 1/(b+r)      # want to go somewhere new
+    case "xplore"   : return (b+r)/abs(b - r) # want the decision boundary
+# ____
 # ## Config
 
 # `the` is where we store config options. These options are parsed
@@ -44,7 +76,9 @@ the={}
 # Factories make instances and have UPPER-CASE names (e.g. NUM, SYM, etc).
 # In my code, any lower case factory names are instances (e.g. `num` is an instance of NUM).
 
-# ### obj
+# _________
+# ## obj
+
 # `obj` is  simple class that prints pretty, hashes easy, and inits easy.
 class obj(object):
   oid = 0
@@ -52,13 +86,20 @@ class obj(object):
   def __repr__(i)     : return printd(i.__dict__)
   def __hash__(i)     : return i._idbrew install entr 
 
-# ### ROW
+# ## ROW
 def ROW(cells=[]):
   return obj(this=ROW,cells=cells)
 
-# ### NUM and SYM (which are "columns")
+# ## COLums
+# NUM and SYM (which are "columns").
+def COL(at,txt):
+  return  (NUM if s[0].isupper() else SYM)(at=at,txt=txt)
+
 # All my columns count items seen (in `n`). Also, `col.this is NUM` is the idiom
 # for recognizing a column of a particular type.
+
+# ### SYM
+
 # For example, SYMs summarizes streams of symbols (and SYMs knos frequency counts and `mode`).
 def SYM(at=0,txt=""):
   return obj(this=SYM,txt=txt, at=at, n=0,
@@ -112,20 +153,20 @@ def stats(data, cols=None, fun=mid, decimals=2):
   return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
 
 # ## COLS (makes many columns)
+
 # Convert a list of strings to NUMs or SYMs. Anything ending with "X" is ignore.
 # Upper case names become NUMs (and everything else is a SYM). For convenience, list
 # all the independent/dependent variables together in `x.y` respectively.
 def COLS(names):
-  cols = obj(this=COLS,names=None, x=[], y=[], all=[])
-  cols.names = names
-  for n,s in enumerate(names):
-    col = (NUM if s[0].isupper() else SYM)(at=n,txt=s)
-    cols.all += [col]
-    if s[-1] != "X":
+  cols = obj(this=COLS, names=names, x=[], y=[], 
+             all = [COL(n,s) for n,s in enumerate(names)])
+  for col in cols.all:
+    if s[-1] != "X": 
       (cols.y if s[-1] in "-+!" else cols.x).append(col)
   return cols
 
 # ## DATA
+
 # `DATA` instances store ROWs, and summarized those into columns.
 def DATA(data=None, src=[]):
   data = data or obj(this=DATA,rows=[], cols=None)
@@ -144,7 +185,7 @@ def DATA(data=None, src=[]):
 #  Copy the structure of a `data` table; 
 def clone(data, rows=[]): return DATA(DATA(src=[data.cols.names]), rows)
 
-# Sort `rows` worst to best.
+# Sort `rows` worst to best using the `better` function
 def betters(data,rows=[]):
   return sorted(rows or data.rows,
                 key=cmp2key(lambda r1,r2: better(data,r1,r2)))
@@ -157,13 +198,11 @@ def better(data, row1, row2):
     s1  -= math.exp(col.w * (a - b) / n)
     s2  -= math.exp(col.w * (b - a) / n)
   return s1 / n < s2 / n
-
-# Sort `rows` via `better`. If no `rows`, then use `data.row`. 
-def betters(data,rows=[]):
-  return sorted(rows or data.rows,
-                key=cmp_to_key(lambda r1,r2: better(data,r1,r2)))
 #---------------------------------------------------------------------------------------------------
-# Map `x` to a small number of values.
+# ## Discertization
+
+# Map `x` to a small number of values. For SYMs, we just return the symbol. For NUMs,
+# place into one of `the.bins` buckets.
 def discretize(col,x):
   if x == "?": return
   if col.this is NUM:
@@ -219,9 +258,12 @@ def merged(bin1,bin2,num,best):
 def binEnt(bin):
   return ent({k:len(set1) for k,set1 in bin.ys.items()})
 
+# ____
+# ## Rule Generation
+
 # Find attribute ranges that distinguish between the rows in
 # `data1` and `data2`. If `elite` then sort the ranges by their
-# `score`, then return the first `the.Beam` items.
+# `score`, then return the first `the.top` items.
 def contrasts(data1,data2, elite=False):
   top,bins = None, _contrasts(data1,data2)
   n=0
@@ -230,7 +272,7 @@ def contrasts(data1,data2, elite=False):
       top = top or bin
       if not(bin.lo == -inf and bin.hi == inf) and bin.score > top.score*.1:
         n += 1
-        if n <= the.Beam: yield bin
+        if n <= the.top: yield bin
   else:
     for bin in bins: yield bin
 
@@ -274,18 +316,8 @@ def mergeds(a, col,best):
 # Score a bin, on a range of possible criteria. 
 def value(bin,col):
   b,r = bin.ys.get("best",set()), bin.ys.get("rest",set())
-  bin.score = _value(len(b),len(r), bin.B, bin.R)
+  bin.score = want(len(b),len(r), bin.B, bin.R)
   return bin
-
-# Helper function for `value`.
-def _value(b,r,B,R):
-  b, r = b/(B + 1/inf), r/(R + 1/inf)
-  match the.want:
-    case "operate"  : return (b-r)
-    case "mitigate" : return b**2/(b+r)
-    case "monitor"  : return r**2/(b+r)
-    case "xtend"    : return 1/(b+r)
-    case "xplore"   : return (b+r)/abs(b - r)
 
 # Return  a row if its selected by a `bin`.
 def select(bin,row):
@@ -371,6 +403,8 @@ def settings(s):
   setting = r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)"
   return obj(**{m[1]:coerce(m[2]) for m in re.finditer(setting,s)})
 #---------------------------------------------------------------------------------------------------
+# Test Suite Stuff
+
 # Top-level control. Prints help or the number of `egs` that return `False`.
 def runs():
   if the.help:
@@ -405,6 +439,7 @@ def cli(d):
         d1[k]= coerce("True" if v=="False" else ("False" if v=="True" else sys.argv[i+1]))
   return d
 #---------------------------------------------------------------------------------------------------
+
 # Define examples.
 egs={}
 def eg(f): egs[f.__name__]= f; return f
@@ -464,7 +499,6 @@ def contrasted():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  #rest = clone(data,random.sample(rows[:-b],r))
   rest = clone(data,rows[:b*the.rest])
   print("\nall ", stats(data))
   print("best", stats(best))
@@ -496,14 +530,14 @@ def bested2():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  #rest = clone(data,rows[:b*the.rest])
   rest = clone(data,random.sample(rows,b*the.rest))
   print("")
   for bins in powerset(list(contrasts(best,rest, elite=True))):
     print(stats(clone(data, selects(bins, data.rows))),bins)
 
 #---------------------------------------------------------------------------------------------------
-# Start-up
+# ## Start-up
+
 the = settings(__doc__)
 if __name__ == "__main__":
   the = cli(the)

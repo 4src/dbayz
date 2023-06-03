@@ -22,3 +22,7 @@ doc: ## generate documentation
 
 tests: ## run test suite
 	python3 -B tests.py -g .
+
+docs/fishn.html:
+	pycco fishn.py
+	cp docs/_pycco.css docs/pycco.css
