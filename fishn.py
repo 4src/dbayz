@@ -1,10 +1,10 @@
 #!/usr/bin/env python3 -B
-#<!-- vim: set et sts=2 sw=2 ts=2 : -->
+#<!--- vim: set et sts=2 sw=2 ts=2 : --->
 #<img align=right width=200 src=fishn.png>
 """
 ## SYNOPSIS:
   fishn: look around just a little, guess where to search.
-  
+
 ## USAGE:
   ./fishn.py [OPTIONS] [-g ACTIONS]
   
@@ -16,18 +16,18 @@
   
 ## OPTIONS:
   
-     -b  --bins    max number of bins    = 16  
-     -c  --cohen   size significant separation = .35  
-     -f  --file    data csv file         = ../data/auto93.csv  
-     -g  --go      start up action       = nothing  
-     -h  --help    show help             = False  
-     -k  --keep    how many nums to keep = 512  
+     -b  --bins    max number of bins    = 16
+     -c  --cohen   size significant separation = .35
+     -f  --file    data csv file         = ../data/auto93.csv
+     -g  --go      start up action       = nothing
+     -h  --help    show help             = False
+     -k  --keep    how many nums to keep = 512
      -l  --lazy    laxy mode             = False
-     -m  --min     min size              = .5  
-     -r  --rest    ratio best:rest       = 3  
-     -s  --seed    random number seed    = 1234567891  
-     -t  --top     explore top  ranges   = 16  
-     -w  --want    what goal to chase    = mitigate  
+     -m  --min     min size              = .5
+     -r  --rest    ratio best:rest       = 3
+     -s  --seed    random number seed    = 1234567891
+     -t  --top     explore top  ranges   = 16
+     -w  --want    what goal to chase    = mitigate
 
 (c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
 """
@@ -60,8 +60,8 @@ def want(b,r,B,R):
   b, r = b/(B + 1/inf), r/(R + 1/inf)
   match the.want:
     case "operate"  : return (b-r)        # want more b than r
-    case "mitigate" : return b**2/(b+r)   # want lots of b and little r
-    case "monitor"  : return r**2/(b+r)   # want lots of r and little b
+    case "mitigate" : return b**2/(b+r)   # want lots of b and far less r
+    case "monitor"  : return r**2/(b+r)   # want lots of r and far less b
     case "xtend"    : return 1/(b+r)      # want to go somewhere new
     case "xplore"   : return (b+r)/abs(b - r) # want the decision boundary
 # ____
@@ -84,7 +84,7 @@ class obj(object):
   oid = 0
   def __init__(i,**kw): obj.oid+=1; i.__dict__.update(_id=obj.oid, **kw)
   def __repr__(i)     : return printd(i.__dict__)
-  def __hash__(i)     : return i._idbrew install entr 
+  def __hash__(i)     : return i._id
 
 # ## ROW
 def ROW(cells=[]):
@@ -93,7 +93,7 @@ def ROW(cells=[]):
 # ## COLums
 # NUM and SYM (which are "columns").
 def COL(at,txt):
-  return  (NUM if s[0].isupper() else SYM)(at=at,txt=txt)
+  return  (NUM if txt[0].isupper() else SYM)(at=at,txt=txt)
 
 # All my columns count items seen (in `n`). Also, `col.this is NUM` is the idiom
 # for recognizing a column of a particular type.
@@ -161,8 +161,8 @@ def COLS(names):
   cols = obj(this=COLS, names=names, x=[], y=[], 
              all = [COL(n,s) for n,s in enumerate(names)])
   for col in cols.all:
-    if s[-1] != "X": 
-      (cols.y if s[-1] in "-+!" else cols.x).append(col)
+    if col.txt[-1] != "X": 
+      (cols.y if col.txt[-1] in "-+!" else cols.x).append(col)
   return cols
 
 # ## DATA
@@ -188,7 +188,7 @@ def clone(data, rows=[]): return DATA(DATA(src=[data.cols.names]), rows)
 # Sort `rows` worst to best using the `better` function
 def betters(data,rows=[]):
   return sorted(rows or data.rows,
-                key=cmp2key(lambda r1,r2: better(data,r1,r2)))
+                key=cmp_to_key(lambda r1,r2: better(data,r1,r2)))
 
 # `Row1` is better than `row2` if moving to it losses less than otherwise.
 def better(data, row1, row2):
