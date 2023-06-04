@@ -22,7 +22,7 @@
      -g  --go      start up action       = nothing
      -h  --help    show help             = False
      -k  --keep    how many nums to keep = 512
-     -l  --lazy    laxy mode             = False
+     -l  --lazy    lazy mode             = False
      -m  --min     min size              = .5
      -r  --rest    ratio best:rest       = 3
      -s  --seed    random number seed    = 1234567891
@@ -49,7 +49,7 @@ from functools import cmp_to_key
 # to be achieved, maximized, minimized (respectively). Names ending in
 # "X" denote columns we should ignore.
 #  
-# For examples on this code works, see the `egs` at end of files.
+# For examples on using this code, see the `egs` at end of files.
 # Note one coding convention. UPPER CASE functions (or classes) are "factories"
 # that generate objects of a particular type. If a factory name is used in lower
 # case, that is an object from that factory; e.g. `data1` was made by DATA.
@@ -88,19 +88,20 @@ class obj(object):
 def ROW(cells=[]):
   return obj(this=ROW,cells=cells)
 
+# Add `row` to DATA. 
 def adds(data,row):
+  row = ROW(row) if isinstance(row,list) else row # ensure we are reading ROWs
   if not data.cols: # reading row1 (list of column names)
-    data.cols = COLS(row)
+    data.cols = COLS(row.cells)
   else:
-    row = ROW(row) if isinstance(row,list) else row # ensure we are reading ROWs
     data.rows += [row]
-  for cols in [data.cols.x, data.cols.y]:
-    for col in cols: add(col,row.cells[col.at])
+    for cols in [data.cols.x, data.cols.y]:
+      for col in cols: add(col,row.cells[col.at])
 
 # ## COLums
 # NUM and SYM (which are "columns").
 def COL(at,txt):
-  return  (NUM if txt[0].isupper() else SYM)(at=at,txt=txt)
+  return (NUM if txt[0].isupper() else SYM)(at=at,txt=txt)
 
 # All my columns count items seen (in `n`). Also, `col.this is NUM` is the idiom
 # for recognizing a column of a particular type.
@@ -157,8 +158,9 @@ def div(col,decimals=None):
 
 # `stats` returns an `obj` with `mid` or `div` on many columns. 
 def stats(data, cols=None, fun=mid, decimals=2):
-  if len(data.rows):
-    return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
+  d = {c.txt:fun(c,decimals) for c in (cols or data.cols.y)}
+  d["n"] = len(data.rows)
+  return obj(**d)
 
 # ## COLS (makes many columns)
 
@@ -178,7 +180,7 @@ def COLS(names):
 # `DATA` instances store ROWs, and summarized those into columns.
 def DATA(data=None, src=[]):
   data = data or obj(this=DATA,rows=[], cols=None)
-  [example(data,row) for row in src]
+  [adds(data,row) for row in src]
   return data
 
 # **DATA functions:**   
@@ -345,7 +347,7 @@ def selects(bins,rows):
 #---------------------------------------------------------------------------------------------------
 # Short cuts
 r=random.random
-inf=float("inf")
+inf=1E30
 
 # Print colors.
 def red(s): return colored(s,"red",attrs=["bold"])
@@ -530,10 +532,26 @@ def bested2():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  rest = clone(data,random.sample(rows[:-b],b*the.rest))
+  rest = clone(data,rows[:b]) #random.sample(rows[:b],b*the.rest))
+  print(b*the.rest)
+  print("best:", stats(best))
+  print("rest:", stats(rest))
   print("")
+  tmp,names=[],None
   for bins in powerset(list(contrasts(best,rest, elite=True))):
-    print(stats(clone(data, selects(bins, data.rows) or [])),bins)
+    if found := list(selects(bins, best.rows + rest.rows)):
+      #print([x.cells for x in found])
+      d = stats(clone(data, found)).__dict__
+      d["Size-"] = len(bins)
+      if not names:
+        names = list(d.keys()); tmp=[names]
+      else:
+        row = ROW(list(d.values()))
+        row.rule = bins
+        tmp += [row]
+  rule= betters(DATA(src=tmp))[-1]
+  print({s:n for s,n in zip(names,rule.cells)}, rule.rule)
+
 
 #---------------------------------------------------------------------------------------------------
 # ## Start-up
