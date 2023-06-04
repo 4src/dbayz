@@ -26,10 +26,8 @@
      -m  --min     min size              = .5
      -r  --rest    ratio best:rest       = 3
      -s  --seed    random number seed    = 1234567891
-     -t  --top     explore top  ranges   = 16
-     -w  --want    what goal to chase    = mitigate
-
-(c) 2023, Tim Menzies, <timm@ieee.org>  BSD-2
+     -t  --top     explore top  ranges   = 8
+     -w  --want    goal                  = mitigate
 """
 import random,math,sys,ast,re
 from termcolor import colored
@@ -89,6 +87,15 @@ class obj(object):
 # ## ROW
 def ROW(cells=[]):
   return obj(this=ROW,cells=cells)
+
+def adds(data,row):
+  if not data.cols: # reading row1 (list of column names)
+    data.cols = COLS(row)
+  else:
+    row = ROW(row) if isinstance(row,list) else row # ensure we are reading ROWs
+    data.rows += [row]
+  for cols in [data.cols.x, data.cols.y]:
+    for col in cols: add(col,row.cells[col.at])
 
 # ## COLums
 # NUM and SYM (which are "columns").
@@ -150,7 +157,8 @@ def div(col,decimals=None):
 
 # `stats` returns an `obj` with `mid` or `div` on many columns. 
 def stats(data, cols=None, fun=mid, decimals=2):
-  return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
+  if len(data.rows):
+    return obj(N=len(data.rows),**{c.txt:fun(c,decimals) for c in (cols or data.cols.y)})
 
 # ## COLS (makes many columns)
 
@@ -170,15 +178,7 @@ def COLS(names):
 # `DATA` instances store ROWs, and summarized those into columns.
 def DATA(data=None, src=[]):
   data = data or obj(this=DATA,rows=[], cols=None)
-  for row in src:
-    if not data.cols: # reading row1 (list of column names)
-      data.cols = COLS(row)
-    else:
-      row = ROW(row) if isinstance(row,list) else row # ensure we are reading ROWs
-      data.rows += [row]
-      for cols in [data.cols.x, data.cols.y]:
-        for col in cols:
-          add(col,row.cells[col.at])
+  [example(data,row) for row in src]
   return data
 
 # **DATA functions:**   
@@ -499,7 +499,7 @@ def contrasted():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  rest = clone(data,rows[:b*the.rest])
+  rest = clone(data,random.sample(rows, b*the.rest))
   print("\nall ", stats(data))
   print("best", stats(best))
   print("rest", stats(rest))
@@ -518,7 +518,7 @@ def bested():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  rest = clone(data,rows[:b*the.rest])
+  rest = clone(data,random.sample(rows, b*the.rest))
   print("")
   for bin in contrasts(best,rest, elite=True):
     print(bin,bin.score)
@@ -530,10 +530,10 @@ def bested2():
   rows = betters(data)
   b = int(len(data.rows)**the.min)
   best = clone(data,rows[-b:])
-  rest = clone(data,random.sample(rows,b*the.rest))
+  rest = clone(data,random.sample(rows[:-b],b*the.rest))
   print("")
   for bins in powerset(list(contrasts(best,rest, elite=True))):
-    print(stats(clone(data, selects(bins, data.rows))),bins)
+    print(stats(clone(data, selects(bins, data.rows) or [])),bins)
 
 #---------------------------------------------------------------------------------------------------
 # ## Start-up
