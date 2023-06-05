@@ -148,23 +148,37 @@ def tree(best,rest, rows=None,stop=None)
   here = {data=clone(data,rows),left=None, right=None, at=None,  val=None}
   _,at,val sort((splitter(data,rows,col) for col in data.cols.x),key=)[0]
 
-def splitter(data,rows,col):
-  rhs,lhs= col.this(), col.this()
-  a      = sorted([add(col,r.cells[col.at]) for r in rows if r.cells[col.at] != "?"])
-  xpect  = lambda: (lhs.n*div(lhs) + rhs.n*div(rhs)) / (lhs.n + rhs.n)
-  cut,lo = None, div(lhs)
-  eps    = lo*the.cohen
-  if col.this is NUM:
-    for x in enumerate(a):
-      add(lhs, sub(rhs,x))
-      if lhs.n > len(a)**the.min and rhs.n > len(a)**the.min:
-        if x - a[0] >= eps and a[-1] - x >= eps:
+def splitter(data,rows,xcol):
+  xget = lambda row: row.cells[xcol.at]
+  rows = [r for r in rows if xget(r)  != "?"]
+  def symSplit():
+    syms={}
+    for row in rows:
+      x = xget(row)
+      if x not in syms: syms[x] = SYM(xcol.at,x)
+      add(syms[x], row.klass)
+    out = sorted(syms.values, key=lambda sym: div(sym))[0]
+    return div(out), xcol.at, out.txt
+  def numSplit():
+    yall,yleft= SYM(),SYM()
+    cut   = None
+    eps   = div(xcol)*the.cohen
+    tiny  = xcol.n**the.min
+    xpect = lambda: (yall.n*div(yall) + yleft.n*div(yleft)) / (yall.n + yleft.n)
+    [add(yall, row.klass) for row in rows]
+    lo = div(yall)
+    rows = sorted(rows, key=lambda r: r.cells[col.at]))
+    for row in rows:
+      add(yleft, sub(yall, row.klass))
+      if lhs.n > tiny and rhs.n > tiny:
+        x = xget(row)
+        if x - xget(rows[0]) >= eps and xget(rows[-1]) -  x >= eps:
           if xpect() < lo:
             cut,lo = x,expect()
-  else:
+    return  lo,col.at,cut
+  return numSplit() if col.this is NUM else symSplit()
 
-
-def discretize(col,x):
+ def discretize(col,x):
   if x == "?": return
   if col.this is NUM:
     x = int(the.bins*(x - col.lo)/(col.hi - col.lo + 1/inf))
