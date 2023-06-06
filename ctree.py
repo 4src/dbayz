@@ -149,34 +149,35 @@ def tree(best,rest, rows=None,stop=None)
   _,at,val sort((splitter(data,rows,col) for col in data.cols.x),key=)[0]
 
 def splitter(data,rows,xcol):
-  xget = lambda row: row.cells[xcol.at]
-  rows = [r for r in rows if xget(r)  != "?"]
-  def symSplit():
-    syms={}
-    for row in rows:
-      x = xget(row)
-      if x not in syms: syms[x] = SYM(xcol.at,x)
+  return (numSplit if col.this is NUM else symSplit)(data,crows,xcol)
+
+def symSplit(data,rows,xcol)):
+  syms={}
+  for row in rows:
+    x = row.cells[xcol.at]
+    if x != "?":
+      if x not in syms: syms[x] = SYM(at=xcol.at, txt=x)
       add(syms[x], row.klass)
-    out = sorted(syms.values, key=lambda sym: div(sym))[0]
-    return div(out), xcol.at, out.txt
-  def numSplit():
-    yall,yleft= SYM(),SYM()
-    cut   = None
-    eps   = div(xcol)*the.cohen
-    tiny  = xcol.n**the.min
-    xpect = lambda: (yall.n*div(yall) + yleft.n*div(yleft)) / (yall.n + yleft.n)
-    [add(yall, row.klass) for row in rows]
-    lo = div(yall)
-    rows = sorted(rows, key=lambda r: r.cells[col.at]))
-    for row in rows:
-      add(yleft, sub(yall, row.klass))
-      if lhs.n > tiny and rhs.n > tiny:
-        x = xget(row)
-        if x - xget(rows[0]) >= eps and xget(rows[-1]) -  x >= eps:
-          if xpect() < lo:
-            cut,lo = x,expect()
-    return  lo,col.at,cut
-  return numSplit() if col.this is NUM else symSplit()
+  out = sorted(syms.values, key=lambda sym: div(sym))[0]
+  return div(out), xcol.at, out.txt
+
+def numSplit(data,rows,xcol):
+  eps  = div(xcol)*the.cohen
+  tiny = xcol.n**the.min
+  xget = lambda r:r.cells[xcol.at]
+  rows = sorted([row for row in rows if xget(row)  != "?"], key=xget)
+  yall,yleft= SYM(),SYM()
+  for row in rows: add(yall, row.klass)
+  cut, lo  = None, div(yall))
+  for row in rows:
+    add(yleft, sub(yall, row.klass))
+    if lhs.n > tiny and rhs.n > tiny:
+      x = xget(row)
+      if x - xget(rows[0]) >= eps and xget(rows[-1]) -  x >= eps:
+        tmp  = (yall.n*div(yall) + yleft.n*div(yleft)) / (yall.n + yleft.n)
+        if tmp < lo:
+          cut,lo = x,tmp
+  return lo,col.at,cut
 
  def discretize(col,x):
   if x == "?": return
