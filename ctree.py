@@ -140,18 +140,30 @@ def better(data, row1, row2):
     s2  -= math.exp(col.w * (b - a) / n)
   return s1 / n < s2 / n
 #---------------------------------------------------------------------------------------------------
-def tree(best,rest, rows=None,stop=None)
-  for row in best: row.klass = True
-  for row in rest: row.klass = False
-  rows = rows or data.rows
-  stop = stop or len(rows)**the.min
-  here = {data=clone(data,rows),left=None, right=None, at=None,  val=None}
-  _,at,val sort((splitter(data,rows,col) for col in data.cols.x),key=)[0]
+def tree(data,best,rest, stop=None):
+  for row in best.rows: row.klass = True
+  for row in rest.rows: row.klass = False
+  rows = best.rows + rest.rows
+  data1 = clone(data, rows)
+  return tree1(data, rows, len(rows)**the.min)
+
+def tree1(data, rows,stop):
+  node = {data=clone(data,rows), how=None, leftFun=None, left=None, right=None}
+  if len(rows) > stop:
+    _,_,cut,how,leftFun  =  sort((splitter(here,col) for col in data.cols.x),key=)[0]
+    if cut:
+      here.how, here.leftFun = how,leftFun
+      left,right = [],[]
+      for row in rows:
+        (left if  leftFun(row) else right).append(row)
+      if len(left)  < len(rows):  here.left  = tree1(data,left,stop)
+      if len(right) < len(rows):  here.right = tree1(data,right,stop)
+  return here
 
 def splitter(data,rows,xcol):
-  return (numSplit if col.this is NUM else symSplit)(data,crows,xcol)
+  return (numSplit if col.this is NUM else symSplit)(data,rows,xcol)
 
-def symSplit(data,rows,xcol)):
+def symSplit(data,rows,xcol):
   syms={}
   for row in rows:
     x = row.cells[xcol.at]
@@ -159,7 +171,8 @@ def symSplit(data,rows,xcol)):
       if x not in syms: syms[x] = SYM(at=xcol.at, txt=x)
       add(syms[x], row.klass)
   out = sorted(syms.values, key=lambda sym: div(sym))[0]
-  return div(out), xcol.at, out.txt
+  return (div(out),  xcol.at, out.txt, f"{xcol.name} = {out.txt}", 
+          lambda r:r.cells[xcol.at] in ["?",out.txt])
 
 def numSplit(data,rows,xcol):
   eps  = div(xcol)*the.cohen
@@ -167,8 +180,8 @@ def numSplit(data,rows,xcol):
   xget = lambda r:r.cells[xcol.at]
   rows = sorted([row for row in rows if xget(row)  != "?"], key=xget)
   yall,yleft= SYM(),SYM()
-  for row in rows: add(yall, row.klass)
-  cut, lo  = None, div(yall))
+  [add(yall, row.klass) for row in rows]
+  cut, lo  = cut, div(yall)
   for row in rows:
     add(yleft, sub(yall, row.klass))
     if lhs.n > tiny and rhs.n > tiny:
@@ -177,120 +190,10 @@ def numSplit(data,rows,xcol):
         tmp  = (yall.n*div(yall) + yleft.n*div(yleft)) / (yall.n + yleft.n)
         if tmp < lo:
           cut,lo = x,tmp
-  return lo,col.at,cut
+  return (lo, xcol.at, cut, f"{xcol.name} <= {cut}",
+          lambda r: xget(r) == "?" or xget(r) <= cut)
 
- def discretize(col,x):
-  if x == "?": return
-  if col.this is NUM:
-    x = int(the.bins*(x - col.lo)/(col.hi - col.lo + 1/inf))
-    x = min(the.bins, max(0, x))
-  return x
-
-
-
-class BIN(object):
-  def __init__(self,at=0,txt=" ",lo=None,hi=None,B=0,R=0):
-    self.at=at; self.txt=txt; self.lo=lo or inf; self.hi=hi or lo
-    self.n=0; self.ys={}; self.score=0; self.B=B; self.R=R
-  def __repr__(self):
-    if self.hi == self.lo: return f"{self.txt}={self.lo}"
-    if s,elf.hi == inf:     return f"{self.txt}>={self.lo}"
-    if self.lo == -inf:    return f"{self.txt}<{self.hi}"
-    return f"{self.lo} <= {self.txt} < {self.hi}"
-
-
-def binAdd(bin, x, y, row):
-  bin.n     += 1
-  bin.lo     = min(bin.lo, x)
-  bin.hi     = max(bin.hi, x)
-  bin.ys[y]  = bin.ys.get(y,set())
-  bin.ys[y].add(row)
-  return bin
-
-
-def merge(bin1, bin2):
-  out = BIN(at=bin1.at, txt=bin1.txt,
-            lo=bin1.lo, hi=bin2.hi,
-            B=bin1.B, R=bin2.R)
-  out.n = bin1.n + bin2.n
-  for d in [bin1.ys, bin2.ys]:
-    for klass in d:
-      old = out.ys[klass]  = out.ys.get(klass,set())
-      out.ys[klass]  = old | d[klass]
-  return out
-
-
-def merged(bin1,bin2,num,best):
-  out   = merge(bin1,bin2)
-  eps   = div(num)*the.cohen
-  small = num.n / the.bins
-  if len(out.ys.get(best,[]))/out.B < 0.05: return out
-  if bin1.n <= small or bin1.hi - bin1.lo < eps : return out
-  if bin2.n <= small or bin2.hi - bin2.lo < eps : return out
-  e1, e2, e3 = binEnt(bin1), binEnt(bin2), binEnt(out)
-  if e3 <= (bin1.n*e1 + bin2.n*e2)/out.n : return out
-
-
-def binEnt(bin):
-  return ent({k:len(set1) for k,set1 in bin.ys.items()})
-
-
-
-
-
-
-
-def contrasts(data1,data2, elite=False):
-  top,bins = None, _contrasts(data1,data2)
-  n=0
-  if elite:
-    for bin in sorted(bins,reverse=True,key=lambda bin: bin.score):
-      top = top or bin
-      if not(bin.lo == -inf and bin.hi == inf) and bin.score > top.score*.1:
-        n += 1
-        if n <= the.top: yield bin
-  else:
-    for bin in bins: yield bin
-
-
-
-def _contrasts(data1,data2):
-  data12 = clone(data1, data1.rows + data2.rows)
-  for col in data12.cols.x:
-    bins = {}
-    for klass,rows in dict(best=data1.rows, rest=data2.rows).items():
-      for row in rows:
-        x = row.cells[col.at]
-        if z := discretize(col, x):
-          if z not in bins: bins[z] = BIN(at=col.at,txt=col.txt,lo=x,
-                                          B=len(data1.rows), R=len(data2.rows))
-          binAdd(bins[z], x, klass, row)
-    for bin in merges(col, sorted(bins.values(), key=lambda z:z.lo),"best"):
-      yield value(bin, col)
-
-
-def merges(col,bins,best):
-  if col.this is SYM: return bins
-  bins = mergeds(bins,col,best)
-  for j in range(len(bins)-1): bins[j].hi = bins[j+1].lo
-  bins[0].lo = -inf
-  bins[-1].hi =  inf
-  return bins
-
-
-
-def mergeds(a, col,best):
-  b,j = [],0
-  while j < len(a):
-    now = a[j]
-    if j < len(a) - 1:
-      if new := merged(a[j], a[j+1], col,best): now,j = new,j+1
-    b += [now]
-    j += 1
-  return a if len(a) == len(b) else mergeds(b, col,best)
-
-
-def value(bin,col):
+ def value(bin,col):
   b,r = bin.ys.get("best",set()), bin.ys.get("rest",set())
   bin.score = want(len(b),len(r), bin.B, bin.R)
   return bin
@@ -304,19 +207,6 @@ def select(bin,row):
   if bin.hi ==  inf and x >= bin.lo : return row
   if bin.lo <= x and x < bin.hi     : return row
 
-
-def selects(bins,rows):
-  d={}
-  for bin in bins:
-    here = d[bin.at] = d.get(bin.at, set())
-    d[bin.at] = here | set([row for row in rows if select(bin,row)])
-  out= None
-  for set1 in d.values():
-    if out: out = out & set1
-    else  : out = set1
-    if len(out)==0: return 
-  if len(out) == len(rows): return
-  return out
 
 #---------------------------------------------------------------------------------------------------
 
