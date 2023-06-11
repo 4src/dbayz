@@ -25,10 +25,9 @@ from functools import cmp_to_key
 from ast import literal_eval as thing
 
 class BAG(dict): __getattr__ = dict.get
-
 the = BAG(**{m[1]:thing(m[2])
           for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)})
-
+#---------------------------------------------
 class base(object):
    def __repr__(i): 
      return i.__class__.__name__+str({k:v for k,v in i.__dict__.items() if k[0] != "_"})
@@ -42,6 +41,7 @@ class COL(base):
      if x != "?":
         i.n += 1
         i.add1(x)
+     return x
 
 class NUM(COL):
    def __init__(i, txt="",at=0):
@@ -50,11 +50,11 @@ class NUM(COL):
      i.mu = i.m2 = 0
      i.lo, i.hi = big, -big 
    def norm(i,x):
-     return x if x=="?" else  (x-i.lo)/(x.hi - x.lo + 1/big)
-   def mid(i,decimals=None):
-     return rnd( i.mu, decimals)
-   def div(i,decimals=None):
-     return rnd( (i.m2/(i.n - 1))**.5 if i.m2>0 and i.n > 1 else 0, decimals)
+     return x if x=="?" else  (x-i.lo)/(i.hi - i.lo + 1/big)
+   def mid(i, decimals=None):
+     return rnd(i.mu, decimals)
+   def div(i, decimals=None):
+     return rnd((i.m2/(i.n - 1))**.5 if i.m2>0 and i.n > 1 else 0, decimals)
    def add1(i,x):
      i.lo = min(x, i.lo)
      i.hi = max(x, i.hi)
@@ -66,7 +66,7 @@ class SYM(COL):
   def __init__(i,txt="",at=0):
     COL.__init__(i,txt=txt,at=at)
     i.counts,i.mode, i.most = {},None,0
-  def mid(i,**_): return i.mode
+  def mid(i,decimals=None): return i.mode
   def div(i, decimals=None):
     a = i.counts
     return rnd( - sum(a[k]/i.n * math.log(a[k]/i.n,2) for k in a if a[k] > 0), decimals)
@@ -100,9 +100,9 @@ class DATA(base):
      if i.cols: i.rows += [i.cols.add(row)]
      else:      i.cols = COLS(row.cells)
    def clone(i,rows=[]):
-     return DATA([i.cols.names] + rows)
-   def sort(i,rows=[]):
-     return sorted(rows or i.rows, key=cmp_to_key(lambda r1,r2: i.better(r1,r2)))
+     return DATA([ROW(i.cols.names)] + rows)
+   def betters(i,rows=[]):
+     return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.better(a,b)))
    def better(i,row1,row2):
      s1, s2, n = 0, 0, len(i.cols.y)
      for col in i.cols.y:
@@ -119,8 +119,8 @@ def rnd(x,decimals=None):
   return round(x,decimals) if decimals else x
 
 def stats(cols, fun="mid", decimals=2):
-  fun = lambda col:(col.mid if fun=="mid" else col.div)(decimals)
-  return dict(mid=BAG(N=cols[1].n, **{col.txt:fun(col) for col in cols}))
+  def what(col): return (col.mid if fun=="mid" else col.div)(decimals)
+  return dict(mid=BAG(N=cols[1].n, **{col.txt:what(col) for col in cols}))
 
 def rows(file): return csv(file, ROW)
 
@@ -142,8 +142,8 @@ def rndEg(): assert 3.14 == rnd(math.pi,2)
 
 def numEg(txt=""):
   n = NUM(txt)
-  for x in range(10**3):  n.add(x)
-  assert 499 < n.mid() <= 501 and 288 < n.div() < 299
+  for x in range(10**4):  n.add(R()**.5)
+  assert .66 < n.mid() < .67 and .23 <  n.div() < .24
   return n
 
 def symEg(txt=""):
@@ -153,7 +153,7 @@ def symEg(txt=""):
   return s
 
 def statsEg():
-  print(stats([symEg("sym1"),numEg("num1"),symEg("sym2")]))
+  print(stats([symEg("sym1"),numEg("num1"),numEg("num2"),symEg("sym2")]))
 
 def rowsEg():
   for row in list(rows(the.file))[:5]: print(row)
@@ -164,16 +164,29 @@ def colEg():
 def dataEg():
   print(stats(DATA(rows(the.file)).cols.y))
 
+def cloneEg():
+   d1 = DATA(rows(the.file))
+   d2= d1.clone(d1.rows)
+   print(d2.cols.y)
+
+def sortEg():
+   d = DATA(rows(the.file))
+   lst = d.betters()
+   m   = int(len(lst)**.5)
+   best= d.clone(lst[-m:]); print("best",stats(best.cols.y))
+   rest= d.clone(lst[:m]);  print("rest",stats(rest.cols.y))
+
 def okEg():
-  reset = {k:v for k,v in the.items()}
+  saved = {k:v for k,v in the.items()}
   for k,fun in egs.items():
     if k not in ["-ok","-h"]:
-      random.seed(the.seed)
       print(colored(k,"yellow",attrs=["bold"]))
+      for k,v in saved.items(): the[k] = v
+      random.seed(the.seed)
       fun()
-      for k,v in reset.items(): the[k] = v
-
+#---------------------------------------------
 random.seed(the.seed)    # set random number seed
+
 if __name__ == "__main__":
   egs = {("-"+k[:-2]):v for k,v in locals().items() if k[-2:]=="Eg"}
   a=sys.argv[1:]; a and a[0] in egs and egs[a[0]]()
