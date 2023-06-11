@@ -27,5 +27,11 @@ docs/fishn.html:
 	pycco fishn.py
 	cp docs/_pycco.css docs/pycco.css
 
-less.md : less.py
-	gawk -f doc.awk $< > $@
+less.md : less.py head.md
+	cat head.md > $@
+	gawk -f doc.awk $< >> $@
+
+less.pdf : less.md
+	pandoc -s --pdf-engine=xelatex --toc -N \
+		        --listings -H listings-setup.tex \
+		         -o $@ $<
