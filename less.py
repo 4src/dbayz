@@ -1,20 +1,18 @@
 #!/usr/bin/env python3 -B
 #<!--- vim: set et sts=2 sw=2 ts=2 : --->
 """
-SYNOPSIS:
-  less: look around just a little, guess where to search.
+less: look around just a little, guess where to search.
+(c) 2023 Tim Menzies <timm@ieee.org>, BSD-2
 
-USAGE:
-  ./less.py [OPTIONS] [-g ACTIONS]
+USAGE: ./less.py [OPTIONS] 
 
 OPTIONS:
 
   -b  --bins    max number of bins    = 16
   -c  --cohen   size significant separation = .35
   -f  --file    data csv file         = "../data/auto93.csv"
-  -g  --go      start up action       = "nothing"
   -h  --help    show help             = False
-  -k  --keep    how many nums to keep = 512
+  -k  --keep    how many nums to keep = 256
   -l  --lazy    lazy mode             = False
   -m  --min     min size              = .5
   -r  --rest    ratio best:rest       = 3
@@ -22,15 +20,13 @@ OPTIONS:
   -t  --top     explore top  ranges   = 8
   -w  --want    goal                  = "mitigate"
 """
-'''
-asdas
-'''
 import random,math,sys,ast,re
 from termcolor import colored
 from functools import cmp_to_key
 from ast import literal_eval as thing
 
 class BAG(dict): __getattr__ = dict.get
+
 the = BAG(**{m[1]:thing(m[2])
           for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)})
 
@@ -38,14 +34,6 @@ random.seed(the.seed)    # set random number seed
 R = random.random        # short cut to random number generator
 isa = isinstance         # short cut for checking types
 big = 1E30               # large number
-
-egs={}                                  # place to store examples
-def eg(f): egs[f.__name__]= f; return f # define one example
-def run1():                             # run one example
-  a=sys.argv; return a[1:] and a[1] in egs and egs[a[1]]() 
-
-@eg
-def thed(): print(the)
 
 class base(object):
    def __repr__(i): 
@@ -55,7 +43,7 @@ class ROW(base):
    def __init__(i, cells=[]): i.cells=cells
 
 class COL(base):
-   def __init__(i, at="",txt=""): i.at,i.txt = at,txt
+   def __init__(i, txt="",at=0): i.n,i.at,i.txt = 0,at,txt
    def add(i,x):
      if x != "?":
         i.n += 1
@@ -67,15 +55,9 @@ def rnd(x,decimals=None):
 def per(a,p=.5):
   return a[int(max(0,min(len(a)-1,p*len(a))))]
 
-@eg
-def rnded(): assert 3.14 == rnd(math.pi,2)
-
-@eg
-def pered(): assert 33 == per([i for i in range(100)], .33)
-
 class NUM(COL):
-   def __init__(i, **d):
-     COL.__init__(i,**d)
+   def __init__(i, txt="",at=0):
+     COL.__init__(i,txt=txt,at=at)
      i.w = -1 if len(i.txt) > 0 and i.txt[-1] == "-" else 1
      i._has,i.ready = [],False
      i.lo, i.hi = big, -big 
@@ -97,15 +79,9 @@ class NUM(COL):
      elif R() < the.keep/i.n : i.ready=False; a[ int(len(a)*R()) ] = x
    def sub1(i,x): raise(DeprecationWarning("sub not defined for NUMs"))
 
-@eg
-def numed():
-  n = NUM()
-  for i in range(1000):  n.add(i)
-  print(n.mid(), n.div())
-
-class SYM(base):
-  def __init__(i,**d):
-    COL.__init__(i,**d)
+class SYM(COL):
+  def __init__(i,txt="",at=0):
+    COL.__init__(i,txt=txt,at=at)
     i.counts,i.mode, i.most = {},None,0
   def mid(i,**_): return i.mode
   def div(i, decimals=None):
@@ -119,13 +95,13 @@ class SYM(base):
     i.counts[x] -= 1
 
 def stats(cols, fun="mid", decimals=2):
-  fun = lambda i,d:i.mid(d) if fun=="mid" else lambda i:i.div(d)
-  return BAG(N=cols[1].n, **{col.txt:fun(col,decimals) for col in cols})
+  fun = lambda i,d: i.mid(d) if fun=="mid" else i.div(d)
+  return dict(mid=BAG(N=cols[1].n, **{col.txt:fun(col,decimals) for col in cols}))
 
 class COLS(base):
   def __init__(i,names):
     i.x,i,y, i.names = names,[],[]
-    i.all = [(NUM(n,s) if s[0].isupper() else SYM(n,s)) for n,s in enumerate(names)]
+    i.all = [(NUM if s[0].isupper() else SYM)(s,n) for n,s in enumerate(names)]
     for col in i.all:
       z = col.txt[-1]
       if z != "X":
@@ -136,15 +112,15 @@ class COLS(base):
       for col in cols: col.add(row.cells[col.at])
     return row
 
-def csv(file):
+def csv(file,filter=lambda x:x):
   def coerce(x):
-    try: return ast.literal_eval(x)
+    try: return thing(x)
     except: return x
   with open(file) as fp:
     for line in fp:
       line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
       if line:
-        yield [coerce(s.strip()) for s in line.split(",")]
+        yield filter([coerce(s.strip()) for s in line.split(",")])
 
 class DATA(base):
    def __init__(i,src=[]): 
@@ -168,6 +144,50 @@ class DATA(base):
        s2  -= math.exp(col.w * (b - a) / n)
      return s1 / n < s2 / n
 
+egs={}                                  # place to store examples
+def eg(f): egs["-"+f.__name__[:-2]]= f; return f # define one example
 
-if __name__ == "__main__": 
-  if sys.argv[1:]: run1()
+@eg
+def hEg(): print(__doc__)
+
+@eg
+def theEg(): print(the)
+
+@eg
+def rndEg(): assert 3.14 == rnd(math.pi,2)
+
+@eg
+def perEg(): assert 33 == per([i for i in range(100)], .33)
+
+@eg
+def numEg(txt=""):
+  for keep in [16,32,64,128,256,512,1024,2048]:
+    the.keep = keep
+    n = NUM(txt)
+    for i in range(10**3):  n.add(i)
+    print(keep,BAG(mid=n.mid(),midError=int(100*(n.mid()-500)/500), 
+                   div=n.div(), divError=int(100*(n.div()-288)/288)))
+  return n
+
+@eg
+def symEg(txt=""):
+  s=SYM(txt)
+  [s.add(x) for x in "aaaabbc"]
+  assert "a"==s.mid() and 1.37 <= s.div() < 1.38
+  return s
+
+@eg
+def statsEg():
+  print(stats([symEg("sym1"),numEg("num1"),symEg("sym2")]))
+
+@eg
+def okEg():
+  reset = {k:v for k,v in the.items()}
+  for k,fun in egs.items():
+    if k not in ["-ok","-h"]:
+      random.seed(the.seed)
+      fun()
+      for k,v in reset.items(): the[k] = v
+
+if __name__ == "__main__":
+  a=sys.argv; a[1:] and a[1] in egs and egs[a[1]]()
