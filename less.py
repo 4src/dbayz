@@ -28,20 +28,30 @@
      -t  --top     explore top  ranges   = 8
      -w  --want    goal                  = "mitigate"
 """
+'''
+asdas
+'''
 import random,math,sys,ast,re
 from termcolor import colored
 from functools import cmp_to_key
+from ast import literal_eval as thing
 
 class BAG(dict): __getattr__ = dict.get
-the = BAG(**{m[1]:ast.literal_eval(m[2])
-           for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)})
+the = BAG(**{m[1]:thing(m[2])
+          for m in re.finditer(r"\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)",__doc__)})
 
-big = 1E30
-R = random.random
-isa = isinstance
-egs={}
-def eg(f): egs[f.__name__]= f; return f
-def run1(): egs[sys.argv[1]]()
+random.seed(the.seed)    # set random number seed
+R = random.random        # short cut to random number generator
+isa = isinstance         # short cut for checking types
+big = 1E30               # large number
+
+egs={}                                  # place to store examples
+def eg(f): egs[f.__name__]= f; return f # define one example
+def run1():                             # run one example
+  a=sys.argv; return a[1:] and a[1] in egs and egs[a[1]]() 
+
+@eg
+def thed(): print(the)
 
 class base(object):
    def __repr__(i): 
@@ -49,10 +59,6 @@ class base(object):
 
 class ROW(base):
    def __init__(i, cells=[]): i.cells=cells
-
-def stats(cols, fun="mid",decimals=2)
-  fun = lambda i,d:i.mid(d) if fun=="mid" else lambda i:i.div(d)
-  return BAG(N=cols[1].n, **{col.txt:fun(col,decimals) for col in cols})
 
 class COL(base):
    def __init__(i, at="",txt=""): i.at,i.txt = at,txt
@@ -65,7 +71,13 @@ def rnd(x,decimals=None):
   return round(x,decimals) if decimals else x
 
 def per(a,p=.5):
-  return a[int(.5 + max(0,min(1,p))*len(a))]
+  return a[int(max(0,min(len(a)-1,p*len(a))))]
+
+@eg
+def rnded(): assert 3.14 == rnd(math.pi,2)
+
+@eg
+def pered(): assert 33 == per([i for i in range(100)], .33)
 
 class NUM(COL):
    def __init__(i, **d):
@@ -83,13 +95,19 @@ class NUM(COL):
      return x if x=="?" else  (x-i.lo)/(x.hi - x.lo + 1/big)
    def mid(i,decimals=None):
      return rnd( per(i.has(),.5), decimals)
-   def div(i,decimals=None:
-     return rnd( (per(i.has(),.9) - per(i.has().1))/2.56, decimals)
+   def div(i,decimals=None):
+     return rnd( (per(i.has(),.9) - per(i.has(),.1))/2.56, decimals)
    def add1(i,x):
      a = i._has
      if   len(a) < the.keep  : i.ready=False; a += [x]
      elif R() < the.keep/i.n : i.ready=False; a[ int(len(a)*R()) ] = x
-  def sub1(i,x): raise(DeprecationWarning("sub not defined for NUMs"))
+   def sub1(i,x): raise(DeprecationWarning("sub not defined for NUMs"))
+
+@eg
+def numed():
+  n = NUM()
+  for i in range(1000):  n.add(i)
+  print(n.mid(), n.div())
 
 class SYM(base):
   def __init__(i,**d):
@@ -106,6 +124,10 @@ class SYM(base):
     i.n -= 1
     i.counts[x] -= 1
 
+def stats(cols, fun="mid", decimals=2):
+  fun = lambda i,d:i.mid(d) if fun=="mid" else lambda i:i.div(d)
+  return BAG(N=cols[1].n, **{col.txt:fun(col,decimals) for col in cols})
+
 class COLS(base):
   def __init__(i,names):
     i.x,i,y, i.names = names,[],[]
@@ -115,10 +137,10 @@ class COLS(base):
       if z != "X":
         if z=="!": i.klass= col
         (i.y if z in "-+!" else i.y).append(col)
-   def add(i,row):
-     for cols in [i.x, i.y]:
-       for col in cols: col.add(row.cells[col.at])
-     return row
+  def add(i,row):
+    for cols in [i.x, i.y]:
+      for col in cols: col.add(row.cells[col.at])
+    return row
 
 def csv(file):
   def coerce(x):
@@ -153,7 +175,5 @@ class DATA(base):
      return s1 / n < s2 / n
 
 
-
-
-
-    
+if __name__ == "__main__": 
+  if sys.argv[1:]: run1()

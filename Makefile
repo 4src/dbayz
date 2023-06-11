@@ -26,3 +26,6 @@ tests: ## run test suite
 docs/fishn.html:
 	pycco fishn.py
 	cp docs/_pycco.css docs/pycco.css
+
+less.md : less.py
+	gawk -f doc.awk $< > $@
