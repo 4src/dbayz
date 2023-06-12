@@ -133,19 +133,6 @@ def tree1(data,rows,stop, at=at,val=val,op=op,txt=txt):
       t.right = tree1(data, right, stop, at=at,val=val,txt=txt,op=negate(op))
   return t
 
-def showTree(t, lvl="",b4=""):
-  if t:
-    print(lvl + b4,str(len(t.here.rows)))
-    pre= f"if {t.txt} {t.op.__doc__} {t.val}" if t.left or t.right else ""
-    showTree(t.left,  lvl+"|.. ", pre)
-    showTree(t.right, lvl+"|.. ", "else")
-
-def negate(a):
-  if a==fromFun: return toFun
-  if a==toFun:   return fromFun
-  if a==atFun:   return awayFun
-  if a==awayFun: return toFun
-
 def fromFun(x,y):
   ">"
   return x=="?" or y=="?" or x > y
@@ -161,6 +148,12 @@ def atFun(x,y):
 def awayFun(x,y):
   "!="
   return x=="?" or y=="?" or x == y
+
+def negate(a):
+  if a==fromFun: return toFun
+  if a==toFun:   return fromFun
+  if a==atFun:   return awayFun
+  if a==awayFun: return toFun
 
 def cut(data,col,rows):
   return (cutNUM if isa(col,NUM) else cutSYM)(data,col,rows)
@@ -191,6 +184,13 @@ def cutNUM(data,col,rows):
         if xpect < lo:
           cut,lo = x(row),xpect
   return lo,col.at,toFun,cut,col.txt
+
+def showTree(t, lvl="",b4=""):
+  if t:
+    print(lvl + b4,str(len(t.here.rows)))
+    pre= f"if {t.txt} {t.op.__doc__} {t.val}" if t.left or t.right else ""
+    showTree(t.left,  lvl+"|.. ", pre)
+    showTree(t.right, lvl+"|.. ", "else")
 #---------------------------------------------
 R   = random.random      # short cut to random number generator
 isa = isinstance         # short cut for checking types
