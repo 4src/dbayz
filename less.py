@@ -110,7 +110,7 @@ class DATA(base):
     return s1 / n < s2 / n
   def sorts(i,rows=[]):
     return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort(a,b)))
-#---------------------------------------------
+#---------------------------------------------
 def tree(data):
   lst   = data.sorts()
   n     = int(len(data.rows)**the.min)
@@ -140,22 +140,22 @@ def showTree(t, lvl="",b4=""):
     showTree(t.right, lvl+"|.. ", "else")
 
 def negate(a):
-  if a==fromFun: return atFun
-  if a==atFun:   return fromFun
-  if a==toFun:   return awayFun
+  if a==fromFun: return toFun
+  if a==toFun:   return fromFun
+  if a==atFun:   return awayFun
   if a==awayFun: return toFun
 
 def fromFun(x,y):
   ">"
   return x=="?" or y=="?" or x > y
 
-def atFun(x,y):
-  "=="
-  return x=="?" or y=="?" or x == y
-
 def toFun(x,y):
   "<="
   return x=="?" or y=="?" or x <= y
+
+def atFun(x,y):
+  "=="
+  return x=="?" or y=="?" or x == y
 
 def awayFun(x,y):
   "!="
@@ -190,7 +190,7 @@ def cutNUM(data,col,rows):
         if xpect < lo:
           cut,lo = x(row),xpect
   return lo,col.at,toFun,cut,col.txt
-#---------------------------------------------
+#---------------------------------------------
 R   = random.random      # short cut to random number generator
 isa = isinstance         # short cut for checking types
 big = 1E30               # large number
