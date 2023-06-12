@@ -121,15 +121,16 @@ def tree(data):
   all = bests + rests
   return tree1(data, all, len(all)**the.min)
 
-def tree1(data,rows,stop):
-  t = BAG(at=None,here=data.clone(rows))
+def tree1(data,rows,stop, at=at,val=val,op=op,txt=txt):
+  t = BAG(at=at,val=val,op=op,txt=txt,left=None,right=None,here=data.clone(rows))
   if len(rows) > 2*stop:
-    _,t.at,t.op,t.val,t.txt = sorted((cut(data,c,rows) for c in data.cols.x))[0]
-    t.left, t.right = None,None
+    _,at,op,val,txt = sorted((cut(data,c,rows) for c in data.cols.x))[0]
     left,right = [],[]
     [(left if t.op(row.cells[t.at], t.val) else right).append(row) for row in rows]
-    if stop < len(left)  < len(rows): t.left  = tree1(data, left,  stop)
-    if stop < len(right) < len(rows): t.right = tree1(data, right, stop)
+    if stop < len(left)  < len(rows):
+      t.left  = tree1(data, left,  stop, at=at,val=val,txt=txt,op=op)
+    if stop < len(right) < len(rows):
+      t.right = tree1(data, right, stop, at=at,val=val,txt=txt,op=negate(op))
   return t
 
 def showTree(t, lvl="",b4=""):
