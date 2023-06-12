@@ -76,6 +76,7 @@ class SYM(COL):
   def sub(i,x):
     i.n -= 1
     i.counts[x] -= 1
+    assert 0 <= i.counts[x]
     return x
 #---------------------------------------------
 class COLS(base):
@@ -111,28 +112,7 @@ class DATA(base):
   def sorts(i,rows=[]):
     return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort(a,b)))
 #---------------------------------------------
-def tree(data):
-  lst   = data.sorts()
-  n     = int(len(data.rows)**the.min)
-  bests = lst[-n:]
-  rests = random.sample(lst[:-n], the.rest * n)
-  for row in bests: row.klass = True
-  for row in rests: row.klass = False
-  all = bests + rests
-  return tree1(data, all, len(all)**the.min)
-
-def tree1(data,rows,stop, at=at,val=val,op=op,txt=txt):
-  t = BAG(at=at,val=val,op=op,txt=txt,left=None,right=None,here=data.clone(rows))
-  if len(rows) > 2*stop:
-    _,at,op,val,txt = sorted((cut(data,c,rows) for c in data.cols.x))[0]
-    left,right = [],[]
-    [(left if t.op(row.cells[t.at], t.val) else right).append(row) for row in rows]
-    if stop < len(left)  < len(rows):
-      t.left  = tree1(data, left,  stop, at=at,val=val,txt=txt,op=op)
-    if stop < len(right) < len(rows):
-      t.right = tree1(data, right, stop, at=at,val=val,txt=txt,op=negate(op))
-  return t
-
+# operators, used in trees
 def fromFun(x,y):
   ">"
   return x=="?" or y=="?" or x > y
@@ -149,14 +129,38 @@ def awayFun(x,y):
   "!="
   return x=="?" or y=="?" or x != y
 
-def negate(a):
+def negated(a):
   if a==fromFun: return toFun
   if a==toFun:   return fromFun
   if a==atFun:   return awayFun
   if a==awayFun: return toFun
+#---------------------------------------------
+# tree generation
+def tree(data):
+  lst   = data.sorts()
+  n     = int(len(data.rows)**the.min)
+  bests = lst[-n:]
+  rests = random.sample(lst[:-n], the.rest * n)
+  for row in bests: row.klass = True
+  for row in rests: row.klass = False
+  all = bests + rests
+  return tree1(data, all, len(all)**the.min)
 
-def cut(data,col,rows):
-  return (cutNUM if isa(col,NUM) else cutSYM)(data,col,rows)
+def tree1(data,rows,stop, at=None,val=None,op=None,txt=None):
+  t = BAG(at=at, val=val, op=op, txt=txt,
+          left=None, right=None, here=data.clone(rows))
+  if len(rows) > 2*stop:
+    _,at,op,val,txt = cut(data,data.cols.x,rows)
+    left,right = [],[]
+    [(left if op(row.cells[at], val) else right).append(row) for row in rows]
+    if len(left)==len(rows) or len(right)==len(rows):
+      return t
+    t.left  = tree1(data, left,  stop, at=at, val=val, txt=txt, op=op)
+    t.right = tree1(data, right, stop, at=at, val=val, txt=txt, op=negated(op))
+  return t
+
+def cut(data,cols,rows):
+  return sorted((cutNUM if isa(c,NUM) else cutSYM)(data,c,rows) for c in cols)[0]
 
 def cutSYM(_,col,rows):
   d = {}
@@ -168,21 +172,22 @@ def cutSYM(_,col,rows):
   return sorted((d[k].div(),col.at,atFun,k,col.txt) for k in d)[0]
 
 def cutNUM(data,col,rows):
-  lo = eps  = col.div()*the.cohen
-  small     = len(rows)**the.min
-  x         = lambda row: row.cells[col.at]
-  y         = lambda row: row.klass
-  xs,ys0,ys = NUM(), SYM(), SYM()
-  rows      = sorted([row for row in rows if x(row) != "?"], key=x)
-  cut       = x(rows[0])
-  for row in rows: xs.add(x(row)); ys.add(y(row))
-  for row in rows:
-    ys0.add( ys.sub( y(row) ))
-    if ys0.n > small and ys.n > small:
-      if x(row) - x(rows[0]) > eps and x(rows[-1]) - x(row) > eps:
-        xpect = (ys0.n*ys0.div() + ys.n*ys.div()) / (ys0.n+ys.n)
-        if xpect < lo:
-          cut,lo = x(row),xpect
+  x       = lambda row: row.cells[col.at]
+  y       = lambda row: row.klass
+  small   = len(rows)**the.min
+  lo = eps= col.div()*the.cohen
+  rows    = sorted([row for row in rows if x(row) != "?"], key=x)
+  cut     = x(rows[0])
+  left,right = SYM(), SYM()
+  [right.add(y(row)) for row in rows]
+  for n,row in enumerate(rows):
+    left.add( right.sub( y(row) ))
+    if left.n > small and right.n > small:
+      if x(row) != x(rows[n+1]):
+        if x(row) - x(rows[0]) > eps and x(rows[-1]) - x(row) > eps:
+          xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
+          if xpect < lo:
+            cut,lo = x(row),xpect
   return lo,col.at,toFun,cut,col.txt
 
 def showTree(t, lvl="",b4=""):
@@ -259,7 +264,8 @@ def sortsEg():
 
 def treeEg():
   d = DATA(rows(the.file))
-  showTree( tree(d) )
+  tree(d) 
+  #showTree( tree(d) )
 
 def okEg():
   saved = {k:v for k,v in the.items()}
