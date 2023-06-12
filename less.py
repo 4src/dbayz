@@ -147,7 +147,7 @@ def atFun(x,y):
 
 def awayFun(x,y):
   "!="
-  return x=="?" or y=="?" or x == y
+  return x=="?" or y=="?" or x != y
 
 def negate(a):
   if a==fromFun: return toFun
