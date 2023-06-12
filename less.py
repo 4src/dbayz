@@ -113,27 +113,27 @@ class DATA(base):
     return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort(a,b)))
 #---------------------------------------------
 # operators, used in trees
-def fromFun(x,y):
+def opOver(x,y):
   ">"
   return x=="?" or y=="?" or x > y
 
-def toFun(x,y):
+def opUpTo(x,y):
   "<="
   return x=="?" or y=="?" or x <= y
 
-def atFun(x,y):
+def opIs(x,y):
   "=="
   return x=="?" or y=="?" or x == y
 
-def awayFun(x,y):
+def opNot(x,y):
   "!="
   return x=="?" or y=="?" or x != y
 
 def negated(a):
-  if a==fromFun: return toFun
-  if a==toFun:   return fromFun
-  if a==atFun:   return awayFun
-  if a==awayFun: return toFun
+  if a==opOver: return opUpTo
+  if a==opUpTo: return opOver
+  if a==opIs:   return opNot
+  if a==opNot:  return opUpTo
 #---------------------------------------------
 # tree generation
 def tree(data):
@@ -149,7 +149,7 @@ def tree(data):
 def tree1(data,rows,stop, at=None,val=None,op=None,txt=None):
   t = BAG(at=at, val=val, op=op, txt=txt,
           left=None, right=None, here=data.clone(rows))
-  if len(rows) > 2*stop:
+  if len(rows) >= 2*stop:
     _,at,op,val,txt = cut(data,data.cols.x,rows)
     left,right = [],[]
     [(left if op(row.cells[at], val) else right).append(row) for row in rows]
@@ -169,7 +169,7 @@ def cutSYM(_,col,rows):
     if x1 != "?":
       if x1 not in d: d[x1] = SYM()
       d[x1].add(row.klass)
-  return sorted((d[k].div(),col.at,atFun,k,col.txt) for k in d)[0]
+  return sorted((d[k].div(),col.at,opIs,k,col.txt) for k in d)[0]
 
 def cutNUM(data,col,rows):
   x       = lambda row: row.cells[col.at]
@@ -188,7 +188,7 @@ def cutNUM(data,col,rows):
           xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
           if xpect < lo:
             cut,lo = x(row),xpect
-  return lo,col.at,toFun,cut,col.txt
+  return lo,col.at,opUpTo,cut,col.txt
 
 def showTree(t, lvl="",b4=""):
   if t:
