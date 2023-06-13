@@ -102,15 +102,15 @@ class DATA(base):
     else:      i.cols = COLS(row.cells)
   def clone(i,rows=[]):
     return DATA([ROW(i.cols.names)] + rows)
-  def sort(i,row1,row2):
+  def sort2(i,row1,row2):
     s1, s2, n = 0, 0, len(i.cols.y)
     for col in i.cols.y:
       a, b = col.norm(row1.cells[col.at]), col.norm(row2.cells[col.at])
       s1  -= math.exp(col.w * (a - b) / n)
       s2  -= math.exp(col.w * (b - a) / n)
     return s1 / n < s2 / n
-  def sorts(i,rows=[]):
-    return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort(a,b)))
+  def sorted(i,rows=[]):
+    return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort2(a,b)))
 #---------------------------------------------
 # operators, used in trees
 ops = {">"  : lambda x,y: x=="?" and y=="?" or x>y,
@@ -125,26 +125,27 @@ negate = { ">"  :  "<=",
 #---------------------------------------------
 # tree generation
 def tree(data):
-  lst   = data.sorts()
-  n     = int(len(data.rows)**the.min)
-  bests = lst[-n:]
-  rests = random.sample(lst[:-n], the.rest * n)
-  for row in bests: row.klass = True
-  for row in rests: row.klass = False
-  all = bests + rests
-  return tree1(data, all, len(all)**the.min)
-
-def tree1(data,rows,stop, at=None,cut=None,op=None,txt=None,b4=None):
-  t = BAG(at=at, cut=cut, op=op, txt=txt,
-          left=None, right=None, here=data.clone(rows))
-  if (b4 < (b4 or len(rows)) and len(rows) >= 2*stop:
-    _,at,op,cut,s = cut(data,data.cols.x,rows)
-    if cut:
-      a,b = [],[]
-      [(a if ops[op](row.cells[at], cut) else b).append(row) for row in rows]
-      t.left  = tree1(data, a, stop, at=at, cut=cut, txt=s, b4=len(rows), op=op)
-      t.right = tree1(data, b, stop, at=at, cut=cut, txt=s, b4=len(rows), op=negate[op])
-  return t
+  def plant(rows,n)
+    bests = lst[-n:]
+    rests = random.sample(lst[:-n], the.rest * n)
+    for row in bests: row.klass = True
+    for row in rests: row.klass = False
+    all = bests + rests
+    return grow(all, len(all)**the.min)
+  #------------------------------------
+  def grow(rows, stop, t)
+    t.left,t.right = None,None
+    if len(rows) >= stop:
+      _,at,op,cut,s = cut(data,data.cols.x,rows)
+      if cut:
+        left,right = [],[]
+        [(left if ops[op](row.cells[at], cut) else right).append(row) for row in rows]
+        if len(left) != len(rows) and len(right) != len(rows):
+          t.left = grow(left, stop, BAG(here=data.clone(left),  at=at,cut=cut,txt=s,op=op))
+          t.right= grow(right,stop, BAG(here=data.clone(right), at=at,cut=cut,txt=s,op=negate[op]))
+    return t
+  #---------
+  return plant(data.sorted(), 2*int(len(data.rows)**the.min), BAG(here=data,at=None))
 
 def cut(data,cols,rows):
   def sym(col):
