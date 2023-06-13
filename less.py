@@ -18,7 +18,7 @@ OPTIONS:
   -t  --top     explore top  ranges   = 8
   -w  --want    goal                  = "mitigate"
 """
-import random,math,sys,ast,re
+import traceback,random,math,sys,ast,re
 from termcolor import colored
 from functools import cmp_to_key
 from ast import literal_eval as thing
@@ -113,27 +113,15 @@ class DATA(base):
     return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort(a,b)))
 #---------------------------------------------
 # operators, used in trees
-def opOver(x,y):
-  ">"
-  return x=="?" or y=="?" or x > y
+ops = {">"  : lambda x,y: x=="?" and y=="?" or x>y,
+       "<=" : lambda x,y: x=="?" and y=="?" or x<=y,
+       "==" : lambda x,y: x=="?" and y=="?" or x==y,
+       "!=" : lambda x,y: x=="?" and y=="?" or x!=y}
 
-def opUpTo(x,y):
-  "<="
-  return x=="?" or y=="?" or x <= y
-
-def opIs(x,y):
-  "=="
-  return x=="?" or y=="?" or x == y
-
-def opNot(x,y):
-  "!="
-  return x=="?" or y=="?" or x != y
-
-def negated(a):
-  if a==opOver: return opUpTo
-  if a==opUpTo: return opOver
-  if a==opIs:   return opNot
-  if a==opNot:  return opUpTo
+negate = { ">"  :  "<=",
+           "<=" :  ">",
+           "==" :  "!=",
+           "!=" :  "==" }
 #---------------------------------------------
 # tree generation
 def tree(data):
@@ -146,49 +134,49 @@ def tree(data):
   all = bests + rests
   return tree1(data, all, len(all)**the.min)
 
-def tree1(data,rows,stop, at=None,val=None,op=None,txt=None):
-  t = BAG(at=at, val=val, op=op, txt=txt,
+def tree1(data,rows,stop, at=None,cut=None,op=None,txt=None,b4=None):
+  t = BAG(at=at, cut=cut, op=op, txt=txt,
           left=None, right=None, here=data.clone(rows))
-  if len(rows) >= 2*stop:
-    _,at,op,val,txt = cut(data,data.cols.x,rows)
-    left,right = [],[]
-    [(left if op(row.cells[at], val) else right).append(row) for row in rows]
-    if len(left)==len(rows) or len(right)==len(rows):
-      return t
-    t.left  = tree1(data, left,  stop, at=at, val=val, txt=txt, op=op)
-    t.right = tree1(data, right, stop, at=at, val=val, txt=txt, op=negated(op))
+  if (b4 < (b4 or len(rows)) and len(rows) >= 2*stop:
+    _,at,op,cut,s = cut(data,data.cols.x,rows)
+    if cut:
+      a,b = [],[]
+      [(a if ops[op](row.cells[at], cut) else b).append(row) for row in rows]
+      t.left  = tree1(data, a, stop, at=at, cut=cut, txt=s, b4=len(rows), op=op)
+      t.right = tree1(data, b, stop, at=at, cut=cut, txt=s, b4=len(rows), op=negate[op])
   return t
 
 def cut(data,cols,rows):
-  return sorted((cutNUM if isa(c,NUM) else cutSYM)(data,c,rows) for c in cols)[0]
-
-def cutSYM(_,col,rows):
-  d = {}
-  for row in rows:
-    x1 = row.cells[col.at]
-    if x1 != "?":
-      if x1 not in d: d[x1] = SYM()
-      d[x1].add(row.klass)
-  return sorted((d[k].div(),col.at,opIs,k,col.txt) for k in d)[0]
-
-def cutNUM(data,col,rows):
-  x       = lambda row: row.cells[col.at]
-  y       = lambda row: row.klass
-  small   = len(rows)**the.min
-  lo = eps= col.div()*the.cohen
-  rows    = sorted([row for row in rows if x(row) != "?"], key=x)
-  cut     = x(rows[0])
-  left,right = SYM(), SYM()
-  [right.add(y(row)) for row in rows]
-  for n,row in enumerate(rows):
-    left.add( right.sub( y(row) ))
-    if left.n > small and right.n > small:
-      if x(row) != x(rows[n+1]):
-        if x(row) - x(rows[0]) > eps and x(rows[-1]) - x(row) > eps:
-          xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
-          if xpect < lo:
-            cut,lo = x(row),xpect
-  return lo,col.at,opUpTo,cut,col.txt
+  def sym(col):
+    d = {}
+    for row in rows:
+      x1 = row.cells[col.at]
+      if x1 != "?":
+        if x1 not in d: d[x1] = SYM()
+        d[x1].add(row.klass)
+    return sorted((d[k].div(),col.at,"==",col.txt) for k in d)[0]
+  #-----------
+  def num(col):
+    lo = eps= col.div()*the.cohen
+    small   = len(rows)**the.min
+    x       = lambda row: row.cells[col.at]
+    y       = lambda row: row.klass
+    rows    = sorted([row for row in rows if x(row) != "?"], key=x)
+    left,right = SYM(), SYM()
+    [right.add(y(row)) for row in rows]
+    cut = None
+    for n,row in enumerate(rows):
+      left.add(  y(row) )
+      right.sub( y(row) )
+      if left.n > small and right.n > small:
+        if x(row) != x(rows[n+1]):
+          if x(row) - x(rows[0]) > eps and x(rows[-1]) - x(row) > eps:
+            xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
+            if xpect < lo:
+              cut,lo = x(row),xpect
+    return lo,col.at,"<=",cut,col.txt
+  #----------------------------------
+  return sorted(((num(col) if isa(col,NUM) else sym(col)) for col in cols))[0]
 
 def showTree(t, lvl="",b4=""):
   if t:
@@ -219,24 +207,25 @@ def rows(file): return csv(file, ROW)
 def stats(cols, fun="mid", decimals=2):
   def what(col): return (col.mid if fun=="mid" else col.div)(decimals)
   return dict(mid=BAG(N=cols[1].n, **{col.txt:what(col) for col in cols}))
+
+def yell(s,c):
+  print(colored(s,"light_"+c,attrs=["bold"]),end="")
 #---------------------------------------------
 def hEg(): print(__doc__)
 
 def theEg(): print(the)
 
-def rndEg(): assert 3.14 == rnd(math.pi,2)
+def rndEg(): return 3.14 == rnd(math.pi,2)
 
 def numEg(txt=""):
   n = NUM(txt)
   for x in range(10**4):  n.add(R()**.5)
-  assert .66 < n.mid() < .67 and .23 <  n.div() < .24
-  return n
+  return .66 < n.mid() < .67 and .23 <  n.div() < .24 and n
 
 def symEg(txt=""):
   s=SYM(txt)
   [s.add(x) for x in "aaaabbc"]
-  assert "a"==s.mid() and 1.37 <= s.div() < 1.38
-  return s
+  return "a"==s.mid() and 1.37 <= s.div() < 1.38 and s
 
 def statsEg():
   print(stats([symEg("sym1"),numEg("num1"),numEg("num2"),symEg("sym2")]))
@@ -251,9 +240,9 @@ def dataEg():
   print(stats(DATA(rows(the.file)).cols.y))
 
 def cloneEg():
-   d1 = DATA(rows(the.file))
-   d2= d1.clone(d1.rows)
-   print(d2.cols.y)
+  d1 = DATA(rows(the.file))
+  d2= d1.clone(d1.rows)
+  print(d2.cols.y)
 
 def sortsEg():
    d = DATA(rows(the.file))
@@ -268,13 +257,28 @@ def treeEg():
   #showTree( tree(d) )
 
 def okEg():
-  saved = {k:v for k,v in the.items()}
-  for k,fun in egs.items():
-    if k not in ["-ok","-h"]:
-      print(colored(k,"yellow",attrs=["bold"]))
-      for k,v in saved.items(): the[k] = v
-      random.seed(the.seed)
-      fun()
+  "Run everything (except ok,h). Return how often something fails."
+  fails, saved = 0, {k:v for k,v in the.items()}
+  for what,fun in egs.items():
+    if what not in ["-ok","-h"]:
+      yell(what[1:] + " ","yellow")
+      failed = _failed(saved,fun)
+      fails += failed
+      yell(" FAIL\n","red") if failed else yell(" PASS\n","green")
+  yell(f"TOTAL FAILURE(s) = {fails}\n", "red" if failed else "cyan")
+  sys.exit(fails)
+
+def _failed(saved,fun):
+  """`Fun` fails if it returns `False` or if it crashes.
+  If it crashes, print the stack dump but then continue on
+  Before running it, reset the system to  initial conditions."""
+  for k,v in saved.items(): the[k] = v
+  random.seed(the.seed)
+  try:
+    return fun() == False
+  except:
+    traceback.print_exc()
+    return True
 #---------------------------------------------
 random.seed(the.seed)    # set random number seed
 
