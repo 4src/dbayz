@@ -168,7 +168,7 @@ def cut(data,cols,rows):
     for n,row in enumerate(rows):
       left.add(  y(row) )
       right.sub( y(row) )
-      if left.n > small and right.n > small:
+      if left.n > small and right.n > small: 
         if x(row) != x(rows[n+1]):
           if x(row) - x(rows[0]) > eps and x(rows[-1]) - x(row) > eps:
             xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
