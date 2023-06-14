@@ -35,3 +35,7 @@ less.pdf : less.md
 	pandoc -s --pdf-engine=xelatex --toc -N \
 		        --listings -H listings-setup.tex \
 		         -o $@ $<
+
+tmp/less.html: less.py
+	 python3 -m pdoc -c sort_identifiers=False  \
+		       --template-dir ~/tmp --force --html -o ~/tmp less.py
