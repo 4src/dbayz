@@ -154,14 +154,6 @@ negate = { ">"  :  "<=",
 # tree generation
 def tree(data):
   "Recursively split on the cut (that most distinguishes different klasses)." 
-  def plant(rows,n):
-    bests = lst[-n:]
-    rests = random.sample(lst[:-n], the.rest * n)
-    for row in bests: row.klass = True
-    for row in rests: row.klass = False
-    all = bests + rests
-    return grow(all, len(all)**the.min)
-  #------------------------------------
   def grow(rows, stop, t):
     t.left,t.right = None,None
     if len(rows) >= stop:
@@ -174,7 +166,13 @@ def tree(data):
           t.right= grow(right,stop, BAG(here=data.clone(right), at=at,cut=cut,txt=s,op=negate[op]))
     return t
   #---------
-  return plant(data.sorted(), 2*int(len(data.rows)**the.min), BAG(here=data,at=None))
+  lst   = data.sorted()
+  n     = len(lst)**the.min
+  bests = lst[-n:]
+  rests = random.sample(lst[:-n], the.rest * n)
+  for row in bests: row.klass = True
+  for row in rests: row.klass = False
+  return grow(bests + rests, 2*(n**the.min), BAG(here=data, at=None))
 
 def cut(data,cols,rows):
   "Return best `div,at,op,cut,txt` that most divides the klasses in `rows`."
@@ -309,23 +307,22 @@ class Egs:
     for what,fun in Egs.all.items():
       if what[0].isupper():
         yell(what + " ","yellow")
-        fail = Egs.failed(saved,fun)
-        fails += fail
+        fail = Egs.failure(saved,fun)
         yell(" FAIL\n","red") if fail else yell(" PASS\n","green")
+        fails += fail
     yell(f"TOTAL FAILURE(s) = {fails}\n", "red" if fails > 0 else "cyan")
     sys.exit(fails)
 
-  def failed(saved,fun):
+  def failure(saved,fun):
     """Called by `Egs.ok`. `Fun` fails if it returns `False` or if it crashes.
     If it crashes, print the stack dump but then continue on
     Before running it, reset the system to  initial conditions."""
     for k,v in saved.items(): the[k] = v
     random.seed(the.seed)
-    try:
-      return fun() == False
-    except:
-      traceback.print_exc()
-      return True
+    fail = True
+    try:    fail = fun() != False  # here, fail might be reset to True
+    except: traceback.print_exc()
+    return fail
 
 #---------------------------------------------
 random.seed(the.seed)    # set random number seed
