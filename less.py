@@ -307,7 +307,6 @@ class Egs:
     "Run everything (except ok,h). Return how often something fails."
     fails, saved = 0, {k:v for k,v in the.items()}
     for what,fun in Egs.all.items():
-      print(what)
       if what[0].isupper():
         yell(what + " ","yellow")
         fail = Egs.failed(saved,fun)
@@ -317,7 +316,7 @@ class Egs:
     sys.exit(fails)
 
   def failed(saved,fun):
-    """`Fun` fails if it returns `False` or if it crashes.
+    """Called by `Egs.ok`. `Fun` fails if it returns `False` or if it crashes.
     If it crashes, print the stack dump but then continue on
     Before running it, reset the system to  initial conditions."""
     for k,v in saved.items(): the[k] = v

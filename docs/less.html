@@ -392,7 +392,6 @@ class Egs:
     &#34;Run everything (except ok,h). Return how often something fails.&#34;
     fails, saved = 0, {k:v for k,v in the.items()}
     for what,fun in Egs.all.items():
-      print(what)
       if what[0].isupper():
         yell(what + &#34; &#34;,&#34;yellow&#34;)
         fail = Egs.failed(saved,fun)
@@ -402,7 +401,7 @@ class Egs:
     sys.exit(fails)
 
   def failed(saved,fun):
-    &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+    &#34;&#34;&#34;Called by `Egs.ok`. `Fun` fails if it returns `False` or if it crashes.
     If it crashes, print the stack dump but then continue on
     Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
     for k,v in saved.items(): the[k] = v
@@ -1173,7 +1172,6 @@ if __name__ == &#34;__main__&#34;:
     &#34;Run everything (except ok,h). Return how often something fails.&#34;
     fails, saved = 0, {k:v for k,v in the.items()}
     for what,fun in Egs.all.items():
-      print(what)
       if what[0].isupper():
         yell(what + &#34; &#34;,&#34;yellow&#34;)
         fail = Egs.failed(saved,fun)
@@ -1183,7 +1181,7 @@ if __name__ == &#34;__main__&#34;:
     sys.exit(fails)
 
   def failed(saved,fun):
-    &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+    &#34;&#34;&#34;Called by `Egs.ok`. `Fun` fails if it returns `False` or if it crashes.
     If it crashes, print the stack dump but then continue on
     Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
     for k,v in saved.items(): the[k] = v
@@ -1380,7 +1378,6 @@ if __name__ == &#34;__main__&#34;:
   &#34;Run everything (except ok,h). Return how often something fails.&#34;
   fails, saved = 0, {k:v for k,v in the.items()}
   for what,fun in Egs.all.items():
-    print(what)
     if what[0].isupper():
       yell(what + &#34; &#34;,&#34;yellow&#34;)
       fail = Egs.failed(saved,fun)
@@ -1394,7 +1391,7 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">failed</span></span>(<span>saved, fun)</span>
 </code></dt>
 <dd>
-<div class="desc"><p><code>Fun</code> fails if it returns <code>False</code> or if it crashes.
+<div class="desc"><p>Called by <code><a title="less.Egs.ok" href="#less.Egs.ok">Egs.ok()</a></code>. <code>Fun</code> fails if it returns <code>False</code> or if it crashes.
 If it crashes, print the stack dump but then continue on
 Before running it, reset the system to
 initial conditions.</p></div>
@@ -1403,7 +1400,7 @@ initial conditions.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def failed(saved,fun):
-  &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+  &#34;&#34;&#34;Called by `Egs.ok`. `Fun` fails if it returns `False` or if it crashes.
   If it crashes, print the stack dump but then continue on
   Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
   for k,v in saved.items(): the[k] = v
