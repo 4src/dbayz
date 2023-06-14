@@ -1,0 +1,1529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>less API documentation</title>
+<meta name="description" content="less: look around just a little, guess where to search.
+(c) 2023 Tim Menzies &lt;timm@ieee.org&gt;, BSD-2 …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<p style="text-align:left;">
+&nbsp; &nbsp; &copy; 2023 Tim Menzies,
+<a href="mailto:timm@ieee.org">timm@ieee.org</a>, BSD-2
+<span style="float:right;">
+<img src="https://camo.githubusercontent.com/ba3b84eb50cbaa9a2d59d81ad60cdf59f221ef93bf3c508e86750b04e78e8c16/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f444f492d31302e353238312532467a656e6f646f2e313233343536372d626c75652e737667">
+<img src="https://img.shields.io/badge/language-python3.11-yellow">
+<img src="results.png"> &nbsp;
+</span>
+</p>
+<hr>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>less</code></h1>
+</header>
+<section id="section-intro">
+<p>less: look around just a little, guess where to search.<br>
+(c) 2023 Tim Menzies <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#116;&#105;&#109;&#109;&#64;&#105;&#101;&#101;&#101;&#46;&#111;&#114;&#103;">&#116;&#105;&#109;&#109;&#64;&#105;&#101;&#101;&#101;&#46;&#111;&#114;&#103;</a>, BSD-2
+</p>
+<p>USAGE: ./less.py [OPTIONS]
+</p>
+<p>OPTIONS:<br>
+-b
+&ndash;bins
+max number of bins
+= 16<br>
+-c
+&ndash;cohen
+size significant separation = .35<br>
+-f
+&ndash;file
+data csv file
+= "../data/auto93.csv"<br>
+-h
+&ndash;help
+show help
+= False<br>
+-l
+&ndash;lazy
+lazy mode
+= False<br>
+-m
+&ndash;min
+min size
+= .5<br>
+-r
+&ndash;rest
+ratio best:rest
+= 4<br>
+-s
+&ndash;seed
+random number seed
+= 1234567891<br>
+-t
+&ndash;top
+explore top
+ranges
+= 8<br>
+-w
+&ndash;want
+goal
+= "mitigate"</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3 -B
+#vim: set et sts=2 sw=2 ts=2 : 
+&#34;&#34;&#34;
+less: look around just a little, guess where to search.  
+(c) 2023 Tim Menzies &lt;timm@ieee.org&gt;, BSD-2  
+
+USAGE: ./less.py [OPTIONS]   
+
+OPTIONS:  
+  -b  --bins    max number of bins    = 16  
+  -c  --cohen   size significant separation = .35  
+  -f  --file    data csv file         = &#34;../data/auto93.csv&#34;  
+  -h  --help    show help             = False  
+  -l  --lazy    lazy mode             = False  
+  -m  --min     min size              = .5  
+  -r  --rest    ratio best:rest       = 4  
+  -s  --seed    random number seed    = 1234567891  
+  -t  --top     explore top  ranges   = 8  
+  -w  --want    goal                  = &#34;mitigate&#34;  
+&#34;&#34;&#34;
+from fileinput import FileInput as file_or_stdin
+import traceback,random,math,sys,ast,re
+from termcolor import colored
+from functools import cmp_to_key
+from ast import literal_eval
+#---------------------------------------------
+class BAG(dict):
+  &#34;Dictionaries that can be accessed via `x[\&#34;slot\&#34;]` or `x.slot`.&#34;
+  __getattr__ = dict.get
+
+the = BAG(**{m[1]:literal_eval(m[2])
+             for m in re.finditer(r&#34;\n\s*-\w+\s*--(\w+)[^=]*=\s*(\S+)&#34;,__doc__)})
+&#34;&#34;&#34;Config settings, parsed from the __doc__.&#34;&#34;&#34;
+#---------------------------------------------
+class pretty(object):
+  &#34;Objects that support pretty print.&#34;
+  def __repr__(i):
+    return i.__class__.__name__+str({k:v for k,v in i.__dict__.items() if k[0] != &#34;_&#34;})
+#---------------------------------------------
+class ROW(pretty):
+  &#34;Place to store cells and meta-knowledge about those cells.&#34;
+  def __init__(i, cells=[]): i.cells,i.klass = cells,None
+#---------------------------------------------
+class COL(pretty):
+  &#34;COLumns know the name, position and the count of rows seen.&#34;
+  def __init__(i, txt=&#34;&#34;,at=0): i.n,i.at,i.txt = 0,at,txt
+  def add(i,x):
+    &#34;Ignoring empty cells, increment `n` then do the adding.&#34;
+    if x != &#34;?&#34;:
+      i.n += 1
+      i.add1(x)
+    return x
+#---------------------------------------------
+class NUM(COL):
+  &#34;Summarize stream of numbers. Knows the mean and standard deviation.&#34;
+  def __init__(i, txt=&#34;&#34;,at=0):
+    COL.__init__(i,txt=txt,at=at)
+    i.w = -1 if len(i.txt) &gt; 0 and i.txt[-1] == &#34;-&#34; else 1
+    i.mu = i.m2 = 0
+    i.lo, i.hi = big, -big 
+  def add1(i,x):
+    &#34;Update `lo,hi` and the variables needed to calculate stdev.&#34;
+    i.lo = min(x, i.lo)
+    i.hi = max(x, i.hi)
+    delta = x - i.mu
+    i.mu += delta/i.n
+    i.m2 += delta*(x - i.mu)
+  def div(i, decimals=None):
+    &#34;Return diversity around the central tendency.&#34;
+    return rnd((i.m2/(i.n - 1))**.5 if i.m2&gt;0 and i.n &gt; 1 else 0, decimals)
+  def mid(i, decimals=None):
+    &#34;Return central tendency.&#34;
+    return rnd(i.mu, decimals)
+  def norm(i,x):
+    &#34;May `x` to 0..1 for `lo` to `hi`.&#34;
+    return x if x==&#34;?&#34; else  (x-i.lo)/(i.hi - i.lo + 1/big)
+#---------------------------------------------
+class SYM(COL):
+  &#34;Summary a stream of symbols. Knows mode and entropy.&#34;
+  def __init__(i,txt=&#34;&#34;,at=0):
+    COL.__init__(i,txt=txt,at=at)
+    i.counts,i.mode, i.most = {},None,0
+  def add1(i,x):
+    &#34;Increment counts and mode.&#34;
+    now = i.counts[x] = 1 + i.counts.get(x,0)
+    if now &gt; i.most: i.most, i.mode = now, x
+  def div(i, decimals=None):
+    &#34;Return diversity around the central tendency.&#34;
+    a = i.counts
+    return rnd( - sum(a[k]/i.n * math.log(a[k]/i.n,2) for k in a if a[k] &gt; 0), decimals)
+  def mid(i,decimals=None):
+    &#34;Return central tendency.&#34;
+    return i.mode
+  def sub(i,x):
+    &#34;Decrement counts.&#34;
+    i.n -= 1
+    i.counts[x] -= 1
+    assert 0 &lt;= i.counts[x]
+    return x
+#---------------------------------------------
+class COLS(pretty):
+  &#34;Convert a list of names into NUMs and SYMs (kept different binds of cols in different lists).&#34; 
+  def __init__(i,names):
+    i.x, i.y, i.names = [],[],names
+    i.all = [(NUM if s[0].isupper() else SYM)(at=n,txt=s) for n,s in enumerate(names)]
+    for col in i.all:
+      z = col.txt[-1]
+      if z != &#34;X&#34;:
+        if z==&#34;!&#34;: i.klass= col
+        (i.y if z in &#34;-+!&#34; else i.x).append(col)
+  def add(i,row):
+    &#34;Add a row&#39;s data to all the non-skipped columns.&#34;
+    for cols in [i.x, i.y]:
+      for col in cols: col.add(row.cells[col.at])
+    return row
+#---------------------------------------------
+class DATA(pretty):
+  &#34;Keep `rows` of data, summarized into col`umns.&#34;
+  def __init__(i,src=[]):
+    i.cols, i.rows = None,[]
+    [i.add(row) for row in src]
+  def add(i,row):
+    &#34;For first row, build the `cols`. Otherwise, update summaries and the rows.&#34;
+    if i.cols: i.rows += [i.cols.add(row)]
+    else:      i.cols = COLS(row.cells)
+  def clone(i,rows=[]):
+    &#34;Replicate structure of self.&#34;
+    return DATA([ROW(i.cols.names)] + rows)
+  def sort2(i,row1,row2):
+    &#34;Return True if `row1` better than `row2`.&#34;
+    s1, s2, n = 0, 0, len(i.cols.y)
+    for col in i.cols.y:
+      a, b = col.norm(row1.cells[col.at]), col.norm(row2.cells[col.at])
+      s1  -= math.exp(col.w * (a - b) / n)
+      s2  -= math.exp(col.w * (b - a) / n)
+    return s1 / n &lt; s2 / n
+  def sorted(i,rows=[]):
+    &#34;Sort all `rows`.&#34;
+    return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort2(a,b)))
+#---------------------------------------------
+# operators, used in trees
+ops = {&#34;&gt;&#34;  : lambda x,y: x==&#34;?&#34; and y==&#34;?&#34; or x&gt;y,
+       &#34;&lt;=&#34; : lambda x,y: x==&#34;?&#34; and y==&#34;?&#34; or x&lt;=y,
+       &#34;==&#34; : lambda x,y: x==&#34;?&#34; and y==&#34;?&#34; or x==y,
+       &#34;!=&#34; : lambda x,y: x==&#34;?&#34; and y==&#34;?&#34; or x!=y}
+&#34;&#34;&#34;Operators used in decision tree.&#34;&#34;&#34;
+
+negate = { &#34;&gt;&#34;  :  &#34;&lt;=&#34;,
+           &#34;&lt;=&#34; :  &#34;&gt;&#34;,
+           &#34;==&#34; :  &#34;!=&#34;,
+           &#34;!=&#34; :  &#34;==&#34; }
+&#34;&#34;&#34;Negation of operators.&#34;&#34;&#34;
+#---------------------------------------------
+# tree generation
+def tree(data):
+  &#34;Recursively split on the cut (that most distinguishes different klasses).&#34; 
+  def plant(rows,n):
+    bests = lst[-n:]
+    rests = random.sample(lst[:-n], the.rest * n)
+    for row in bests: row.klass = True
+    for row in rests: row.klass = False
+    all = bests + rests
+    return grow(all, len(all)**the.min)
+  #------------------------------------
+  def grow(rows, stop, t):
+    t.left,t.right = None,None
+    if len(rows) &gt;= stop:
+      _,at,op,cut,s = cut(data,data.cols.x,rows)
+      if cut:
+        left,right = [],[]
+        [(left if ops[op](row.cells[at], cut) else right).append(row) for row in rows]
+        if len(left) != len(rows) and len(right) != len(rows):
+          t.left = grow(left, stop, BAG(here=data.clone(left),  at=at,cut=cut,txt=s,op=op))
+          t.right= grow(right,stop, BAG(here=data.clone(right), at=at,cut=cut,txt=s,op=negate[op]))
+    return t
+  #---------
+  return plant(data.sorted(), 2*int(len(data.rows)**the.min), BAG(here=data,at=None))
+
+def cut(data,cols,rows):
+  &#34;Return best `div,at,op,cut,txt` that most divides the klasses in `rows`.&#34;
+  def sym(col):
+    d = {}
+    for row in rows:
+      x1 = row.cells[col.at]
+      if x1 != &#34;?&#34;:
+        if x1 not in d: d[x1] = SYM()
+        d[x1].add(row.klass)
+    return sorted((d[k].div(),col.at,&#34;==&#34;,col.txt) for k in d)[0]
+  #-----------
+  def num(col):
+    lo = eps= col.div()*the.cohen
+    small   = len(rows)**the.min
+    x       = lambda row: row.cells[col.at]
+    y       = lambda row: row.klass
+    rows    = sorted([row for row in rows if x(row) != &#34;?&#34;], key=x)
+    left,right = SYM(), SYM()
+    [right.add(y(row)) for row in rows]
+    cut = None
+    for n,row in enumerate(rows):
+      left.add(  y(row) )
+      right.sub( y(row) )
+      if left.n &gt; small and right.n &gt; small: 
+        if x(row) != x(rows[n+1]):
+          if x(row) - x(rows[0]) &gt; eps and x(rows[-1]) - x(row) &gt; eps:
+            xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
+            if xpect &lt; lo:
+              cut,lo = x(row),xpect
+    return lo,col.at,&#34;&lt;=&#34;,cut,col.txt
+  #----------------------------------
+  return sorted(((num(col) if isa(col,NUM) else sym(col)) for col in cols))[0]
+
+def showTree(t, lvl=&#34;&#34;,b4=&#34;&#34;):
+  if t:
+    print(lvl + b4,str(len(t.here.rows)))
+    pre= f&#34;if {t.txt} {t.op.__doc__} {t.val}&#34; if t.left or t.right else &#34;&#34;
+    showTree(t.left,  lvl+&#34;|.. &#34;, pre)
+    showTree(t.right, lvl+&#34;|.. &#34;, &#34;else&#34;)
+#---------------------------------------------
+R   = random.random      # short cut to random number generator
+isa = isinstance         # short cut for checking types
+big = 1E30
+&#34;&#34;&#34;large numbers&#34;&#34;&#34;
+def csv(file, filter=lambda x:x):
+  &#34;Returns an iterator that returns lists from standard input (-) or a file.&#34;
+  def coerce(x):
+    try: return literal_eval(x)
+    except: return x
+  with file_or_stdin(file) as src:
+    for line in src:
+      line = re.sub(r&#39;([\n\t\r&#34;\&#39; ]|#.*)&#39;, &#39;&#39;, line)
+      if line:
+        yield filter([coerce(s.strip()) for s in line.split(&#34;,&#34;)])
+
+def rows(file): 
+  &#34;Returns an iterator that returns ROWS&#34;
+  return csv(file, ROW)
+
+def stats(cols, fun=&#34;mid&#34;, decimals=2):
+  &#34;Report statistics on a set of `col`umns.&#34;
+  def what(col): return (col.mid if fun==&#34;mid&#34; else col.div)(decimals)
+  return dict(mid=BAG(N=cols[1].n, **{col.txt:what(col) for col in cols}))
+
+def yell(s,c):
+  &#34;Print string `s`, colored by `c`.&#34;
+  print(colored(s,&#34;light_&#34;+c,attrs=[&#34;bold&#34;]),end=&#34;&#34;)
+#----------------------------------------------------
+class Egs:
+  &#34;Place to store the examples.&#34;
+  all = locals()
+
+  def h():
+    &#34;print help text&#34;
+    print(__doc__)
+
+  def The():
+    &#34;print the settings&#34;
+    print(the)
+
+  def Rnd(): 
+    &#34;rnd to 2 decimals&#34;
+    return 3.14 == rnd(math.pi,2)
+
+  def Num(txt=&#34;&#34;):
+    &#34;test NUMs&#34;
+    n = NUM(txt)
+    for x in range(10**4):  n.add(R()**.5)
+    return .66 &lt; n.mid() &lt; .67 and .23 &lt;  n.div() &lt; .24 and n
+
+  def Sym(txt=&#34;&#34;):
+    &#34;test SYMs&#34;
+    s=SYM(txt)
+    [s.add(x) for x in &#34;aaaabbc&#34;]
+    return &#34;a&#34;==s.mid() and 1.37 &lt;= s.div() &lt; 1.38 and s
+
+  def Stats():
+    &#34;test stats&#34;
+    print(stats([symEg(&#34;sym1&#34;),numEg(&#34;num1&#34;),numEg(&#34;num2&#34;),symEg(&#34;sym2&#34;)]))
+
+  def Rows():
+    &#34;Check we can load rows from file.&#34;
+    for row in list(rows(the.file))[:5]: print(row)
+
+  def Col():
+    &#34;Check we can convert names to NUMs and SYMs.&#34;
+    [print(x) for x in COLS([&#34;name&#34;,&#34;Age&#34;,&#34;Weight-&#34;]).all]
+
+  def Data():
+    &#34;Can we load data and get its stats?&#34;
+    rint(stats(DATA(rows(the.file)).cols.y))
+
+  def Clone():
+    &#34;Can we replicate a DATA&#39;s structure?&#34;
+    d1 = DATA(rows(the.file))
+    d2= d1.clone(d1.rows)
+    print(d2.cols.y)
+
+  def Sorts():
+    &#34;Can we sort rows into `best` and `rest`?&#34;
+    d = DATA(rows(the.file))
+    lst = d.sorts()
+    m   = int(len(lst)**.5)
+    best= d.clone(lst[-m:]); print(&#34;best&#34;,stats(best.cols.y))
+    rest= d.clone(lst[:-m]);  print(&#34;rest&#34;,stats(rest.cols.y))
+
+
+  def ok():
+    &#34;Run everything (except ok,h). Return how often something fails.&#34;
+    fails, saved = 0, {k:v for k,v in the.items()}
+    for what,fun in Egs.all.items():
+      print(what)
+      if what[0].isupper():
+        yell(what + &#34; &#34;,&#34;yellow&#34;)
+        fail = Egs.failed(saved,fun)
+        fails += fail
+        yell(&#34; FAIL\n&#34;,&#34;red&#34;) if fail else yell(&#34; PASS\n&#34;,&#34;green&#34;)
+    yell(f&#34;TOTAL FAILURE(s) = {fails}\n&#34;, &#34;red&#34; if fails &gt; 0 else &#34;cyan&#34;)
+    sys.exit(fails)
+
+  def failed(saved,fun):
+    &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+    If it crashes, print the stack dump but then continue on
+    Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
+    for k,v in saved.items(): the[k] = v
+    random.seed(the.seed)
+    try:
+      return fun() == False
+    except:
+      traceback.print_exc()
+      return True
+
+#---------------------------------------------
+random.seed(the.seed)    # set random number seed
+
+if __name__ == &#34;__main__&#34;:
+  a=sys.argv[1:]; a and a[0][1:] in Egs.all and Egs.all[a[0][1:]]()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="less.the"><code class="name">var <span class="ident">the</span></code></dt>
+<dd>
+<div class="desc"><p>Config settings, parsed from the <strong>doc</strong>.</p></div>
+</dd>
+<dt id="less.ops"><code class="name">var <span class="ident">ops</span></code></dt>
+<dd>
+<div class="desc"><p>Operators used in decision tree.</p></div>
+</dd>
+<dt id="less.negate"><code class="name">var <span class="ident">negate</span></code></dt>
+<dd>
+<div class="desc"><p>Negation of operators.</p></div>
+</dd>
+<dt id="less.big"><code class="name">var <span class="ident">big</span></code></dt>
+<dd>
+<div class="desc"><p>large numbers</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="less.tree"><code class="name flex">
+<span>def <span class="ident">tree</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Recursively split on the cut (that most distinguishes different klasses).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tree(data):
+  &#34;Recursively split on the cut (that most distinguishes different klasses).&#34; 
+  def plant(rows,n):
+    bests = lst[-n:]
+    rests = random.sample(lst[:-n], the.rest * n)
+    for row in bests: row.klass = True
+    for row in rests: row.klass = False
+    all = bests + rests
+    return grow(all, len(all)**the.min)
+  #------------------------------------
+  def grow(rows, stop, t):
+    t.left,t.right = None,None
+    if len(rows) &gt;= stop:
+      _,at,op,cut,s = cut(data,data.cols.x,rows)
+      if cut:
+        left,right = [],[]
+        [(left if ops[op](row.cells[at], cut) else right).append(row) for row in rows]
+        if len(left) != len(rows) and len(right) != len(rows):
+          t.left = grow(left, stop, BAG(here=data.clone(left),  at=at,cut=cut,txt=s,op=op))
+          t.right= grow(right,stop, BAG(here=data.clone(right), at=at,cut=cut,txt=s,op=negate[op]))
+    return t
+  #---------
+  return plant(data.sorted(), 2*int(len(data.rows)**the.min), BAG(here=data,at=None))</code></pre>
+</details>
+</dd>
+<dt id="less.cut"><code class="name flex">
+<span>def <span class="ident">cut</span></span>(<span>data, cols, rows)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return best <code>div,at,op,<a title="less.cut" href="#less.cut">cut()</a>,txt</code> that most divides the klasses in <code><a title="less.rows" href="#less.rows">rows()</a></code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cut(data,cols,rows):
+  &#34;Return best `div,at,op,cut,txt` that most divides the klasses in `rows`.&#34;
+  def sym(col):
+    d = {}
+    for row in rows:
+      x1 = row.cells[col.at]
+      if x1 != &#34;?&#34;:
+        if x1 not in d: d[x1] = SYM()
+        d[x1].add(row.klass)
+    return sorted((d[k].div(),col.at,&#34;==&#34;,col.txt) for k in d)[0]
+  #-----------
+  def num(col):
+    lo = eps= col.div()*the.cohen
+    small   = len(rows)**the.min
+    x       = lambda row: row.cells[col.at]
+    y       = lambda row: row.klass
+    rows    = sorted([row for row in rows if x(row) != &#34;?&#34;], key=x)
+    left,right = SYM(), SYM()
+    [right.add(y(row)) for row in rows]
+    cut = None
+    for n,row in enumerate(rows):
+      left.add(  y(row) )
+      right.sub( y(row) )
+      if left.n &gt; small and right.n &gt; small: 
+        if x(row) != x(rows[n+1]):
+          if x(row) - x(rows[0]) &gt; eps and x(rows[-1]) - x(row) &gt; eps:
+            xpect = (left.n*left.div() + right.n*right.div()) / (left.n+right.n)
+            if xpect &lt; lo:
+              cut,lo = x(row),xpect
+    return lo,col.at,&#34;&lt;=&#34;,cut,col.txt
+  #----------------------------------
+  return sorted(((num(col) if isa(col,NUM) else sym(col)) for col in cols))[0]</code></pre>
+</details>
+</dd>
+<dt id="less.showTree"><code class="name flex">
+<span>def <span class="ident">showTree</span></span>(<span>t, lvl='', b4='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showTree(t, lvl=&#34;&#34;,b4=&#34;&#34;):
+  if t:
+    print(lvl + b4,str(len(t.here.rows)))
+    pre= f&#34;if {t.txt} {t.op.__doc__} {t.val}&#34; if t.left or t.right else &#34;&#34;
+    showTree(t.left,  lvl+&#34;|.. &#34;, pre)
+    showTree(t.right, lvl+&#34;|.. &#34;, &#34;else&#34;)</code></pre>
+</details>
+</dd>
+<dt id="less.R"><code class="name flex">
+<span>def <span class="ident">R</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>random() -&gt; x in the interval [0, 1).</p></div>
+</dd>
+<dt id="less.csv"><code class="name flex">
+<span>def <span class="ident">csv</span></span>(<span>file, filter=&lt;function &lt;lambda&gt;&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns an iterator that returns lists from standard input (-) or a file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def csv(file, filter=lambda x:x):
+  &#34;Returns an iterator that returns lists from standard input (-) or a file.&#34;
+  def coerce(x):
+    try: return literal_eval(x)
+    except: return x
+  with file_or_stdin(file) as src:
+    for line in src:
+      line = re.sub(r&#39;([\n\t\r&#34;\&#39; ]|#.*)&#39;, &#39;&#39;, line)
+      if line:
+        yield filter([coerce(s.strip()) for s in line.split(&#34;,&#34;)])</code></pre>
+</details>
+</dd>
+<dt id="less.rows"><code class="name flex">
+<span>def <span class="ident">rows</span></span>(<span>file)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns an iterator that returns ROWS</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rows(file): 
+  &#34;Returns an iterator that returns ROWS&#34;
+  return csv(file, ROW)</code></pre>
+</details>
+</dd>
+<dt id="less.stats"><code class="name flex">
+<span>def <span class="ident">stats</span></span>(<span>cols, fun='mid', decimals=2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Report statistics on a set of <code>col</code>umns.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stats(cols, fun=&#34;mid&#34;, decimals=2):
+  &#34;Report statistics on a set of `col`umns.&#34;
+  def what(col): return (col.mid if fun==&#34;mid&#34; else col.div)(decimals)
+  return dict(mid=BAG(N=cols[1].n, **{col.txt:what(col) for col in cols}))</code></pre>
+</details>
+</dd>
+<dt id="less.yell"><code class="name flex">
+<span>def <span class="ident">yell</span></span>(<span>s, c)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print string <code>s</code>, colored by <code>c</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def yell(s,c):
+  &#34;Print string `s`, colored by `c`.&#34;
+  print(colored(s,&#34;light_&#34;+c,attrs=[&#34;bold&#34;]),end=&#34;&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="less.BAG"><code class="flex name class">
+<span>class <span class="ident">BAG</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dictionaries that can be accessed via <code>x["slot"]</code> or <code>x.slot</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BAG(dict):
+  &#34;Dictionaries that can be accessed via `x[\&#34;slot\&#34;]` or `x.slot`.&#34;
+  __getattr__ = dict.get</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+</dd>
+<dt id="less.pretty"><code class="flex name class">
+<span>class <span class="ident">pretty</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Objects that support pretty print.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class pretty(object):
+  &#34;Objects that support pretty print.&#34;
+  def __repr__(i):
+    return i.__class__.__name__+str({k:v for k,v in i.__dict__.items() if k[0] != &#34;_&#34;})</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="less.COL" href="#less.COL">COL</a></li>
+<li><a title="less.COLS" href="#less.COLS">COLS</a></li>
+<li><a title="less.DATA" href="#less.DATA">DATA</a></li>
+<li><a title="less.ROW" href="#less.ROW">ROW</a></li>
+</ul>
+</dd>
+<dt id="less.ROW"><code class="flex name class">
+<span>class <span class="ident">ROW</span></span>
+<span>(</span><span>cells=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Place to store cells and meta-knowledge about those cells.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ROW(pretty):
+  &#34;Place to store cells and meta-knowledge about those cells.&#34;
+  def __init__(i, cells=[]): i.cells,i.klass = cells,None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+</dd>
+<dt id="less.COL"><code class="flex name class">
+<span>class <span class="ident">COL</span></span>
+<span>(</span><span>txt='', at=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>COLumns know the name, position and the count of rows seen.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class COL(pretty):
+  &#34;COLumns know the name, position and the count of rows seen.&#34;
+  def __init__(i, txt=&#34;&#34;,at=0): i.n,i.at,i.txt = 0,at,txt
+  def add(i,x):
+    &#34;Ignoring empty cells, increment `n` then do the adding.&#34;
+    if x != &#34;?&#34;:
+      i.n += 1
+      i.add1(x)
+    return x</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="less.NUM" href="#less.NUM">NUM</a></li>
+<li><a title="less.SYM" href="#less.SYM">SYM</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="less.COL.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>i, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Ignoring empty cells, increment <code>n</code> then do the adding.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(i,x):
+  &#34;Ignoring empty cells, increment `n` then do the adding.&#34;
+  if x != &#34;?&#34;:
+    i.n += 1
+    i.add1(x)
+  return x</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="less.NUM"><code class="flex name class">
+<span>class <span class="ident">NUM</span></span>
+<span>(</span><span>txt='', at=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summarize stream of numbers. Knows the mean and standard deviation.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NUM(COL):
+  &#34;Summarize stream of numbers. Knows the mean and standard deviation.&#34;
+  def __init__(i, txt=&#34;&#34;,at=0):
+    COL.__init__(i,txt=txt,at=at)
+    i.w = -1 if len(i.txt) &gt; 0 and i.txt[-1] == &#34;-&#34; else 1
+    i.mu = i.m2 = 0
+    i.lo, i.hi = big, -big 
+  def add1(i,x):
+    &#34;Update `lo,hi` and the variables needed to calculate stdev.&#34;
+    i.lo = min(x, i.lo)
+    i.hi = max(x, i.hi)
+    delta = x - i.mu
+    i.mu += delta/i.n
+    i.m2 += delta*(x - i.mu)
+  def div(i, decimals=None):
+    &#34;Return diversity around the central tendency.&#34;
+    return rnd((i.m2/(i.n - 1))**.5 if i.m2&gt;0 and i.n &gt; 1 else 0, decimals)
+  def mid(i, decimals=None):
+    &#34;Return central tendency.&#34;
+    return rnd(i.mu, decimals)
+  def norm(i,x):
+    &#34;May `x` to 0..1 for `lo` to `hi`.&#34;
+    return x if x==&#34;?&#34; else  (x-i.lo)/(i.hi - i.lo + 1/big)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.COL" href="#less.COL">COL</a></li>
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="less.NUM.add1"><code class="name flex">
+<span>def <span class="ident">add1</span></span>(<span>i, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update <code>lo,hi</code> and the variables needed to calculate stdev.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add1(i,x):
+  &#34;Update `lo,hi` and the variables needed to calculate stdev.&#34;
+  i.lo = min(x, i.lo)
+  i.hi = max(x, i.hi)
+  delta = x - i.mu
+  i.mu += delta/i.n
+  i.m2 += delta*(x - i.mu)</code></pre>
+</details>
+</dd>
+<dt id="less.NUM.div"><code class="name flex">
+<span>def <span class="ident">div</span></span>(<span>i, decimals=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return diversity around the central tendency.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def div(i, decimals=None):
+  &#34;Return diversity around the central tendency.&#34;
+  return rnd((i.m2/(i.n - 1))**.5 if i.m2&gt;0 and i.n &gt; 1 else 0, decimals)</code></pre>
+</details>
+</dd>
+<dt id="less.NUM.mid"><code class="name flex">
+<span>def <span class="ident">mid</span></span>(<span>i, decimals=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return central tendency.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mid(i, decimals=None):
+  &#34;Return central tendency.&#34;
+  return rnd(i.mu, decimals)</code></pre>
+</details>
+</dd>
+<dt id="less.NUM.norm"><code class="name flex">
+<span>def <span class="ident">norm</span></span>(<span>i, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>May <code>x</code> to 0..1 for <code>lo</code> to <code>hi</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def norm(i,x):
+  &#34;May `x` to 0..1 for `lo` to `hi`.&#34;
+  return x if x==&#34;?&#34; else  (x-i.lo)/(i.hi - i.lo + 1/big)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="less.COL" href="#less.COL">COL</a></b></code>:
+<ul class="hlist">
+<li><code><a title="less.COL.add" href="#less.COL.add">add</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="less.SYM"><code class="flex name class">
+<span>class <span class="ident">SYM</span></span>
+<span>(</span><span>txt='', at=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Summary a stream of symbols. Knows mode and entropy.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SYM(COL):
+  &#34;Summary a stream of symbols. Knows mode and entropy.&#34;
+  def __init__(i,txt=&#34;&#34;,at=0):
+    COL.__init__(i,txt=txt,at=at)
+    i.counts,i.mode, i.most = {},None,0
+  def add1(i,x):
+    &#34;Increment counts and mode.&#34;
+    now = i.counts[x] = 1 + i.counts.get(x,0)
+    if now &gt; i.most: i.most, i.mode = now, x
+  def div(i, decimals=None):
+    &#34;Return diversity around the central tendency.&#34;
+    a = i.counts
+    return rnd( - sum(a[k]/i.n * math.log(a[k]/i.n,2) for k in a if a[k] &gt; 0), decimals)
+  def mid(i,decimals=None):
+    &#34;Return central tendency.&#34;
+    return i.mode
+  def sub(i,x):
+    &#34;Decrement counts.&#34;
+    i.n -= 1
+    i.counts[x] -= 1
+    assert 0 &lt;= i.counts[x]
+    return x</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.COL" href="#less.COL">COL</a></li>
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="less.SYM.add1"><code class="name flex">
+<span>def <span class="ident">add1</span></span>(<span>i, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Increment counts and mode.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add1(i,x):
+  &#34;Increment counts and mode.&#34;
+  now = i.counts[x] = 1 + i.counts.get(x,0)
+  if now &gt; i.most: i.most, i.mode = now, x</code></pre>
+</details>
+</dd>
+<dt id="less.SYM.div"><code class="name flex">
+<span>def <span class="ident">div</span></span>(<span>i, decimals=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return diversity around the central tendency.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def div(i, decimals=None):
+  &#34;Return diversity around the central tendency.&#34;
+  a = i.counts
+  return rnd( - sum(a[k]/i.n * math.log(a[k]/i.n,2) for k in a if a[k] &gt; 0), decimals)</code></pre>
+</details>
+</dd>
+<dt id="less.SYM.mid"><code class="name flex">
+<span>def <span class="ident">mid</span></span>(<span>i, decimals=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return central tendency.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mid(i,decimals=None):
+  &#34;Return central tendency.&#34;
+  return i.mode</code></pre>
+</details>
+</dd>
+<dt id="less.SYM.sub"><code class="name flex">
+<span>def <span class="ident">sub</span></span>(<span>i, x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decrement counts.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sub(i,x):
+  &#34;Decrement counts.&#34;
+  i.n -= 1
+  i.counts[x] -= 1
+  assert 0 &lt;= i.counts[x]
+  return x</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="less.COL" href="#less.COL">COL</a></b></code>:
+<ul class="hlist">
+<li><code><a title="less.COL.add" href="#less.COL.add">add</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="less.COLS"><code class="flex name class">
+<span>class <span class="ident">COLS</span></span>
+<span>(</span><span>names)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a list of names into NUMs and SYMs (kept different binds of cols in different lists).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class COLS(pretty):
+  &#34;Convert a list of names into NUMs and SYMs (kept different binds of cols in different lists).&#34; 
+  def __init__(i,names):
+    i.x, i.y, i.names = [],[],names
+    i.all = [(NUM if s[0].isupper() else SYM)(at=n,txt=s) for n,s in enumerate(names)]
+    for col in i.all:
+      z = col.txt[-1]
+      if z != &#34;X&#34;:
+        if z==&#34;!&#34;: i.klass= col
+        (i.y if z in &#34;-+!&#34; else i.x).append(col)
+  def add(i,row):
+    &#34;Add a row&#39;s data to all the non-skipped columns.&#34;
+    for cols in [i.x, i.y]:
+      for col in cols: col.add(row.cells[col.at])
+    return row</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="less.COLS.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>i, row)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add a row's data to all the non-skipped columns.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(i,row):
+  &#34;Add a row&#39;s data to all the non-skipped columns.&#34;
+  for cols in [i.x, i.y]:
+    for col in cols: col.add(row.cells[col.at])
+  return row</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="less.DATA"><code class="flex name class">
+<span>class <span class="ident">DATA</span></span>
+<span>(</span><span>src=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Keep <code><a title="less.rows" href="#less.rows">rows()</a></code> of data, summarized into col`umns.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DATA(pretty):
+  &#34;Keep `rows` of data, summarized into col`umns.&#34;
+  def __init__(i,src=[]):
+    i.cols, i.rows = None,[]
+    [i.add(row) for row in src]
+  def add(i,row):
+    &#34;For first row, build the `cols`. Otherwise, update summaries and the rows.&#34;
+    if i.cols: i.rows += [i.cols.add(row)]
+    else:      i.cols = COLS(row.cells)
+  def clone(i,rows=[]):
+    &#34;Replicate structure of self.&#34;
+    return DATA([ROW(i.cols.names)] + rows)
+  def sort2(i,row1,row2):
+    &#34;Return True if `row1` better than `row2`.&#34;
+    s1, s2, n = 0, 0, len(i.cols.y)
+    for col in i.cols.y:
+      a, b = col.norm(row1.cells[col.at]), col.norm(row2.cells[col.at])
+      s1  -= math.exp(col.w * (a - b) / n)
+      s2  -= math.exp(col.w * (b - a) / n)
+    return s1 / n &lt; s2 / n
+  def sorted(i,rows=[]):
+    &#34;Sort all `rows`.&#34;
+    return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort2(a,b)))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="less.pretty" href="#less.pretty">pretty</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="less.DATA.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>i, row)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For first row, build the <code>cols</code>. Otherwise, update summaries and the rows.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(i,row):
+  &#34;For first row, build the `cols`. Otherwise, update summaries and the rows.&#34;
+  if i.cols: i.rows += [i.cols.add(row)]
+  else:      i.cols = COLS(row.cells)</code></pre>
+</details>
+</dd>
+<dt id="less.DATA.clone"><code class="name flex">
+<span>def <span class="ident">clone</span></span>(<span>i, rows=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Replicate structure of self.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clone(i,rows=[]):
+  &#34;Replicate structure of self.&#34;
+  return DATA([ROW(i.cols.names)] + rows)</code></pre>
+</details>
+</dd>
+<dt id="less.DATA.sort2"><code class="name flex">
+<span>def <span class="ident">sort2</span></span>(<span>i, row1, row2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return True if <code>row1</code> better than <code>row2</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sort2(i,row1,row2):
+  &#34;Return True if `row1` better than `row2`.&#34;
+  s1, s2, n = 0, 0, len(i.cols.y)
+  for col in i.cols.y:
+    a, b = col.norm(row1.cells[col.at]), col.norm(row2.cells[col.at])
+    s1  -= math.exp(col.w * (a - b) / n)
+    s2  -= math.exp(col.w * (b - a) / n)
+  return s1 / n &lt; s2 / n</code></pre>
+</details>
+</dd>
+<dt id="less.DATA.sorted"><code class="name flex">
+<span>def <span class="ident">sorted</span></span>(<span>i, rows=[])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sort all <code><a title="less.rows" href="#less.rows">rows()</a></code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sorted(i,rows=[]):
+  &#34;Sort all `rows`.&#34;
+  return sorted(rows or i.rows, key=cmp_to_key(lambda a,b: i.sort2(a,b)))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="less.Egs"><code class="flex name class">
+<span>class <span class="ident">Egs</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Place to store the examples.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Egs:
+  &#34;Place to store the examples.&#34;
+  all = locals()
+
+  def h():
+    &#34;print help text&#34;
+    print(__doc__)
+
+  def The():
+    &#34;print the settings&#34;
+    print(the)
+
+  def Rnd(): 
+    &#34;rnd to 2 decimals&#34;
+    return 3.14 == rnd(math.pi,2)
+
+  def Num(txt=&#34;&#34;):
+    &#34;test NUMs&#34;
+    n = NUM(txt)
+    for x in range(10**4):  n.add(R()**.5)
+    return .66 &lt; n.mid() &lt; .67 and .23 &lt;  n.div() &lt; .24 and n
+
+  def Sym(txt=&#34;&#34;):
+    &#34;test SYMs&#34;
+    s=SYM(txt)
+    [s.add(x) for x in &#34;aaaabbc&#34;]
+    return &#34;a&#34;==s.mid() and 1.37 &lt;= s.div() &lt; 1.38 and s
+
+  def Stats():
+    &#34;test stats&#34;
+    print(stats([symEg(&#34;sym1&#34;),numEg(&#34;num1&#34;),numEg(&#34;num2&#34;),symEg(&#34;sym2&#34;)]))
+
+  def Rows():
+    &#34;Check we can load rows from file.&#34;
+    for row in list(rows(the.file))[:5]: print(row)
+
+  def Col():
+    &#34;Check we can convert names to NUMs and SYMs.&#34;
+    [print(x) for x in COLS([&#34;name&#34;,&#34;Age&#34;,&#34;Weight-&#34;]).all]
+
+  def Data():
+    &#34;Can we load data and get its stats?&#34;
+    rint(stats(DATA(rows(the.file)).cols.y))
+
+  def Clone():
+    &#34;Can we replicate a DATA&#39;s structure?&#34;
+    d1 = DATA(rows(the.file))
+    d2= d1.clone(d1.rows)
+    print(d2.cols.y)
+
+  def Sorts():
+    &#34;Can we sort rows into `best` and `rest`?&#34;
+    d = DATA(rows(the.file))
+    lst = d.sorts()
+    m   = int(len(lst)**.5)
+    best= d.clone(lst[-m:]); print(&#34;best&#34;,stats(best.cols.y))
+    rest= d.clone(lst[:-m]);  print(&#34;rest&#34;,stats(rest.cols.y))
+
+
+  def ok():
+    &#34;Run everything (except ok,h). Return how often something fails.&#34;
+    fails, saved = 0, {k:v for k,v in the.items()}
+    for what,fun in Egs.all.items():
+      print(what)
+      if what[0].isupper():
+        yell(what + &#34; &#34;,&#34;yellow&#34;)
+        fail = Egs.failed(saved,fun)
+        fails += fail
+        yell(&#34; FAIL\n&#34;,&#34;red&#34;) if fail else yell(&#34; PASS\n&#34;,&#34;green&#34;)
+    yell(f&#34;TOTAL FAILURE(s) = {fails}\n&#34;, &#34;red&#34; if fails &gt; 0 else &#34;cyan&#34;)
+    sys.exit(fails)
+
+  def failed(saved,fun):
+    &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+    If it crashes, print the stack dump but then continue on
+    Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
+    for k,v in saved.items(): the[k] = v
+    random.seed(the.seed)
+    try:
+      return fun() == False
+    except:
+      traceback.print_exc()
+      return True</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="less.Egs.all"><code class="name">var <span class="ident">all</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="less.Egs.h"><code class="name flex">
+<span>def <span class="ident">h</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>print help text</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def h():
+  &#34;print help text&#34;
+  print(__doc__)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.The"><code class="name flex">
+<span>def <span class="ident">The</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>print the settings</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def The():
+  &#34;print the settings&#34;
+  print(the)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Rnd"><code class="name flex">
+<span>def <span class="ident">Rnd</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rnd to 2 decimals</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Rnd(): 
+  &#34;rnd to 2 decimals&#34;
+  return 3.14 == rnd(math.pi,2)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Num"><code class="name flex">
+<span>def <span class="ident">Num</span></span>(<span>txt='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>test NUMs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Num(txt=&#34;&#34;):
+  &#34;test NUMs&#34;
+  n = NUM(txt)
+  for x in range(10**4):  n.add(R()**.5)
+  return .66 &lt; n.mid() &lt; .67 and .23 &lt;  n.div() &lt; .24 and n</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Sym"><code class="name flex">
+<span>def <span class="ident">Sym</span></span>(<span>txt='')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>test SYMs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Sym(txt=&#34;&#34;):
+  &#34;test SYMs&#34;
+  s=SYM(txt)
+  [s.add(x) for x in &#34;aaaabbc&#34;]
+  return &#34;a&#34;==s.mid() and 1.37 &lt;= s.div() &lt; 1.38 and s</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Stats"><code class="name flex">
+<span>def <span class="ident">Stats</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>test stats</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Stats():
+  &#34;test stats&#34;
+  print(stats([symEg(&#34;sym1&#34;),numEg(&#34;num1&#34;),numEg(&#34;num2&#34;),symEg(&#34;sym2&#34;)]))</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Rows"><code class="name flex">
+<span>def <span class="ident">Rows</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check we can load rows from file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Rows():
+  &#34;Check we can load rows from file.&#34;
+  for row in list(rows(the.file))[:5]: print(row)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Col"><code class="name flex">
+<span>def <span class="ident">Col</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check we can convert names to NUMs and SYMs.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Col():
+  &#34;Check we can convert names to NUMs and SYMs.&#34;
+  [print(x) for x in COLS([&#34;name&#34;,&#34;Age&#34;,&#34;Weight-&#34;]).all]</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Data"><code class="name flex">
+<span>def <span class="ident">Data</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Can we load data and get its stats?</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Data():
+  &#34;Can we load data and get its stats?&#34;
+  rint(stats(DATA(rows(the.file)).cols.y))</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Clone"><code class="name flex">
+<span>def <span class="ident">Clone</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Can we replicate a DATA's structure?</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Clone():
+  &#34;Can we replicate a DATA&#39;s structure?&#34;
+  d1 = DATA(rows(the.file))
+  d2= d1.clone(d1.rows)
+  print(d2.cols.y)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.Sorts"><code class="name flex">
+<span>def <span class="ident">Sorts</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Can we sort rows into <code>best</code> and <code>rest</code>?</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Sorts():
+  &#34;Can we sort rows into `best` and `rest`?&#34;
+  d = DATA(rows(the.file))
+  lst = d.sorts()
+  m   = int(len(lst)**.5)
+  best= d.clone(lst[-m:]); print(&#34;best&#34;,stats(best.cols.y))
+  rest= d.clone(lst[:-m]);  print(&#34;rest&#34;,stats(rest.cols.y))</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.ok"><code class="name flex">
+<span>def <span class="ident">ok</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run everything (except ok,h). Return how often something fails.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def ok():
+  &#34;Run everything (except ok,h). Return how often something fails.&#34;
+  fails, saved = 0, {k:v for k,v in the.items()}
+  for what,fun in Egs.all.items():
+    print(what)
+    if what[0].isupper():
+      yell(what + &#34; &#34;,&#34;yellow&#34;)
+      fail = Egs.failed(saved,fun)
+      fails += fail
+      yell(&#34; FAIL\n&#34;,&#34;red&#34;) if fail else yell(&#34; PASS\n&#34;,&#34;green&#34;)
+  yell(f&#34;TOTAL FAILURE(s) = {fails}\n&#34;, &#34;red&#34; if fails &gt; 0 else &#34;cyan&#34;)
+  sys.exit(fails)</code></pre>
+</details>
+</dd>
+<dt id="less.Egs.failed"><code class="name flex">
+<span>def <span class="ident">failed</span></span>(<span>saved, fun)</span>
+</code></dt>
+<dd>
+<div class="desc"><p><code>Fun</code> fails if it returns <code>False</code> or if it crashes.
+If it crashes, print the stack dump but then continue on
+Before running it, reset the system to
+initial conditions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def failed(saved,fun):
+  &#34;&#34;&#34;`Fun` fails if it returns `False` or if it crashes.
+  If it crashes, print the stack dump but then continue on
+  Before running it, reset the system to  initial conditions.&#34;&#34;&#34;
+  for k,v in saved.items(): the[k] = v
+  random.seed(the.seed)
+  try:
+    return fun() == False
+  except:
+    traceback.print_exc()
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<img src="https://iiif.micr.io/Upyjx/full/%5E1200,/0/default.jpg"
+width=300>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="less.the" href="#less.the">the</a></code></li>
+<li><code><a title="less.ops" href="#less.ops">ops</a></code></li>
+<li><code><a title="less.negate" href="#less.negate">negate</a></code></li>
+<li><code><a title="less.big" href="#less.big">big</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="less.tree" href="#less.tree">tree</a></code></li>
+<li><code><a title="less.cut" href="#less.cut">cut</a></code></li>
+<li><code><a title="less.showTree" href="#less.showTree">showTree</a></code></li>
+<li><code><a title="less.R" href="#less.R">R</a></code></li>
+<li><code><a title="less.csv" href="#less.csv">csv</a></code></li>
+<li><code><a title="less.rows" href="#less.rows">rows</a></code></li>
+<li><code><a title="less.stats" href="#less.stats">stats</a></code></li>
+<li><code><a title="less.yell" href="#less.yell">yell</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="less.BAG" href="#less.BAG">BAG</a></code></h4>
+</li>
+<li>
+<h4><code><a title="less.pretty" href="#less.pretty">pretty</a></code></h4>
+</li>
+<li>
+<h4><code><a title="less.ROW" href="#less.ROW">ROW</a></code></h4>
+</li>
+<li>
+<h4><code><a title="less.COL" href="#less.COL">COL</a></code></h4>
+<ul class="">
+<li><code><a title="less.COL.add" href="#less.COL.add">add</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="less.NUM" href="#less.NUM">NUM</a></code></h4>
+<ul class="">
+<li><code><a title="less.NUM.add1" href="#less.NUM.add1">add1</a></code></li>
+<li><code><a title="less.NUM.div" href="#less.NUM.div">div</a></code></li>
+<li><code><a title="less.NUM.mid" href="#less.NUM.mid">mid</a></code></li>
+<li><code><a title="less.NUM.norm" href="#less.NUM.norm">norm</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="less.SYM" href="#less.SYM">SYM</a></code></h4>
+<ul class="">
+<li><code><a title="less.SYM.add1" href="#less.SYM.add1">add1</a></code></li>
+<li><code><a title="less.SYM.div" href="#less.SYM.div">div</a></code></li>
+<li><code><a title="less.SYM.mid" href="#less.SYM.mid">mid</a></code></li>
+<li><code><a title="less.SYM.sub" href="#less.SYM.sub">sub</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="less.COLS" href="#less.COLS">COLS</a></code></h4>
+<ul class="">
+<li><code><a title="less.COLS.add" href="#less.COLS.add">add</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="less.DATA" href="#less.DATA">DATA</a></code></h4>
+<ul class="">
+<li><code><a title="less.DATA.add" href="#less.DATA.add">add</a></code></li>
+<li><code><a title="less.DATA.clone" href="#less.DATA.clone">clone</a></code></li>
+<li><code><a title="less.DATA.sort2" href="#less.DATA.sort2">sort2</a></code></li>
+<li><code><a title="less.DATA.sorted" href="#less.DATA.sorted">sorted</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="less.Egs" href="#less.Egs">Egs</a></code></h4>
+<ul class="two-column">
+<li><code><a title="less.Egs.h" href="#less.Egs.h">h</a></code></li>
+<li><code><a title="less.Egs.The" href="#less.Egs.The">The</a></code></li>
+<li><code><a title="less.Egs.Rnd" href="#less.Egs.Rnd">Rnd</a></code></li>
+<li><code><a title="less.Egs.Num" href="#less.Egs.Num">Num</a></code></li>
+<li><code><a title="less.Egs.Sym" href="#less.Egs.Sym">Sym</a></code></li>
+<li><code><a title="less.Egs.Stats" href="#less.Egs.Stats">Stats</a></code></li>
+<li><code><a title="less.Egs.Rows" href="#less.Egs.Rows">Rows</a></code></li>
+<li><code><a title="less.Egs.Col" href="#less.Egs.Col">Col</a></code></li>
+<li><code><a title="less.Egs.Data" href="#less.Egs.Data">Data</a></code></li>
+<li><code><a title="less.Egs.Clone" href="#less.Egs.Clone">Clone</a></code></li>
+<li><code><a title="less.Egs.Sorts" href="#less.Egs.Sorts">Sorts</a></code></li>
+<li><code><a title="less.Egs.ok" href="#less.Egs.ok">ok</a></code></li>
+<li><code><a title="less.Egs.failed" href="#less.Egs.failed">failed</a></code></li>
+<li><code><a title="less.Egs.all" href="#less.Egs.all">all</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

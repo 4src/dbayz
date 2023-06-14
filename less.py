@@ -252,49 +252,49 @@ class Egs:
     "print help text"
     print(__doc__)
 
-  def the():
+  def The():
     "print the settings"
     print(the)
 
-  def rnd(): 
+  def Rnd(): 
     "rnd to 2 decimals"
     return 3.14 == rnd(math.pi,2)
 
-  def num(txt=""):
+  def Num(txt=""):
     "test NUMs"
     n = NUM(txt)
     for x in range(10**4):  n.add(R()**.5)
     return .66 < n.mid() < .67 and .23 <  n.div() < .24 and n
 
-  def sym(txt=""):
+  def Sym(txt=""):
     "test SYMs"
     s=SYM(txt)
     [s.add(x) for x in "aaaabbc"]
     return "a"==s.mid() and 1.37 <= s.div() < 1.38 and s
 
-  def stats():
+  def Stats():
     "test stats"
     print(stats([symEg("sym1"),numEg("num1"),numEg("num2"),symEg("sym2")]))
 
-  def rows():
+  def Rows():
     "Check we can load rows from file."
     for row in list(rows(the.file))[:5]: print(row)
 
-  def col():
+  def Col():
     "Check we can convert names to NUMs and SYMs."
     [print(x) for x in COLS(["name","Age","Weight-"]).all]
 
-  def data():
+  def Data():
     "Can we load data and get its stats?"
     rint(stats(DATA(rows(the.file)).cols.y))
 
-  def clone():
+  def Clone():
     "Can we replicate a DATA's structure?"
     d1 = DATA(rows(the.file))
     d2= d1.clone(d1.rows)
     print(d2.cols.y)
 
-  def sorts():
+  def Sorts():
     "Can we sort rows into `best` and `rest`?"
     d = DATA(rows(the.file))
     lst = d.sorts()
@@ -302,25 +302,21 @@ class Egs:
     best= d.clone(lst[-m:]); print("best",stats(best.cols.y))
     rest= d.clone(lst[:-m]);  print("rest",stats(rest.cols.y))
 
-  def tree():
-    d = DATA(rows(the.file))
-    tree(d) 
-    #showTree( tree(d) )
 
   def ok():
     "Run everything (except ok,h). Return how often something fails."
     fails, saved = 0, {k:v for k,v in the.items()}
-    for fun in Egs.all:
-      what = fun.__name__
-      if what[0] != "_" and what not in ["ok","h"]:
-        yell(what[1:] + " ","yellow")
-        failed = _failed(saved,fun)
-        fails += failed
-        yell(" FAIL\n","red") if failed else yell(" PASS\n","green")
-    yell(f"TOTAL FAILURE(s) = {fails}\n", "red" if failed else "cyan")
+    for what,fun in Egs.all.items():
+      print(what)
+      if what[0].isupper():
+        yell(what + " ","yellow")
+        fail = Egs.failed(saved,fun)
+        fails += fail
+        yell(" FAIL\n","red") if fail else yell(" PASS\n","green")
+    yell(f"TOTAL FAILURE(s) = {fails}\n", "red" if fails > 0 else "cyan")
     sys.exit(fails)
 
-  def _failed(saved,fun):
+  def failed(saved,fun):
     """`Fun` fails if it returns `False` or if it crashes.
     If it crashes, print the stack dump but then continue on
     Before running it, reset the system to  initial conditions."""

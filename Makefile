@@ -21,7 +21,10 @@ doc: ## generate documentation
 	bayes2.py
 
 tests: ## run test suite
-	python3 -B tests.py -g .
+	if ./less.py -ok;\
+		then cp docs/pass.png docs/results.png; \
+		else cp docs/fail.png docs/results.png; \
+  fi
 
 docs/fishn.html:
 	pycco fishn.py
@@ -36,6 +39,6 @@ less.pdf : less.md
 		        --listings -H listings-setup.tex \
 		         -o $@ $<
 
-tmp/less.html: less.py
+docs/less.html: less.py
 	 python3 -m pdoc -c sort_identifiers=False  \
-		       --template-dir ~/tmp --force --html -o ~/tmp less.py
+		       --template-dir docs --force --html -o docs less.py
