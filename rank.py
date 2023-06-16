@@ -4,7 +4,7 @@ from fileinput import FileInput as file_or_stdin
 from functools import cmp_to_key
 
 class BAG(dict): __getattr__ = dict.get
-the= BAG(nums=256, bins=16, seed=1234567891,file="../data/auto93.csv")
+the= BAG(nums=256, bins=8, seed=1234567891, file="../data/auto93.csv")
 
 INF=1E30
 R=random.random
@@ -12,10 +12,10 @@ random.seed(the.seed)
 #----------------------------------------------------------------
 def NUM(at=0,txt=""):
   w= 0 if txt and txt[-1]=="-" else 1
-  return BAG(ako=NUM,at=at,txt=txt,n=0,w=w,has=[],ok=False)
+  return BAG(this=NUM,at=at,txt=txt,n=0,w=w,has=[],ok=False)
 
 def SYM(at=0,txt=""):
-  return BAG(ako=SYM,at=at,txt=txt,n=0, has={})
+  return BAG(this=SYM,at=at,txt=txt,n=0, has={})
 
 def COLS(names):
   all=[(NUM if s[0].isupper() else SYM)(at,s) for at,s in enumerate(names)]
@@ -23,7 +23,10 @@ def COLS(names):
   for col in all:
     if col.txt[-1] != "X":
       (y if col.txt[-1] in "+-" else x).append(col)
-  return BAG(ako=COLS,all=all,y=y,x=x,names=names)
+  return BAG(this=COLS,all=all,y=y,x=x,names=names)
+
+def ROW(cells=[]):
+  return BAG(this=ROW, cells=cells, label=None)
 
 def DATA(data=None,rows=[]):
   data = data or BAG(rows=[],cols=None)
@@ -31,55 +34,72 @@ def DATA(data=None,rows=[]):
   return data
 #----------------------------------------------------------------
 def clone(data, rows=[]):
-  return DATA( DATA(rows=[data.cols.names]), rows)
+  return DATA( DATA(rows=[ROW(data.cols.names)]), rows)
 
-def adds(data,lst):
+def adds(data,row):
   if data.cols:
-    data.rows += [lst]
+    data.rows += [row]
     for cols in [data.cols.x, data.cols.y]:
-      for col in cols: add(col, lst[col.at])
+      for col in cols: add(col, row.cells[col.at])
   else:
-    data.cols = COLS(lst)
+    data.cols = COLS(row.cells)
 
 def add(col,x):
+  def sym(): col.has[x] = col.has.get(x,0) + 1
   def num():
     a = col.has
     if   len(a) < the.nums   : col.ok=False; a += [x]
     elif R() < the.nums/col.n: col.ok=False; a[int(len(a)*R())] = x
-  def sym():
-    col.has[x] = col.has.get(x,0) + 1
   if x!= "?":
     col.n += 1
-    num() if col.ako is NUM else sym()
+    num() if col.this is NUM else sym()
 
 def ok(col):
-  if col.ako is NUM and not col.ok: col.has.sort(); col.ok=True
+  if col.this is NUM and not col.ok: col.has.sort(); col.ok=True
   return col
 
-def lo(num): return ok(num).has[0]
-def hi(num): return ok(num).has[-1]
-
-def mid(col):
-  return mode(col.has) if col.ako is SYM else median(ok(col).has)
-
-def div(col):
-  return ent(col.has) if col.ako is SYM else stdev(ok(col).has)
+def lo(num):  return ok(num).has[0]
+def hi(num):  return ok(num).has[-1]
+def mid(col): return mode(col.has) if col.this is SYM else median(ok(col).has)
+def div(col): return ent(col.has)  if col.this is SYM else stdev(ok(col).has)
 
 def norm(col,x):
-  if x=="?" or col.ako is SYM: return x
+  if x=="?" or col.this is SYM: return x
   return (x - lo(col))/(hi(col) - lo(col) + 1/INF)
 
-def bins(col):
-  if col.ako is SYM: return col.has
-  d=SYM()
-  a=ok(col).has
-  for n in a:
-    n= 1+int(norm(col,n)*the.bins)
-    add(d, (a[0] + (a[-1] - a[0])/n))
-  return d.has
+def bin(col,x):
+  if x !="?":
+    if col.this is SYM: return x
+    n = 1 + int(norm(col,x)*the.bins)
+    a = ok(col).has
+    return a[0] + (a[-1] - a[0])/n
+
+def bins(col,best,rest):
+  d={}
+  for klass,rows in dict(best=rest,rest=rest).items():
+    for row in rows:
+      x = row.cells[col.at]
+      if k := bin(col,x):
+        if k not in d: d[k] = BAG(lo=x,hi=x,y=SYM(col.at,co.txt))
+        d[k].lo = min(x,d[k].lo)
+        d[k].hi = max(x,d[k].hi)
+        add(d[k].y, klass)
+  return sorted(d.values(), key=lambda bin:bin.lo)
+
+def merge(bag1,bag2):
+  out = BAG(lo=bag1.lo, hi=bag2.hi, y=SYM(bag1.y.at, bag1.y.txt))
+  for sym in [bag1.y, bag2.y]:
+    out.y.n += sym.n
+    for k,v in sym.has.items(): sym.has[k] = sym..has.get(k,0) + v
+  return out
+
+def merges(bags):
+  out = [bags[0]]
+  for bag in bags[1:]: out += [merge(out[-1], bag)]
+  return out
 
 def height(data,row):
-  return (sum(abs(col.w - norm(col,row[col.at]))**2 for col in data.cols.y)
+  return (sum(abs(col.w - norm(col,row.cells[col.at]))**2 for col in data.cols.y)
           / len(data.cols.y)
          )**.5
 
@@ -114,7 +134,7 @@ def csv(file):
     for line in src:
       line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
       if line:
-        yield [coerce(s.strip()) for s in line.split(",")]
+        yield ROW([coerce(s.strip()) for s in line.split(",")])
 #----------------------------------------------------------------
 
 d=DATA(rows=csv(the.file))
@@ -122,4 +142,4 @@ d.rows.sort(key=sorter(d))
 print(stats(d))
 print(stats(clone(d, d.rows[:30])))
 print(stats(clone(d, d.rows[-30:])))
-for k,v in bins(d.cols.x[0]).items(): print(d.cols.x[0].txt,k,v)
+#for k,v in bins(d.cols.x[0]).items(): print(d.cols.x[0].txt,k,v)
