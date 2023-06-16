@@ -36,11 +36,13 @@ def DATA(data=None,rows=[]):
 def clone(data, rows=[]):
   return DATA( DATA(rows=[ROW(data.cols.names)]), rows)
 
+def cell(row,col): return row.cells[col.at]
+
 def adds(data,row):
   if data.cols:
     data.rows += [row]
     for cols in [data.cols.x, data.cols.y]:
-      for col in cols: add(col, row.cells[col.at])
+      for col in cols: add(col, cell(row,col))
   else:
     data.cols = COLS(row.cells)
 
@@ -76,21 +78,21 @@ def bin(col,x):
 
 def bins(col,best,rest):
   d={}
-  for klass,rows in dict(best=rest,rest=rest).items():
+  for y,rows in dict(best=rest,rest=rest).items():
     for row in rows:
-      x = row.cells[col.at]
+      x = cell(row,col)
       if k := bin(col,x):
-        if k not in d: d[k] = BAG(lo=x,hi=x,y=SYM(col.at,co.txt))
-        d[k].lo = min(x,d[k].lo)
-        d[k].hi = max(x,d[k].hi)
-        add(d[k].y, klass)
-  return sorted(d.values(), key=lambda bin:bin.lo)
+        xy = d.get(k,None) or BAG(xs=NUM(col.at,col.txt), ys=SYM())
+        add(xy.xs, x)
+        add(xy.ys, y)
+  return sorted(d.values(), key=lambda xy: lo(xy.xs))
 
+#XXX must redo merge
 def merge(bin1,bin2):
-  out = bin(lo=bin1.lo, hi=bin2.hi, y=SYM(bin1.y.at, bin1.y.txt))
+  out = BAG(lo=bin1.lo, hi=bin2.hi, y=SYM(bin1.y.at, bin1.y.txt))
   for sym in [bin1.y, bin2.y]:
     out.y.n += sym.n
-    for k,v in sym.has.items(): sym.has[k] = sym..has.get(k,0) + v
+    for k,v in sym.has.items(): sym.has[k] = sym.has.get(k,0) + v
   return out
 
 def merges(bins):
@@ -99,7 +101,7 @@ def merges(bins):
   return out
 
 def height(data,row):
-  return ( sum(abs(col.w - norm(col,row.cells[col.at]))**2 for col in data.cols.y)
+  return ( sum(abs(col.w - norm(col,cell(row,col)))**2 for col in data.cols.y)
            / len(data.cols.y) )**.5
 
 def sorter(data):
