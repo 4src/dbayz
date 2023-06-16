@@ -1,7 +1,7 @@
 import random,re
 from ast import literal_eval
-from fileinput import FileInput as file_or_stdin
 from functools import cmp_to_key
+from fileinput import FileInput as file_or_stdin
 
 class BAG(dict): __getattr__ = dict.get
 the= BAG(nums=256, bins=8, seed=1234567891, file="../data/auto93.csv")
@@ -9,7 +9,7 @@ the= BAG(nums=256, bins=8, seed=1234567891, file="../data/auto93.csv")
 INF=1E30
 R=random.random
 random.seed(the.seed)
-#----------------------------------------------------------------
+#--------------------
 def NUM(at=0,txt=""):
   w= 0 if txt and txt[-1]=="-" else 1
   return BAG(this=NUM,at=at,txt=txt,n=0,w=w,has=[],ok=False)
@@ -18,8 +18,8 @@ def SYM(at=0,txt=""):
   return BAG(this=SYM,at=at,txt=txt,n=0, has={})
 
 def COLS(names):
-  all=[(NUM if s[0].isupper() else SYM)(at,s) for at,s in enumerate(names)]
-  x,y=[],[]
+  all = [(NUM if s[0].isupper() else SYM)(at,s) for at,s in enumerate(names)]
+  x,y = [],[]
   for col in all:
     if col.txt[-1] != "X":
       (y if col.txt[-1] in "+-" else x).append(col)
@@ -30,9 +30,9 @@ def ROW(cells=[]):
 
 def DATA(data=None,rows=[]):
   data = data or BAG(rows=[],cols=None)
-  [adds(data,lst) for lst in rows]
+  [adds(data,row) for row in rows]
   return data
-#----------------------------------------------------------------
+#------------------------
 def clone(data, rows=[]):
   return DATA( DATA(rows=[ROW(data.cols.names)]), rows)
 
@@ -86,29 +86,28 @@ def bins(col,best,rest):
         add(d[k].y, klass)
   return sorted(d.values(), key=lambda bin:bin.lo)
 
-def merge(bag1,bag2):
-  out = BAG(lo=bag1.lo, hi=bag2.hi, y=SYM(bag1.y.at, bag1.y.txt))
-  for sym in [bag1.y, bag2.y]:
+def merge(bin1,bin2):
+  out = bin(lo=bin1.lo, hi=bin2.hi, y=SYM(bin1.y.at, bin1.y.txt))
+  for sym in [bin1.y, bin2.y]:
     out.y.n += sym.n
     for k,v in sym.has.items(): sym.has[k] = sym..has.get(k,0) + v
   return out
 
-def merges(bags):
-  out = [bags[0]]
-  for bag in bags[1:]: out += [merge(out[-1], bag)]
+def merges(bins):
+  out = [bins[0]]
+  for bin in bins[1:]: out += [merge(out[-1], bin)]
   return out
 
 def height(data,row):
-  return (sum(abs(col.w - norm(col,row.cells[col.at]))**2 for col in data.cols.y)
-          / len(data.cols.y)
-         )**.5
+  return ( sum(abs(col.w - norm(col,row.cells[col.at]))**2 for col in data.cols.y)
+           / len(data.cols.y) )**.5
 
 def sorter(data):
     return cmp_to_key(lambda a,b:  height(data,a) < height(data,b))
 
 def stats(data, cols=None, fun=mid):
   return BAG(N=len(data.rows),**{col.txt: fun(col) for col in (cols or data.cols.y)})
-#----------------------------------------------------------------
+#----------------
 def per(a, p=.5):
   return a[ max(0,min(len(a)-1, int(len(a)*p))) ]
 
@@ -135,8 +134,7 @@ def csv(file):
       line = re.sub(r'([\n\t\r"\' ]|#.*)', '', line)
       if line:
         yield ROW([coerce(s.strip()) for s in line.split(",")])
-#----------------------------------------------------------------
-
+#-------------------------
 d=DATA(rows=csv(the.file))
 d.rows.sort(key=sorter(d))
 print(stats(d))
