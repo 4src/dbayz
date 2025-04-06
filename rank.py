@@ -69,6 +69,7 @@ def norm(col,x):
   if x=="?" or col.this is SYM: return x
   return (x - lo(col))/(hi(col) - lo(col) + 1/INF)
 
+<<<<<<< HEAD
 def bin(col,x):
   if x !="?":
     if col.this is SYM: return x
@@ -100,6 +101,28 @@ def merges(bins):
   out = [bins[0]]
   for bin in bins[1:]: out += [merge(out[-1], bin)]
   return out
+=======
+def inc(d,x):   d[x] = d.get(x,0) + 1
+def X(row): return cell(row,col)
+eps   = div(col)*the.cohen
+small = col.n**the.min
+rows  = sorted([row for row in rows if X(row) != "?"], key=X)
+a     = X(rows[0])
+z     = X(rows[-1])
+d1,d2 = {},{}
+[inc(d2, row.label) for row in rows]
+n2 = len(rows)
+lo = div(col)
+for n1,row in enumerate(rows):
+  n2    -= 1
+  x,y    = X(row),row.label
+  d2[y] -= 1
+  inc(d1, y)
+  if n1 > small and n2 > small and x != X(rows[n+1]) and x-a > eps and z-x > eps:
+    xpect = (entropy(d1)*n1 + entropy(d2)*n2)/(n1+n2)
+    if xpect < lo:
+      cut,col.at = x,xpect
+>>>>>>> fe451071483e31141cea43443a09cb274e09235b
 
 def height(data,row):
   return ( sum(abs(col.w - norm(col,cell(row,col)))**2 for col in data.cols.y)
