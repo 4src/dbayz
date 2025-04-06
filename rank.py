@@ -82,8 +82,9 @@ def bins(col,best,rest):
     for row in rows:
       x = cell(row,col)
       if k := bin(col,x):
-        xy = d.get(k,None) or BAG(xs=NUM(col.at,col.txt), ys=SYM())
-        add(xy.xs, x)
+        xy = d.get(k,None) or BAG(lo=x, hi=x, at=col.at, txt=col.at, ys=SYM())
+        xy.lo = min(xy.lo, x)
+        xy.hi = max(xy.hi, x)
         add(xy.ys, y)
   return sorted(d.values(), key=lambda xy: lo(xy.xs))
 
